@@ -37,13 +37,9 @@ export default function AuthContainer() {
             <h1 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-white">{isLogin ? "LOGIN" : "CREATE ACCOUNT"}</h1>
 
             {isLogin ? (
-              <p className="text-xs sm:text-sm md:text-base text-gray-200">
-                Start your experience with our shop by signing in or signing up.
-              </p>
+              <p className="text-xs sm:text-sm md:text-base text-gray-200">Start your experience with our shop by signing in or signing up.</p>
             ) : (
-              <p className="text-xs sm:text-sm md:text-base text-gray-200">
-                Create your account to get started with Bashitha Ceramics.
-              </p>
+              <p className="text-xs sm:text-sm md:text-base text-gray-200">Create your account to get started with Bashitha Ceramics.</p>
             )}
           </div>
 

@@ -236,7 +236,11 @@ export default function RegisterForm({ setIsLogin }) {
       {/* Already have account */}
       <div className="flex items-center justify-center space-x-1.5 sm:space-x-2 text-center">
         <span className="text-xs sm:text-sm font-normal text-gray-200">Already have an account?</span>
-        <button type="button" onClick={() => setIsLogin(true)} className="text-xs sm:text-sm font-medium text-gray-200 hover:text-white hover:underline">
+        <button
+          type="button"
+          onClick={() => setIsLogin(true)}
+          className="text-xs sm:text-sm font-medium text-gray-200 hover:text-white hover:underline"
+        >
           Login to your account
         </button>
       </div>

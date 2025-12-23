@@ -28,17 +28,17 @@ export default function ForgotPasswordPage() {
           </div>
 
           <div className="hidden md:block w-full space-y-6">
-          <h1 className="text-base sm:text-lg md:text-2xl font-roboto-condensed font-semibold tracking-tight text-white">BASHITHA CERAMIC</h1>
-          <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-roboto-condensed font-bold tracking-tight text-white leading-tight">
-            EXPLORE <br />
-            ELEGANCE
-          </h1>
-          <p className="mt-2 font-roboto-condensed font-semibold text-[18px] text-white">Where Your Dream Designs Come to Life</p>
-          <p className="mt-2 font-roboto-condensed font-normal text-[18px] text-white">
-            Discover a wide selection of premium tiles and
-            <br /> accessories, crafted to transform your space.
-          </p>
-        </div>
+            <h1 className="text-base sm:text-lg md:text-2xl font-roboto-condensed font-semibold tracking-tight text-white">BASHITHA CERAMIC</h1>
+            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-roboto-condensed font-bold tracking-tight text-white leading-tight">
+              EXPLORE <br />
+              ELEGANCE
+            </h1>
+            <p className="mt-2 font-roboto-condensed font-semibold text-[18px] text-white">Where Your Dream Designs Come to Life</p>
+            <p className="mt-2 font-roboto-condensed font-normal text-[18px] text-white">
+              Discover a wide selection of premium tiles and
+              <br /> accessories, crafted to transform your space.
+            </p>
+          </div>
 
           <Suspense fallback={<div className="text-white text-center">Loading...</div>}>
             <motion.div

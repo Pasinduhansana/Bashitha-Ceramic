@@ -73,13 +73,9 @@ export default function ForgotPasswordForm() {
       <div className="text-center space-y-1.5">
         <h1 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-white">{isReset ? "RESET PASSWORD" : "FORGOT PASSWORD"}</h1>
         {isReset ? (
-          <p className="text-xs sm:text-sm md:text-base text-gray-200">
-            Enter a new password to finish resetting your account.
-          </p>
+          <p className="text-xs sm:text-sm md:text-base text-gray-200">Enter a new password to finish resetting your account.</p>
         ) : (
-          <p className="text-xs sm:text-sm md:text-base text-gray-200">
-            Enter your username and we'll send a link to reset your password.
-          </p>
+          <p className="text-xs sm:text-sm md:text-base text-gray-200">Enter your username and we'll send a link to reset your password.</p>
         )}
       </div>
 

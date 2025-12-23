@@ -189,7 +189,11 @@ export default function LoginForm({ setIsLogin }) {
       {/* Register Labels */}
       <div className="flex items-center justify-center space-x-1.5 sm:space-x-2 text-center">
         <span className="text-xs sm:text-sm font-normal text-gray-200">Don't have an Account?</span>
-        <button type="button" onClick={() => setIsLogin(false)} className="text-xs sm:text-sm font-medium text-gray-200 hover:text-white hover:underline">
+        <button
+          type="button"
+          onClick={() => setIsLogin(false)}
+          className="text-xs sm:text-sm font-medium text-gray-200 hover:text-white hover:underline"
+        >
           Create an Account
         </button>
       </div>

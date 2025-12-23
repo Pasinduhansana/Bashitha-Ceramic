@@ -24,16 +24,18 @@ export default function LoginPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Left Content - Hidden on Mobile */}
           <div className="hidden md:block w-full space-y-6">
-          <h1 className="text-base sm:text-lg md:text-2xl font-roboto-condensed font-semibold tracking-tight text-white">BASHITHA CERAMIC</h1>
-          <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-roboto-condensed font-bold tracking-tight text-white leading-tight">
-            EXPLORE <br />
-            ELEGANCE
-          </h1>
-          <p className="mt-2 font-roboto-condensed font-semibold text-sm sm:text-base md:text-lg text-white">Where Your Dream Designs Come to Life</p>
-          <p className="mt-2 font-roboto-condensed font-normal text-sm sm:text-base md:text-lg text-white">
-            Discover a wide selection of premium tiles and accessories, crafted to transform your space.
-          </p>
-        </div>
+            <h1 className="text-base sm:text-lg md:text-2xl font-roboto-condensed font-semibold tracking-tight text-white">BASHITHA CERAMIC</h1>
+            <h1 className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-roboto-condensed font-bold tracking-tight text-white leading-tight">
+              EXPLORE <br />
+              ELEGANCE
+            </h1>
+            <p className="mt-2 font-roboto-condensed font-semibold text-sm sm:text-base md:text-lg text-white">
+              Where Your Dream Designs Come to Life
+            </p>
+            <p className="mt-2 font-roboto-condensed font-normal text-sm sm:text-base md:text-lg text-white">
+              Discover a wide selection of premium tiles and accessories, crafted to transform your space.
+            </p>
+          </div>
 
           {/* Mobile Header - Show on Mobile Only */}
           <div className="md:hidden w-full space-y-4 text-center mb-6">
