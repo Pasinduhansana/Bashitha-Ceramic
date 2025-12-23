@@ -33,9 +33,9 @@ function StatusLabel({ qty, reorderLevel }) {
 
 export default function ProductsTable({ products, onAction, viewMode = "list" }) {
   if (viewMode === "grid") {
-    // TILE/GRID VIEW - Responsive for all devices
+    // TILE/GRID VIEW - Fully responsive professional design
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-5">
         <AnimatePresence>
           {products.map((product) => (
             <motion.div
@@ -45,116 +45,129 @@ export default function ProductsTable({ products, onAction, viewMode = "list" })
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.18, ease: "easeOut" }}
-              className="relative rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-all group"
+              className="relative rounded-xl sm:rounded-2xl bg-white dark:bg-gray-800 overflow-hidden shadow-md hover:shadow-xl sm:hover:shadow-2xl transition-all duration-300 group"
             >
               {/* Product Image */}
-              <div className="relative aspect-square w-full overflow-hidden rounded-t-xl bg-gradient-to-br from-gray-100 to-white">
+              <div className="relative h-40 sm:h-48 md:h-52 lg:h-56 w-full overflow-hidden bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
                 {product.photo_url ? (
                   <img
                     src={getOptimizedImageUrl(product.photo_url, { width: 400, height: 300 })}
                     alt={product.name}
-                    className="h-full w-full object-cover"
+                    className="h-full w-full object-contain p-2 sm:p-3 md:p-4 group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-gray-300">
-                    <Camera className="h-8 w-8" />
+                  <div className="flex h-full w-full items-center justify-center text-gray-300 dark:text-gray-600">
+                    <Camera className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12" />
                   </div>
                 )}
+
+                {/* Action Buttons Overlay - Hidden on mobile, visible on hover for desktop */}
+                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex items-center gap-1 sm:gap-1.5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAction?.("view", product);
+                    }}
+                    className="rounded-full p-1.5 sm:p-2 bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-green-50 hover:text-green-600 shadow-md sm:shadow-lg transition-all"
+                    title="View Details"
+                  >
+                    <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAction?.("edit", product);
+                    }}
+                    className="rounded-full p-1.5 sm:p-2 bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 shadow-md sm:shadow-lg transition-all"
+                    title="Edit Product"
+                  >
+                    <Edit className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAction?.("delete", product);
+                    }}
+                    className="rounded-full p-1.5 sm:p-2 bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-red-50 hover:text-red-600 shadow-md sm:shadow-lg transition-all"
+                    title="Delete Product"
+                  >
+                    <Trash2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  </button>
+                </div>
               </div>
 
               {/* Card Content */}
-              <div className="px-3 sm:px-5 pt-3 pb-4 sm:pb-5 space-y-3">
-                {/* Product Icon & Actions */}
-                <div className="flex items-start justify-between mb-0">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-gradient-to-br from-[#1fb8a2] to-[#189d8b] shadow-sm">
-                    <Package className="h-6 w-6 text-white" />
+              <div className="p-3 sm:p-4 md:p-5 space-y-2.5 sm:space-y-3 md:space-y-4">
+                {/* Product Header */}
+                <div className="space-y-1 sm:space-y-1.5 md:space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <h4
+                      className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 dark:text-white line-clamp-2 flex-1"
+                      title={product.name}
+                    >
+                      {product.name}
+                    </h4>
+                    <div className="flex-shrink-0">
+                      <StatusLabel qty={product.qty} reorderLevel={product.reorder_level || 100} />
+                    </div>
                   </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onAction?.("view", product);
-                      }}
-                      className="rounded-lg p-2 text-gray-400 hover:bg-green-50 hover:text-green-600 transition-all"
-                      title="View Details"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onAction?.("edit", product);
-                      }}
-                      className="rounded-lg p-2 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-all"
-                      title="Edit Product"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onAction?.("delete", product);
-                      }}
-                      className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all"
-                      title="Delete Product"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Product Info */}
-                <div className="mb-0">
-                  <h4 className="text-[13px] sm:text-sm font-semibold text-gray-900 mb-1 truncate" title={product.name}>
-                    {product.name}
-                  </h4>
-                  <p className="hidden sm:block text-xs text-gray-500 mb-2 line-clamp-2" title={product.description}>
-                    {truncateText(product.description, 80)}
+                  <p
+                    className="hidden sm:block text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-clamp-2 leading-relaxed"
+                    title={product.description}
+                  >
+                    {truncateText(product.description, 100)}
                   </p>
-                  <div className="text-lg font-bold text-[#1fb8a2]">${product.selling_price || 0}</div>
                 </div>
 
-                {/* Status Badge */}
-                <div className="mb-0">
-                  <StatusLabel qty={product.qty} reorderLevel={product.reorder_level || 100} />
+                {/* Price */}
+                <div className="flex items-center justify-between pt-1.5 sm:pt-2 border-t border-gray-100 dark:border-gray-700">
+                  <span className="text-xs sm:text-sm font-medium text-gray-500 dark:text-gray-400">Price</span>
+                  <span className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 dark:text-white">${product.selling_price || 0}</span>
                 </div>
 
-                {/* Stock Info */}
-                <div className="hidden sm:block space-y-2 text-xs">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Reorder Level:</span>
-                    <span className="font-medium text-gray-900">
-                      {product.reorder_level || 0} {product.unit || "Pcs"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Current Stock:</span>
-                    <span className="font-medium text-gray-900">
+                {/* Stock Information Grid */}
+                <div className="grid grid-cols-2 gap-2 sm:gap-2.5 md:gap-3 pt-1 sm:pt-1.5 md:pt-2">
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-md sm:rounded-lg p-2 sm:p-2.5 md:p-3">
+                    <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-0.5 sm:mb-1">Current Stock</p>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
                       {product.qty || 0} {product.unit || "Pcs"}
-                    </span>
+                    </p>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Last Updated:</span>
-                    <span className="font-medium text-gray-900">{new Date(product.updated_at).toLocaleDateString()}</span>
+                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-md sm:rounded-lg p-2 sm:p-2.5 md:p-3">
+                    <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-0.5 sm:mb-1">Reorder At</p>
+                    <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
+                      {product.reorder_level || 0} {product.unit || "Pcs"}
+                    </p>
                   </div>
                 </div>
 
                 {/* Stock Progress Bar */}
-                <div className="hidden sm:block mt-3 pt-3 border-t border-gray-100">
-                  <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-gray-500">Stock Level</span>
-                    <span className="font-medium text-gray-700">{Math.round((product.qty / (product.reorder_level || 100)) * 100)}%</span>
+                <div className="space-y-1.5 sm:space-y-2">
+                  <div className="flex items-center justify-between text-xs sm:text-sm">
+                    <span className="text-gray-600 dark:text-gray-400 font-medium">Stock Level</span>
+                    <span className="text-gray-900 dark:text-white font-semibold">
+                      {Math.round((product.qty / (product.reorder_level || 100)) * 100)}%
+                    </span>
                   </div>
-                  <div className="h-1.5 w-full bg-gray-100 rounded-full overflow-hidden">
+                  <div className="h-2 sm:h-2.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
-                      className={`h-full rounded-full ${
-                        product.qty === 0 ? "bg-red-500" : product.qty <= product.reorder_level ? "bg-orange-500" : "bg-green-500"
+                      className={`h-full rounded-full transition-all duration-500 ${
+                        product.qty === 0
+                          ? "bg-gradient-to-r from-red-500 to-red-600"
+                          : product.qty <= product.reorder_level
+                          ? "bg-gradient-to-r from-orange-500 to-orange-600"
+                          : "bg-gradient-to-r from-green-500 to-green-600"
                       }`}
                       style={{ width: `${Math.min((product.qty / (product.reorder_level || 100)) * 100, 100)}%` }}
                     />
                   </div>
+                </div>
+
+                {/* Last Updated */}
+                <div className="pt-1.5 sm:pt-2 border-t border-gray-100 dark:border-gray-700">
+                  <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
+                    Updated {new Date(product.updated_at).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -164,101 +177,125 @@ export default function ProductsTable({ products, onAction, viewMode = "list" })
     );
   }
 
-  // LIST VIEW (Responsive)
+  // LIST VIEW (Responsive) - Modern Professional Design
   return (
     <div className="space-y-3 sm:space-y-4">
       {/* Desktop Table - Hidden on Mobile */}
-      <div className="hidden lg:block rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div className="hidden lg:block rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden">
         {/* Table Header */}
-        <div className="grid grid-cols-[2fr_0.8fr_1fr_1fr_1fr_1.2fr_auto] gap-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4 text-xs font-semibold uppercase tracking-wider text-gray-600">
-          <span>PRODUCTS</span>
-          <span>PRICE</span>
-          <span>STATUS</span>
-          <span>REORDER LEVEL</span>
-          <span>CURRENT STOCK</span>
-          <span>LAST UPDATED</span>
-          <span className="text-center">ACTIONS</span>
+        <div className="grid grid-cols-[2.5fr_1fr_1.2fr_1fr_1.2fr_1.2fr_auto] gap-6 border-b-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-7 py-4 text-xs font-bold uppercase tracking-wider text-gray-600 dark:text-gray-400">
+          <span>Product</span>
+          <span>Price</span>
+          <span>Status</span>
+          <span>Reorder</span>
+          <span>Stock</span>
+          <span>Updated</span>
+          <span className="text-center">Actions</span>
         </div>
 
         {/* Table Rows */}
-        <AnimatePresence>
-          {products.map((product) => (
-            <motion.div
-              layout
-              key={product.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              transition={{ duration: 0.15 }}
-              className="relative grid grid-cols-[2fr_0.8fr_1fr_1fr_1fr_1.2fr_auto] gap-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 py-4 hover:bg-linear-to-r hover:from-gray-50/50 hover:to-transparent dark:hover:from-gray-700/30 transition-all duration-200 m-4 mt-0"
-            >
-              {/* Product Info */}
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-800 border-2 border-gray-200 dark:border-gray-600 shadow-sm">
-                  <Package className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+        <div className="divide-y divide-gray-200 dark:divide-gray-700">
+          <AnimatePresence>
+            {products.map((product, index) => (
+              <motion.div
+                layout
+                key={product.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2, delay: index * 0.03 }}
+                className="group grid grid-cols-[2.5fr_1fr_1.2fr_1fr_1.2fr_1.2fr_auto] gap-6 px-7 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors duration-200"
+              >
+                {/* Product Info with Image */}
+                <div className="flex items-center gap-3.5">
+                  <div className="relative h-12 w-12 shrink-0 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 shadow-sm">
+                    {product.photo_url ? (
+                      <img
+                        src={getOptimizedImageUrl(product.photo_url, { width: 100, height: 100 })}
+                        alt={product.name}
+                        className="h-full w-full object-contain p-1.5"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Package className="h-5 w-5 text-gray-400 dark:text-gray-500" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-white mb-0.5 truncate">{product.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{truncateText(product.description, 60)}</p>
+                  </div>
                 </div>
-                <div className="min-w-0">
-                  <p className="text-xs font-bold text-gray-900 dark:text-white">{product.name}</p>
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{product.description}</p>
+
+                {/* Price */}
+                <div className="flex items-center">
+                  <span className="text-sm font-bold text-gray-900 dark:text-white">${product.selling_price || 0}</span>
                 </div>
-              </div>
 
-              {/* Price */}
-              <div className="flex items-center">
-                <span className="text-xs font-bold text-gray-900 dark:text-white">${product.selling_price || 0}</span>
-              </div>
+                {/* Status */}
+                <div className="flex items-center">
+                  <StatusLabel qty={product.qty} reorderLevel={product.reorder_level || 100} />
+                </div>
 
-              {/* Status */}
-              <div className="flex items-center">
-                <StatusLabel qty={product.qty} reorderLevel={product.reorder_level || 100} />
-              </div>
+                {/* Reorder Level */}
+                <div className="flex items-center">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{product.reorder_level || 0}</span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{product.unit || "Pcs"}</span>
+                  </div>
+                </div>
 
-              {/* Reorder Level */}
-              <div className="flex items-center">
-                <span className="text-xs text-gray-700 dark:text-gray-300">
-                  {product.reorder_level || 0} {product.unit || "Pcs"}
-                </span>
-              </div>
+                {/* Current Stock with Progress */}
+                <div className="flex items-center">
+                  <div className="flex flex-col gap-1.5 w-full">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-sm font-bold text-gray-900 dark:text-white">{product.qty || 0}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{product.unit || "Pcs"}</span>
+                    </div>
+                    <div className="h-1.5 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden border border-gray-200 dark:border-gray-600">
+                      <div
+                        className={`h-full transition-all duration-500 ${
+                          product.qty === 0 ? "bg-red-500" : product.qty <= product.reorder_level ? "bg-orange-500" : "bg-green-500"
+                        }`}
+                        style={{ width: `${Math.min((product.qty / (product.reorder_level || 100)) * 100, 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
 
-              {/* Current Stock */}
-              <div className="flex items-center">
-                <span className="text-xs font-medium text-gray-800 dark:text-gray-200">
-                  {product.qty || 0} {product.unit || "Pcs"}
-                </span>
-              </div>
+                {/* Last Updated */}
+                <div className="flex items-center">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{new Date(product.updated_at).toLocaleDateString()}</span>
+                </div>
 
-              {/* Last Updated */}
-              <div className="flex items-center">
-                <span className="text-xs text-gray-600 dark:text-gray-400">{new Date(product.updated_at).toLocaleDateString()}</span>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex items-center justify-center gap-1">
-                <button
-                  onClick={() => onAction?.("view", product)}
-                  className="rounded-lg p-2 text-gray-400 hover:bg-green-50 hover:text-green-600 transition-all border border-transparent hover:border-green-200"
-                  title="View & Manage Inventory"
-                >
-                  <Eye className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => onAction?.("edit", product)}
-                  className="rounded-lg p-2 text-gray-400 hover:bg-blue-50 hover:text-blue-600 transition-all border border-transparent hover:border-blue-200"
-                  title="Edit Product"
-                >
-                  <Edit className="h-4 w-4" />
-                </button>
-                <button
-                  onClick={() => onAction?.("delete", product)}
-                  className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 transition-all border border-transparent hover:border-red-200"
-                  title="Delete Product"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+                {/* Action Buttons */}
+                <div className="flex items-center justify-center gap-1.5">
+                  <button
+                    onClick={() => onAction?.("view", product)}
+                    className="rounded-md p-2 border border-transparent text-gray-400 hover:border-green-200 hover:bg-green-50 hover:text-green-600 dark:hover:border-green-800 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-all"
+                    title="View Details"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => onAction?.("edit", product)}
+                    className="rounded-md p-2 border border-transparent text-gray-400 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 dark:hover:border-blue-800 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-all"
+                    title="Edit Product"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => onAction?.("delete", product)}
+                    className="rounded-md p-2 border border-transparent text-gray-400 hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:hover:border-red-800 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all"
+                    title="Delete Product"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Mobile Card View - Visible only on Mobile */}
@@ -285,7 +322,7 @@ export default function ProductsTable({ products, onAction, viewMode = "list" })
                     <p className="text-xs text-gray-500 line-clamp-1">{product.description}</p>
                   </div>
                 </div>
-                <div className="flex-shrink-0 text-lg font-bold text-[#1fb8a2]">${product.selling_price || 0}</div>
+                <div className="flex-shrink-0 text-lg font-bold text-gray-900 dark:text-white">${product.selling_price || 0}</div>
               </div>
 
               {/* Status & Stock Info */}
