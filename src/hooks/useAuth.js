@@ -8,18 +8,24 @@ export default function useAuth() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Check if user is already logged in on mount
-    const checkAuth = () => {
+    const fetchUser = async () => {
       try {
-        const stored = localStorage.getItem("auth:user");
-        if (stored) {
-          setUser(JSON.parse(stored));
+        setLoading(true);
+        const res = await fetch("/api/auth/me", { credentials: "include" });
+        if (!res.ok) {
+          setUser(null);
+          return;
         }
-      } catch (e) {
-        console.warn("Failed to parse stored user", e);
+        const data = await res.json();
+        setUser(data.user || null);
+      } catch (err) {
+        console.error("Failed to fetch user", err);
+      } finally {
+        setLoading(false);
       }
     };
-    checkAuth();
+
+    fetchUser();
   }, []);
 
   const login = async (credentials) => {
@@ -39,7 +45,6 @@ export default function useAuth() {
       }
 
       setUser(data.user);
-      localStorage.setItem("auth:user", JSON.stringify(data.user));
       return data;
     } catch (err) {
       setError(err.message);
@@ -55,7 +60,6 @@ export default function useAuth() {
     } catch (err) {
       console.error("Logout request failed", err);
     }
-    localStorage.removeItem("auth:user");
     setUser(null);
   };
 

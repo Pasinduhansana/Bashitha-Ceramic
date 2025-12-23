@@ -1,0 +1,10 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Prep patch for Inventory page wrapper",
+			"type": "shell",
+			"command": "echo Patching Inventory page to wrapper"
+		}
+	]
+}
