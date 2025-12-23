@@ -32,21 +32,17 @@ export default function AuthContainer() {
         exit="exit"
         className="w-full max-w-md mx-auto md:mx-0 md:ml-auto"
       >
-        <div className="space-y-6 sm:space-y-8 justify-center bg-white/15 backdrop-blur-[50px] p-6 sm:p-8 rounded-md overflow-hidden">
-          <div className="text-center ">
-            <h1 className="text-base sm:text-lg font-bold tracking-tight text-white">{isLogin ? "LOGIN" : "CREATE ACCOUNT"}</h1>
+        <div className="space-y-4 sm:space-y-6 justify-center bg-white/15 backdrop-blur-[50px] p-5 sm:p-7 md:p-8 rounded-lg overflow-hidden">
+          <div className="text-center space-y-1.5">
+            <h1 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-white">{isLogin ? "LOGIN" : "CREATE ACCOUNT"}</h1>
 
             {isLogin ? (
-              <p className="mt-2 text-sm sm:text-base text-gray-200 text-center whitespace-pre-line">
-                Start your experience with our shop
-                <br />
-                by signing in or signing up.
+              <p className="text-xs sm:text-sm md:text-base text-gray-200">
+                Start your experience with our shop by signing in or signing up.
               </p>
             ) : (
-              <p className="mt-1 text-sm sm:text-base text-gray-200 text-center whitespace-pre-line">
-                Create your account to get started
-                <br />
-                with Bashitha Ceramics.
+              <p className="text-xs sm:text-sm md:text-base text-gray-200">
+                Create your account to get started with Bashitha Ceramics.
               </p>
             )}
           </div>

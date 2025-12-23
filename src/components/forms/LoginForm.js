@@ -69,10 +69,10 @@ export default function LoginForm({ setIsLogin }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-6 w-full">
-      <div className="space-y-4 rounded-md ">
+    <form onSubmit={handleSubmit} className="mt-4 sm:mt-6 space-y-4 sm:space-y-5 w-full">
+      <div className="space-y-3 sm:space-y-4 rounded-md ">
         <div>
-          <label htmlFor="identifier" className="block text-md font-normal text-gray-200 mb-1">
+          <label htmlFor="identifier" className="block text-xs sm:text-sm font-medium text-gray-200 mb-1.5">
             Username or Email
           </label>
           <input
@@ -83,13 +83,13 @@ export default function LoginForm({ setIsLogin }) {
             required
             value={formData.identifier}
             onChange={handleChange}
-            className="block w-full rounded-sm border border-white/20 px-3 py-2 text-md text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
-            placeholder="Enter your username or email"
+            className="block w-full rounded-sm border border-white/20 px-3 py-2 text-xs sm:text-sm text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
+            placeholder="Username or email"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-md font-normal text-gray-200 mb-1">
+          <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-gray-200 mb-1.5">
             Password
           </label>
           <div className="relative">
@@ -101,8 +101,8 @@ export default function LoginForm({ setIsLogin }) {
               required
               value={formData.password}
               onChange={handleChange}
-              className="block w-full rounded-sm border border-white/20 px-3 py-2 text-md text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
-              placeholder="Enter your password"
+              className="block w-full rounded-sm border border-white/20 px-3 py-2 text-xs sm:text-sm text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
+              placeholder="Password"
             />
             <button
               type="button"
@@ -122,15 +122,15 @@ export default function LoginForm({ setIsLogin }) {
             id="remember-me"
             name="remember-me"
             type="checkbox"
-            className="h-4 w-4 rounded border-gray-300 text-teal-500 focus:ring-teal-500 accent-teal-500 hover:accent-teal-500"
+            className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded border-gray-300 text-teal-500 focus:ring-teal-500 accent-teal-500 hover:accent-teal-500"
           />
-          <label htmlFor="remember-me" className="ml-2 block text-md text-gray-200">
+          <label htmlFor="remember-me" className="ml-2 block text-xs sm:text-sm text-gray-200">
             Remember me
           </label>
         </div>
 
-        <div className="text-md">
-          <a href="/forgot-password" className="font-md font-normal text-gray-200 hover:text-white hover:underline">
+        <div className="text-xs sm:text-sm">
+          <a href="/forgot-password" className="font-medium text-gray-200 hover:text-white hover:underline">
             Forgot password ?
           </a>
         </div>
@@ -140,22 +140,22 @@ export default function LoginForm({ setIsLogin }) {
       </Button>
 
       {/* OR seperator */}
-      <div className="flex items-center gap-4 -mt-1">
+      <div className="flex items-center gap-3 sm:gap-4">
         <div className="h-px flex-1 bg-white/30"></div>
-        <span className="font-md font-normal text-gray-200 text-center">or</span>
+        <span className="text-xs sm:text-sm font-normal text-gray-200 text-center">or</span>
         <div className="h-px flex-1 bg-white/30"></div>
       </div>
 
-      <div className="flex flex-row items-center justify-center gap-5">
+      <div className="flex flex-row items-center justify-center gap-3 sm:gap-4">
         {/* Google Sign-In Button */}
         <button
           type="button"
           onClick={handleGoogleSignIn}
           disabled={googleLoading}
-          className="w-10 h-10 bg-white/30 backdrop-blur-md rounded-sm flex items-center justify-center cursor-pointer hover:bg-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-9 h-9 sm:w-10 sm:h-10 bg-white/30 backdrop-blur-md rounded-sm flex items-center justify-center cursor-pointer hover:bg-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           aria-label="Sign in with Google"
         >
-          <FcGoogle size={22} />
+          <FcGoogle size={20} className="sm:w-[22px] sm:h-[22px]" />
         </button>
         {/* Apple sign in button */}
         <button
@@ -187,9 +187,9 @@ export default function LoginForm({ setIsLogin }) {
       </div>
 
       {/* Register Labels */}
-      <div className="flex items-center justify-center space-x-2">
-        <span className="text-md font-normal text-gray-200">Don't have an Account?</span>
-        <button type="button" onClick={() => setIsLogin(false)} className="text-md font-normal text-gray-200 hover:text-white hover:underline">
+      <div className="flex items-center justify-center space-x-1.5 sm:space-x-2 text-center">
+        <span className="text-xs sm:text-sm font-normal text-gray-200">Don't have an Account?</span>
+        <button type="button" onClick={() => setIsLogin(false)} className="text-xs sm:text-sm font-medium text-gray-200 hover:text-white hover:underline">
           Create an Account
         </button>
       </div>

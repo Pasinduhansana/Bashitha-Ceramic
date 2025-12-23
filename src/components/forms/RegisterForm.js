@@ -99,10 +99,10 @@ export default function RegisterForm({ setIsLogin }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="-mt-5 space-y-6 w-full max-h-130">
-      <div className="space-y-3 rounded-md frosted-scroll pr-2 max-h-130 overflow-y-auto">
+    <form onSubmit={handleSubmit} className="mt-2 sm:mt-0 space-y-3 sm:space-y-4 w-full max-h-130">
+      <div className="space-y-2.5 sm:space-y-3 rounded-md frosted-scroll pr-2 max-h-130 overflow-y-auto">
         <div>
-          <label htmlFor="fullName" className="block text-md font-normal text-gray-200 mb-1">
+          <label htmlFor="fullName" className="block text-xs sm:text-sm font-medium text-gray-200 mb-1.5">
             Full Name
           </label>
           <input
@@ -113,13 +113,13 @@ export default function RegisterForm({ setIsLogin }) {
             required
             value={formData.fullName}
             onChange={handleChange}
-            className="block w-full rounded-sm border border-white/20 px-3 py-2 text-md text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
-            placeholder="Enter your full name"
+            className="block w-full rounded-sm border border-white/20 px-3 py-2 text-xs sm:text-sm text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
+            placeholder="Full name"
           />
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-md font-normal text-gray-200 mb-1">
+          <label htmlFor="email" className="block text-xs sm:text-sm font-medium text-gray-200 mb-1.5">
             Email address
           </label>
           <input
@@ -130,13 +130,13 @@ export default function RegisterForm({ setIsLogin }) {
             required
             value={formData.email}
             onChange={handleChange}
-            className="block w-full rounded-sm border border-white/20 px-3 py-2 text-md text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
-            placeholder="Enter your email"
+            className="block w-full rounded-sm border border-white/20 px-3 py-2 text-xs sm:text-sm text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
+            placeholder="Email"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-md font-normal text-gray-200 mb-1">
+          <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-gray-200 mb-1.5">
             Password
           </label>
           <div className="relative">
@@ -148,8 +148,8 @@ export default function RegisterForm({ setIsLogin }) {
               required
               value={formData.password}
               onChange={handleChange}
-              className="block w-full rounded-sm border border-white/20 px-3 py-2 text-md text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
-              placeholder="Enter your password"
+              className="block w-full rounded-sm border border-white/20 px-3 py-2 text-xs sm:text-sm text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
+              placeholder="Password"
             />
             <button
               type="button"
@@ -164,7 +164,7 @@ export default function RegisterForm({ setIsLogin }) {
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-md font-normal text-gray-200 mb-1">
+          <label htmlFor="confirmPassword" className="block text-xs sm:text-sm font-medium text-gray-200 mb-1.5">
             Confirm Password
           </label>
           <div className="relative">
@@ -176,8 +176,8 @@ export default function RegisterForm({ setIsLogin }) {
               required
               value={formData.confirmPassword}
               onChange={handleChange}
-              className="block w-full rounded-sm border border-white/20 px-3 py-2 text-md text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
-              placeholder="Confirm your password"
+              className="block w-full rounded-sm border border-white/20 px-3 py-2 text-xs sm:text-sm text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
+              placeholder="Confirm password"
             />
             <button
               type="button"
@@ -203,10 +203,10 @@ export default function RegisterForm({ setIsLogin }) {
           id="terms"
           name="terms"
           type="checkbox"
-          className="h-4 w-4 rounded border-gray-300 text-teal-500 focus:ring-teal-500 accent-teal-500 hover:accent-teal-500"
+          className="h-3.5 w-3.5 sm:h-4 sm:w-4 rounded border-gray-300 text-teal-500 focus:ring-teal-500 accent-teal-500 hover:accent-teal-500"
           required
         />
-        <label htmlFor="terms" className="ml-2 block text-md text-gray-200">
+        <label htmlFor="terms" className="ml-2 block text-xs sm:text-sm text-gray-200">
           I agree to the terms and conditions
         </label>
       </div>
@@ -216,9 +216,9 @@ export default function RegisterForm({ setIsLogin }) {
       </Button>
 
       {/* OR seperator */}
-      {/* <div className="flex items-center gap-4 -mt-1">
+      {/* <div className="flex items-center gap-3 sm:gap-4">
         <div className="h-px flex-1 bg-white/30"></div>
-        <span className="font-md font-normal text-gray-200 text-center">or</span>
+        <span className="text-xs sm:text-sm font-normal text-gray-200 text-center">or</span>
         <div className="h-px flex-1 bg-white/30"></div>
       </div> */}
 
@@ -227,16 +227,16 @@ export default function RegisterForm({ setIsLogin }) {
         type="button"
         onClick={handleGoogleSignUp}
         disabled={googleLoading}
-        className="flex w-full justify-center text-center items-center h-10 gap-3 px-6 py-3 bg-white/40 backdrop-blur-md rounded-sm cursor-pointer hover:bg-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="flex w-full justify-center text-center items-center h-10 gap-2 sm:gap-3 px-4 sm:px-6 py-3 bg-white/40 backdrop-blur-md rounded-sm cursor-pointer hover:bg-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        <FcGoogle size={20} />
-        <span className="text-md font-normal text-gray-900">{googleLoading ? "Signing up..." : "Sign up using Google"}</span>
+        <FcGoogle size={18} className="sm:w-5 sm:h-5" />
+        <span className="text-xs sm:text-sm font-medium text-gray-900">{googleLoading ? "Signing up..." : "Sign up using Google"}</span>
       </button>
 
       {/* Already have account */}
-      <div className="flex items-center justify-center space-x-2 -mt-1">
-        <span className="text-md font-normal text-gray-200">Already have an account?</span>
-        <button type="button" onClick={() => setIsLogin(true)} className="text-md font-normal text-gray-200 hover:text-white hover:underline">
+      <div className="flex items-center justify-center space-x-1.5 sm:space-x-2 text-center">
+        <span className="text-xs sm:text-sm font-normal text-gray-200">Already have an account?</span>
+        <button type="button" onClick={() => setIsLogin(true)} className="text-xs sm:text-sm font-medium text-gray-200 hover:text-white hover:underline">
           Login to your account
         </button>
       </div>

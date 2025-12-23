@@ -69,26 +69,24 @@ export default function ForgotPasswordForm() {
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 justify-center bg-white/15 backdrop-blur-[50px] p-6 sm:p-8 rounded-md overflow-hidden w-full max-w-md mx-auto md:mx-0 md:ml-auto">
-      <div className="text-center">
-        <h1 className="text-base sm:text-lg font-bold tracking-tight text-white">{isReset ? "RESET PASSWORD" : "FORGOT PASSWORD"}</h1>
+    <div className="space-y-4 sm:space-y-6 justify-center bg-white/15 backdrop-blur-[50px] p-5 sm:p-7 md:p-8 rounded-lg overflow-hidden w-full max-w-md mx-auto md:mx-0 md:ml-auto">
+      <div className="text-center space-y-1.5">
+        <h1 className="text-base sm:text-lg md:text-xl font-bold tracking-tight text-white">{isReset ? "RESET PASSWORD" : "FORGOT PASSWORD"}</h1>
         {isReset ? (
-          <p className="mt-2 text-[15px] text-gray-200 text-center whitespace-pre-line">
-            Enter a new password to finish
-            <br /> resetting your account.
+          <p className="text-xs sm:text-sm md:text-base text-gray-200">
+            Enter a new password to finish resetting your account.
           </p>
         ) : (
-          <p className="mt-2 text-[15px] text-gray-200 text-center whitespace-pre-line">
-            Enter your username and we’ll send
-            <br /> a link to reset your password.
+          <p className="text-xs sm:text-sm md:text-base text-gray-200">
+            Enter your username and we'll send a link to reset your password.
           </p>
         )}
       </div>
 
       {!isReset ? (
-        <form onSubmit={onRequest} className="space-y-6 w-full">
+        <form onSubmit={onRequest} className="space-y-4 sm:space-y-5 w-full">
           <div>
-            <label htmlFor="username" className="block text-md font-normal text-gray-200 mb-1">
+            <label htmlFor="username" className="block text-xs sm:text-sm font-medium text-gray-200 mb-1.5">
               Username
             </label>
             <input
@@ -99,8 +97,8 @@ export default function ForgotPasswordForm() {
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="block w-full rounded-sm border border-white/20 px-3 py-2 text-md text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
-              placeholder="Enter your username"
+              className="block w-full rounded-sm border border-white/20 px-3 py-2 text-xs sm:text-sm text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
+              placeholder="Username"
             />
           </div>
 
@@ -112,16 +110,16 @@ export default function ForgotPasswordForm() {
             <button
               type="button"
               onClick={() => router.push("/login")}
-              className="text-md font-normal text-gray-200 hover:text-white hover:underline"
+              className="text-xs sm:text-sm font-medium text-gray-200 hover:text-white hover:underline"
             >
               Back to Sign in
             </button>
           </div>
         </form>
       ) : (
-        <form onSubmit={onReset} className="space-y-6 w-full">
+        <form onSubmit={onReset} className="space-y-4 sm:space-y-5 w-full">
           <div>
-            <label htmlFor="password" className="block text-md font-normal text-gray-200 mb-1">
+            <label htmlFor="password" className="block text-xs sm:text-sm font-medium text-gray-200 mb-1.5">
               New Password
             </label>
             <input
@@ -132,13 +130,13 @@ export default function ForgotPasswordForm() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="block w-full rounded-sm border border-white/20 px-3 py-2 text-md text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
-              placeholder="Enter new password"
+              className="block w-full rounded-sm border border-white/20 px-3 py-2 text-xs sm:text-sm text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
+              placeholder="New password"
             />
           </div>
 
           <div>
-            <label htmlFor="confirm" className="block text-md font-normal text-gray-200 mb-1">
+            <label htmlFor="confirm" className="block text-xs sm:text-sm font-medium text-gray-200 mb-1.5">
               Confirm Password
             </label>
             <input
@@ -149,8 +147,8 @@ export default function ForgotPasswordForm() {
               required
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
-              className="block w-full rounded-sm border border-white/20 px-3 py-2 text-md text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
-              placeholder="Confirm new password"
+              className="block w-full rounded-sm border border-white/20 px-3 py-2 text-xs sm:text-sm text-white placeholder-gray-400 focus:border-[#29B0B9] focus:outline-none focus:ring-[0.5px] focus:ring-[#29B0B9]"
+              placeholder="Confirm password"
             />
           </div>
 
