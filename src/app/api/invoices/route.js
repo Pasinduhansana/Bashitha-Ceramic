@@ -72,13 +72,34 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { customer_id, items, discount, payment_method } = body;
+    const { customer, items, discount, payment_method } = body;
 
-    if (!customer_id || !items || items.length === 0) {
+    if (!customer || !customer.contact || !customer.name || !items || items.length === 0) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
     }
 
     const db = getDb();
+
+    let customer_id;
+
+    // Check if using existing customer or creating new one
+    if (customer.existing_id) {
+      customer_id = customer.existing_id;
+    } else {
+      // Create new customer
+      const [customerResult] = await db.execute(`INSERT INTO customers (name, contact, remark, created_at) VALUES (?, ?, ?, NOW())`, [
+        customer.name,
+        customer.contact,
+        customer.remark || null,
+      ]);
+      customer_id = customerResult.insertId;
+
+      // Log customer creation
+      await db.execute(
+        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'CREATE_CUSTOMER', 'customers', ?, NOW())`,
+        [user.id, customer_id]
+      );
+    }
 
     // Calculate totals
     let total_amount = 0;

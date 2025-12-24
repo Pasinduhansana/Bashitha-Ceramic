@@ -3,13 +3,16 @@
 import { useState, useEffect } from "react";
 import { Plus, Search, Eye, Edit, Trash2, CheckCircle, Clock, XCircle, AlertCircle, RefreshCcw, Package, FileText } from "lucide-react";
 
-export default function ReturnsTab() {
+export default function ReturnsTab({ userPermissions = [] }) {
   const [returns, setReturns] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedReturn, setSelectedReturn] = useState(null);
+  const [pendingApprovals, setPendingApprovals] = useState([]);
+
+  const canApproveReturns = userPermissions.includes("approve_returns");
 
   useEffect(() => {
     fetchReturns();
@@ -103,150 +106,283 @@ export default function ReturnsTab() {
 
   const filteredReturns = returns;
 
+  // Fetch pending approvals if user can approve
+  useEffect(() => {
+    if (canApproveReturns) {
+      fetchPendingReturnApprovals();
+    }
+  }, [canApproveReturns]);
+
+  const fetchPendingReturnApprovals = async () => {
+    try {
+      const response = await fetch("/api/returns?status=pending");
+      const data = await response.json();
+      if (response.ok) {
+        setPendingApprovals(data.returns || []);
+      }
+    } catch (error) {
+      console.error("Error fetching pending return approvals:", error);
+    }
+  };
+
+  const handleApproveReturn = async (returnId) => {
+    try {
+      const response = await fetch(`/api/returns/${returnId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "approved" }),
+      });
+      if (response.ok) {
+        fetchPendingReturnApprovals();
+        fetchReturns();
+      }
+    } catch (error) {
+      console.error("Error approving return:", error);
+    }
+  };
+
+  const handleRejectReturn = async (returnId) => {
+    if (!confirm("Reject this return?")) return;
+    try {
+      const response = await fetch(`/api/returns/${returnId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "rejected" }),
+      });
+      if (response.ok) {
+        fetchPendingReturnApprovals();
+        fetchReturns();
+      }
+    } catch (error) {
+      console.error("Error rejecting return:", error);
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Header Actions */}
-      <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-          {/* Search */}
-          <div className="relative flex-1 w-full md:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search by product, invoice, or purchase order..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1fb8a2] focus:border-transparent"
-            />
-          </div>
+    <div className={`${canApproveReturns ? "grid grid-cols-1 lg:grid-cols-3 gap-6" : "space-y-6"}`}>
+      {/* Main Content */}
+      <div className={`space-y-6 ${canApproveReturns ? "lg:col-span-2" : ""}`}>
+        {/* Header Actions */}
+        <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            {/* Search */}
+            <div className="relative flex-1 w-full md:max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
+              <input
+                type="text"
+                placeholder="Search by invoice or customer..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 transition-all text-xs"
+              />
+            </div>
 
-          {/* Filters and Actions */}
-          <div className="flex gap-3 items-center w-full md:w-auto">
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1fb8a2] bg-white text-sm"
-            >
-              <option value="all">All Status</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="processing">Processing</option>
-            </select>
+            {/* Filters and Actions */}
+            <div className="flex gap-3 items-center w-full md:w-auto">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-3 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 outline-none transition-all text-xs font-medium"
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="processing">Processing</option>
+              </select>
 
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#1fb8a2] to-[#189d8b] text-white rounded-lg hover:shadow-lg transition-shadow font-medium text-sm"
-            >
-              <Plus className="h-4 w-4" />
-              New Return
-            </button>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-[#1fb8a2] to-[#189d8b] text-white rounded-lg hover:shadow-lg transition-shadow font-medium text-sm"
+              >
+                <Plus className="h-4 w-4" />
+                New Return
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Returns Table */}
+        <div className="rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden">
+          {loading ? (
+            <div className="p-12 text-center">
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#1fb8a2] border-r-transparent"></div>
+              <p className="mt-4 text-gray-600">Loading returns...</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Reference</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Product</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Quantity</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Reason</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+                    <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {filteredReturns.map((returnItem, index) => (
+                    <tr key={returnItem.id} className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50/30"}`}>
+                      <td className="px-6 py-4">
+                        <span className="font-medium text-gray-900">RET-{returnItem.id.toString().padStart(4, "0")}</span>
+                      </td>
+                      <td className="px-6 py-4">{getTypeBadge(returnItem.type)}</td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm font-medium text-gray-900">{returnItem.invoice_no || returnItem.purchase_no}</span>
+                        <p className="text-xs text-gray-500 mt-1">{returnItem.customer_name || returnItem.supplier_name}</p>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 shadow-sm">
+                            <Package className="h-4 w-4 text-white" />
+                          </div>
+                          <span className="text-sm text-gray-900">{returnItem.product_name}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="font-medium text-gray-900">{returnItem.qty}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-sm text-gray-600 line-clamp-2">{returnItem.reason}</span>
+                      </td>
+                      <td className="px-6 py-4">{getStatusBadge(returnItem.status)}</td>
+                      <td className="px-6 py-4 text-sm text-gray-600">{returnItem.created_at}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => setSelectedReturn(returnItem)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="View Details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </button>
+                          {returnItem.status === "pending" && (
+                            <>
+                              <button
+                                onClick={() => handleApprove(returnItem.id)}
+                                className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                                title="Approve"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleReject(returnItem.id)}
+                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Reject"
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </button>
+                            </>
+                          )}
+                          <button className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors" title="Edit">
+                            <Edit className="h-4 w-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {filteredReturns.length === 0 && (
+                <div className="p-12 text-center">
+                  <RefreshCcw className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-gray-500">No returns found</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Return Details Modal */}
+        {selectedReturn && <ReturnDetailsModal returnData={selectedReturn} onClose={() => setSelectedReturn(null)} />}
+
+        {/* Create Return Modal */}
+        {showCreateModal && <CreateReturnModal onClose={() => setShowCreateModal(false)} onSuccess={fetchReturns} />}
       </div>
 
-      {/* Returns Table */}
-      <div className="rounded-xl bg-white shadow-sm border border-gray-200 overflow-hidden">
-        {loading ? (
-          <div className="p-12 text-center">
-            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-[#1fb8a2] border-r-transparent"></div>
-            <p className="mt-4 text-gray-600">Loading returns...</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
-                <tr>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Reference</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Product</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Quantity</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Reason</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {filteredReturns.map((returnItem, index) => (
-                  <tr key={returnItem.id} className={`hover:bg-gray-50 transition-colors ${index % 2 === 0 ? "bg-white" : "bg-gray-50/30"}`}>
-                    <td className="px-6 py-4">
-                      <span className="font-medium text-gray-900">RET-{returnItem.id.toString().padStart(4, "0")}</span>
-                    </td>
-                    <td className="px-6 py-4">{getTypeBadge(returnItem.type)}</td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm font-medium text-gray-900">{returnItem.invoice_no || returnItem.purchase_no}</span>
-                      <p className="text-xs text-gray-500 mt-1">{returnItem.customer_name || returnItem.supplier_name}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-orange-600 shadow-sm">
-                          <Package className="h-4 w-4 text-white" />
-                        </div>
-                        <span className="text-sm text-gray-900">{returnItem.product_name}</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="font-medium text-gray-900">{returnItem.qty}</span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm text-gray-600 line-clamp-2">{returnItem.reason}</span>
-                    </td>
-                    <td className="px-6 py-4">{getStatusBadge(returnItem.status)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-600">{returnItem.created_at}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => setSelectedReturn(returnItem)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="View Details"
-                        >
-                          <Eye className="h-4 w-4" />
-                        </button>
-                        {returnItem.status === "pending" && (
-                          <>
-                            <button
-                              onClick={() => handleApprove(returnItem.id)}
-                              className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                              title="Approve"
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleReject(returnItem.id)}
-                              className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                              title="Reject"
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </button>
-                          </>
-                        )}
-                        <button className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors" title="Edit">
-                          <Edit className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Approval Panel - Right Side (for users with approve_returns permission) */}
+      {canApproveReturns && (
+        <div className="lg:col-span-1 space-y-4">
+          <div className="rounded-xl bg-white dark:bg-gray-800 p-5 border border-gray-200 dark:border-gray-700 shadow-sm">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2 pb-3 border-b border-gray-200 dark:border-gray-700">
+              <CheckCircle className="h-5 w-5 text-[#1fb8a2]" />
+              Returns Pending Approval
+            </h3>
 
-            {filteredReturns.length === 0 && (
-              <div className="p-12 text-center">
-                <RefreshCcw className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500">No returns found</p>
+            {pendingApprovals.length === 0 ? (
+              <div className="text-center py-8">
+                <Clock className="h-12 w-12 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm text-gray-500">No pending returns</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-[600px] overflow-y-auto">
+                {pendingApprovals.map((returnItem) => (
+                  <div
+                    key={returnItem.id}
+                    className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-4 border border-gray-200 dark:border-gray-600 hover:border-[#1fb8a2] dark:hover:border-[#1fb8a2] transition-colors"
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        <p className="font-semibold text-gray-900 dark:text-white text-sm">RET-{returnItem.id.toString().padStart(4, "0")}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{returnItem.product_name || "N/A"}</p>
+                      </div>
+                      {getStatusBadge(returnItem.status)}
+                    </div>
+
+                    <div className="mb-3 space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600 dark:text-gray-400">Type:</span>
+                        <span className="font-medium">{getTypeBadge(returnItem.return_type)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600 dark:text-gray-400">Quantity:</span>
+                        <span className="font-medium text-gray-900 dark:text-white">{returnItem.qty} units</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600 dark:text-gray-400">Amount:</span>
+                        <span className="font-semibold text-[#1fb8a2]">${returnItem.total_amount?.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-gray-600 dark:text-gray-400">Date:</span>
+                        <span className="text-gray-900 dark:text-white">{returnItem.return_date}</span>
+                      </div>
+                      {returnItem.reason && (
+                        <div className="mt-2 pt-2 border-t border-gray-100">
+                          <p className="text-xs text-gray-600 dark:text-gray-400">Reason:</p>
+                          <p className="text-xs text-gray-900 dark:text-white">{returnItem.reason}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleApproveReturn(returnItem.id)}
+                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-xs font-medium transition-colors"
+                      >
+                        <CheckCircle className="h-3.5 w-3.5" />
+                        Approve
+                      </button>
+                      <button
+                        onClick={() => handleRejectReturn(returnItem.id)}
+                        className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-xs font-medium transition-colors"
+                      >
+                        <XCircle className="h-3.5 w-3.5" />
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>
-        )}
-      </div>
-
-      {/* Return Details Modal */}
-      {selectedReturn && <ReturnDetailsModal returnData={selectedReturn} onClose={() => setSelectedReturn(null)} />}
-
-      {/* Create Return Modal */}
-      {showCreateModal && <CreateReturnModal onClose={() => setShowCreateModal(false)} />}
+        </div>
+      )}
     </div>
   );
 }
@@ -354,7 +490,7 @@ function ReturnDetailsModal({ returnData, onClose }) {
 }
 
 // Create Return Modal
-function CreateReturnModal({ onClose }) {
+function CreateReturnModal({ onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     returnType: "invoice",
     referenceId: "",
@@ -362,12 +498,30 @@ function CreateReturnModal({ onClose }) {
     quantity: "",
     reason: "",
   });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission
-    console.log("Creating return:", formData);
-    onClose();
+    setLoading(true);
+    try {
+      const response = await fetch("/api/returns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        onSuccess();
+        onClose();
+      } else {
+        alert(data.error || "Failed to create return");
+      }
+    } catch (error) {
+      console.error("Error creating return:", error);
+      alert("An error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -499,9 +653,10 @@ function CreateReturnModal({ onClose }) {
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#1fb8a2] to-[#189d8b] text-white hover:shadow-lg transition-shadow"
+            disabled={loading}
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#1fb8a2] to-[#189d8b] text-white hover:shadow-lg transition-shadow disabled:opacity-50"
           >
-            Submit Return Request
+            {loading ? "Submitting..." : "Submit Return Request"}
           </button>
         </div>
       </div>

@@ -57,13 +57,13 @@ export default function CustomersTab() {
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           {/* Search */}
           <div className="relative flex-1 w-full md:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search by name or contact..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1fb8a2] focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 transition-all text-xs"
             />
           </div>
 
@@ -171,7 +171,7 @@ export default function CustomersTab() {
       {selectedCustomer && <CustomerDetailsModal customer={selectedCustomer} onClose={() => setSelectedCustomer(null)} />}
 
       {/* Create Customer Modal */}
-      {showCreateModal && <CreateCustomerModal onClose={() => setShowCreateModal(false)} />}
+      {showCreateModal && <CreateCustomerModal onClose={() => setShowCreateModal(false)} onSuccess={fetchCustomers} />}
     </div>
   );
 }
@@ -256,17 +256,36 @@ function CustomerDetailsModal({ customer, onClose }) {
 }
 
 // Create Customer Modal
-function CreateCustomerModal({ onClose }) {
+function CreateCustomerModal({ onClose, onSuccess }) {
   const [formData, setFormData] = useState({
     name: "",
     contact: "",
     remark: "",
   });
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Creating customer:", formData);
-    onClose();
+    setLoading(true);
+    try {
+      const response = await fetch("/api/customers", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        onSuccess();
+        onClose();
+      } else {
+        alert(data.error || "Failed to create customer");
+      }
+    } catch (error) {
+      console.error("Error creating customer:", error);
+      alert("An error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -326,9 +345,10 @@ function CreateCustomerModal({ onClose }) {
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#1fb8a2] to-[#189d8b] text-white hover:shadow-lg transition-shadow"
+            disabled={loading}
+            className="px-4 py-2 rounded-lg bg-gradient-to-r from-[#1fb8a2] to-[#189d8b] text-white hover:shadow-lg transition-shadow disabled:opacity-50"
           >
-            Add Customer
+            {loading ? "Creating..." : "Add Customer"}
           </button>
         </div>
       </div>

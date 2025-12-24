@@ -87,13 +87,13 @@ export default function AuditLogTab() {
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           {/* Search */}
           <div className="relative flex-1 w-full md:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search logs by user, action, or details..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1fb8a2] focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 transition-all text-xs"
             />
           </div>
 
@@ -102,7 +102,7 @@ export default function AuditLogTab() {
             <select
               value={actionFilter}
               onChange={(e) => setActionFilter(e.target.value)}
-              className="px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1fb8a2] bg-white text-sm"
+              className="px-3 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 outline-none transition-all text-xs font-medium"
             >
               <option value="all">All Actions</option>
               <option value="CREATE">Create</option>
@@ -188,57 +188,6 @@ export default function AuditLogTab() {
             )}
           </div>
         )}
-      </div>
-
-      {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-50">
-              <Plus className="h-5 w-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Created</p>
-              <p className="text-xl font-bold text-gray-900">{logs.filter((l) => l.action.startsWith("CREATE")).length}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50">
-              <Edit className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Updated</p>
-              <p className="text-xl font-bold text-gray-900">{logs.filter((l) => l.action.startsWith("UPDATE")).length}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-50">
-              <Trash2 className="h-5 w-5 text-red-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Deleted</p>
-              <p className="text-xl font-bold text-gray-900">{logs.filter((l) => l.action.startsWith("DELETE")).length}</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="rounded-xl bg-white p-4 shadow-sm border border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-50">
-              <LogIn className="h-5 w-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-600">Logins</p>
-              <p className="text-xl font-bold text-gray-900">{logs.filter((l) => l.action === "LOGIN").length}</p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

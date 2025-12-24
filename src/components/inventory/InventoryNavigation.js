@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutGrid, Activity, Package, CreditCard, Users, FileText, Bot, Menu, X } from "lucide-react";
+import { LayoutGrid, Activity, Package, CreditCard, Users, FileText, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const NAV_ITEMS = [
@@ -10,9 +10,6 @@ const NAV_ITEMS = [
   { icon: CreditCard, label: "Billing" },
   { icon: Users, label: "People", permission: "manage_users" },
   { icon: FileText, label: "Report", permission: "access_reports" },
-  { icon: Bot, label: "Audit Logs", permission: "view_audit_logs" },
-  { icon: CreditCard, label: "Purchase Approvals", permission: "approve_purchases" },
-  { icon: CreditCard, label: "Return Approvals", permission: "approve_returns" },
 ];
 
 export default function InventoryNavigation({ active, onChange, userPermissions = [] }) {

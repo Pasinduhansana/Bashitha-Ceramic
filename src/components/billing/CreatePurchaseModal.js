@@ -169,7 +169,7 @@ export default function CreatePurchaseModal({ isOpen, onClose, onSuccess }) {
           className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col"
         >
           {/* Header */}
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-5 flex items-center justify-between">
+          <div className="bg-gradient-to-r from-[#1fb8a2] to-[#189d8b] px-6 py-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-12 w-12 rounded-xl bg-white/20 flex items-center justify-center">
                 <ShoppingBag className="h-6 w-6 text-white" />
@@ -196,14 +196,14 @@ export default function CreatePurchaseModal({ isOpen, onClose, onSuccess }) {
                   <div className="flex flex-col items-center flex-1">
                     <div
                       className={`h-10 w-10 rounded-full flex items-center justify-center font-semibold transition-all ${
-                        step >= s.num ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-500"
+                        step >= s.num ? "bg-[#1fb8a2] text-white" : "bg-gray-200 text-gray-500"
                       }`}
                     >
                       <s.icon className="h-5 w-5" />
                     </div>
-                    <span className={`text-xs mt-2 font-medium ${step >= s.num ? "text-blue-500" : "text-gray-500"}`}>{s.label}</span>
+                    <span className={`text-xs mt-2 font-medium ${step >= s.num ? "text-[#1fb8a2]" : "text-gray-500"}`}>{s.label}</span>
                   </div>
-                  {i < 2 && <div className={`h-0.5 flex-1 mx-4 ${step > s.num ? "bg-blue-500" : "bg-gray-200"}`}></div>}
+                  {i < 2 && <div className={`h-0.5 flex-1 mx-4 ${step > s.num ? "bg-[#1fb8a2]" : "bg-gray-200"}`}></div>}
                 </div>
               ))}
             </div>
@@ -221,11 +221,11 @@ export default function CreatePurchaseModal({ isOpen, onClose, onSuccess }) {
                       key={supplier.id}
                       onClick={() => setFormData({ ...formData, supplier_id: supplier.id })}
                       className={`p-4 rounded-xl border-2 text-left transition-all ${
-                        formData.supplier_id === supplier.id ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"
+                        formData.supplier_id === supplier.id ? "border-[#1fb8a2] bg-[#1fb8a2]/5" : "border-gray-200 hover:border-gray-300"
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-[#1fb8a2] to-[#189d8b] flex items-center justify-center text-white font-semibold">
                           {supplier.name.charAt(0)}
                         </div>
                         <div>
@@ -255,7 +255,7 @@ export default function CreatePurchaseModal({ isOpen, onClose, onSuccess }) {
                     placeholder="Search products..."
                     value={searchProduct}
                     onChange={(e) => setSearchProduct(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1fb8a2]"
                   />
                 </div>
 
@@ -265,11 +265,11 @@ export default function CreatePurchaseModal({ isOpen, onClose, onSuccess }) {
                     <button
                       key={product.id}
                       onClick={() => addItem(product)}
-                      className="p-3 rounded-lg border border-gray-200 hover:border-blue-500 hover:bg-blue-50 transition-all text-left"
+                      className="p-3 rounded-lg border border-gray-200 hover:border-[#1fb8a2] hover:bg-[#1fb8a2]/5 transition-all text-left"
                     >
                       <p className="font-medium text-gray-900 text-sm truncate">{product.name}</p>
                       <p className="text-xs text-gray-500 mt-1">Current Stock: {product.qty}</p>
-                      <p className="text-sm font-bold text-blue-500 mt-2">${product.cost_price || (product.selling_price * 0.7).toFixed(2)}</p>
+                      <p className="text-sm font-bold text-[#1fb8a2] mt-2">${product.cost_price || (product.selling_price * 0.7).toFixed(2)}</p>
                     </button>
                   ))}
                 </div>
@@ -340,10 +340,10 @@ export default function CreatePurchaseModal({ isOpen, onClose, onSuccess }) {
                 </div>
 
                 {/* Total */}
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-6">
+                <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6">
                   <div className="flex justify-between text-lg font-bold">
                     <span>Total Amount:</span>
-                    <span className="text-blue-600">${total.toFixed(2)}</span>
+                    <span className="text-[#1fb8a2]">${total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -368,7 +368,7 @@ export default function CreatePurchaseModal({ isOpen, onClose, onSuccess }) {
                 <button
                   onClick={() => setStep(step + 1)}
                   disabled={(step === 1 && !formData.supplier_id) || (step === 2 && formData.items.length === 0)}
-                  className="px-6 py-2.5 rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                  className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#1fb8a2] to-[#189d8b] text-white hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed font-medium"
                 >
                   Next
                 </button>
@@ -376,7 +376,7 @@ export default function CreatePurchaseModal({ isOpen, onClose, onSuccess }) {
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="px-6 py-2.5 rounded-lg bg-blue-500 text-white hover:bg-blue-600 disabled:opacity-50 font-medium"
+                  className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#1fb8a2] to-[#189d8b] text-white hover:shadow-lg transition-all disabled:opacity-50 font-medium"
                 >
                   {loading ? "Creating..." : "Create Purchase"}
                 </button>

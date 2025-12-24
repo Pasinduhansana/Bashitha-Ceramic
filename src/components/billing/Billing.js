@@ -9,16 +9,19 @@ import ReturnsTab from "./ReturnsTab";
 import CustomersTab from "./CustomersTab";
 import AuditLogTab from "./AuditLogTab";
 
-export default function Billing() {
+export default function Billing({ userPermissions = [] }) {
   const [activeTab, setActiveTab] = useState("invoices");
 
-  const tabs = [
+  const allTabs = [
     { id: "invoices", label: "Invoices", icon: FileText },
     { id: "purchases", label: "Purchases", icon: ShoppingCart },
     { id: "returns", label: "Returns", icon: RefreshCcw },
     { id: "customers", label: "Customers", icon: Users },
-    { id: "audit", label: "Audit Logs", icon: History },
+    { id: "audit", label: "Audit Logs", icon: History, permission: "view_audit_logs" },
   ];
+
+  // Filter tabs based on user permissions
+  const tabs = allTabs.filter((tab) => !tab.permission || userPermissions.includes(tab.permission));
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors px-4 sm:px-6 py-4 sm:py-6">
@@ -50,8 +53,8 @@ export default function Billing() {
           transition={{ duration: 0.2 }}
         >
           {activeTab === "invoices" && <InvoicesTab />}
-          {activeTab === "purchases" && <PurchasesTab />}
-          {activeTab === "returns" && <ReturnsTab />}
+          {activeTab === "purchases" && <PurchasesTab userPermissions={userPermissions} />}
+          {activeTab === "returns" && <ReturnsTab userPermissions={userPermissions} />}
           {activeTab === "customers" && <CustomersTab />}
           {activeTab === "audit" && <AuditLogTab />}
         </motion.div>

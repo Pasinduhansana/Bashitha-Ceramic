@@ -305,7 +305,7 @@ export default function InventoryPage() {
             ) : activeNav === "People" ? (
               <People />
             ) : activeNav === "Billing" ? (
-              <Billing />
+              <Billing userPermissions={userPermissions} />
             ) : activeNav === "Report" ? (
               <Report />
             ) : (

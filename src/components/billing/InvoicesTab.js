@@ -82,13 +82,13 @@ export default function InvoicesTab() {
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           {/* Search */}
           <div className="relative flex-1 w-full md:max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
             <input
               type="text"
               placeholder="Search by invoice number or customer name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1fb8a2] focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 transition-all text-xs"
             />
           </div>
 
@@ -97,7 +97,7 @@ export default function InvoicesTab() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1fb8a2] bg-white text-sm"
+              className="px-3 py-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 outline-none transition-all text-xs font-medium"
             >
               <option value="all">All Status</option>
               <option value="paid">Paid</option>
@@ -201,7 +201,7 @@ export default function InvoicesTab() {
       {selectedInvoice && <InvoiceDetailsModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />}
 
       {/* Create Invoice Modal */}
-      {showCreateModal && <CreateInvoiceModal onClose={() => setShowCreateModal(false)} />}
+      {showCreateModal && <CreateInvoiceModal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} onSuccess={fetchInvoices} />}
     </div>
   );
 }
