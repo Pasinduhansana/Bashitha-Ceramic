@@ -8,12 +8,18 @@ const NAV_ITEMS = [
   { icon: Activity, label: "Activities" },
   { icon: Package, label: "Products" },
   { icon: CreditCard, label: "Billing" },
-  { icon: Users, label: "People" },
-  { icon: FileText, label: "Report" },
+  { icon: Users, label: "People", permission: "manage_users" },
+  { icon: FileText, label: "Report", permission: "access_reports" },
+  { icon: Bot, label: "Audit Logs", permission: "view_audit_logs" },
+  { icon: CreditCard, label: "Purchase Approvals", permission: "approve_purchases" },
+  { icon: CreditCard, label: "Return Approvals", permission: "approve_returns" },
 ];
 
-export default function InventoryNavigation({ active, onChange }) {
+export default function InventoryNavigation({ active, onChange, userPermissions = [] }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Only show items the user has permission for
+  const visibleNavItems = NAV_ITEMS.filter((item) => !item.permission || userPermissions.includes(item.permission));
 
   const handleNavClick = (item) => {
     onChange?.(item.label);
@@ -25,7 +31,7 @@ export default function InventoryNavigation({ active, onChange }) {
       {/* Desktop Navigation */}
       <nav className="hidden md:block border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 sm:px-6 transition-colors overflow-x-auto">
         <div className="flex items-center gap-4 sm:gap-6">
-          {NAV_ITEMS.map((item) => (
+          {visibleNavItems.map((item) => (
             <button
               key={item.label}
               onClick={() => handleNavClick(item)}
@@ -58,7 +64,7 @@ export default function InventoryNavigation({ active, onChange }) {
         {/* Mobile Menu Dropdown */}
         {mobileMenuOpen && (
           <div className="mt-3 space-y-1 pb-3 border-t border-gray-200 dark:border-gray-700 pt-3">
-            {NAV_ITEMS.map((item) => (
+            {visibleNavItems.map((item) => (
               <button
                 key={item.label}
                 onClick={() => handleNavClick(item)}

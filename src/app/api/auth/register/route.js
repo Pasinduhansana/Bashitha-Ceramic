@@ -50,14 +50,14 @@ export async function POST(request) {
     const hash = await bcrypt.hash(password, 10);
     const displayName = fullName.trim();
 
-    // Insert user with defaults: role_id=1, is_active=1
+    // Insert user with defaults: role_id=1, is_active=0 (pending admin approval)
     const [result] = await pool.execute("INSERT INTO users (name, username, email, password_hash, role_id, is_active) VALUES (?, ?, ?, ?, ?, ?)", [
       displayName,
       username.toLowerCase(),
       email.trim(),
       hash,
       1,
-      1,
+      0, // Not active until admin approves
     ]);
 
     const userId = result?.insertId;

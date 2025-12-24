@@ -31,6 +31,7 @@ export default function InventoryPage() {
   const [viewMode, setViewMode] = useState("list");
   const [showSettings, setShowSettings] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [userPermissions, setUserPermissions] = useState([]);
 
   // Real data states
   const [products, setProducts] = useState([]);
@@ -57,6 +58,21 @@ export default function InventoryPage() {
       fetchProducts();
     }
   }, [activeNav]);
+
+  // Fetch user permissions
+  useEffect(() => {
+    async function fetchPermissions() {
+      try {
+        const res = await fetch("/api/auth/me");
+        const data = await res.json();
+        // Assume API returns { user: { permissions: [...] } }
+        setUserPermissions(data.user?.permissions || []);
+      } catch (err) {
+        setUserPermissions([]);
+      }
+    }
+    fetchPermissions();
+  }, []);
 
   const fetchCategories = async () => {
     try {
@@ -189,7 +205,7 @@ export default function InventoryPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
       <InventoryHeader onSettingsClick={() => setShowSettings(true)} onProfileClick={() => setShowProfile(true)} />
-      <InventoryNavigation active={activeNav} onChange={setActiveNav} />
+      <InventoryNavigation active={activeNav} onChange={setActiveNav} userPermissions={userPermissions} />
 
       <AnimatePresence mode="wait">
         {activeNav === "Products" ? (

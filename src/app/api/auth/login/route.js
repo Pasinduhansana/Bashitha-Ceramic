@@ -32,7 +32,7 @@ export async function POST(request) {
     }
 
     if (row.is_active === 0) {
-      return NextResponse.json({ error: "Account is inactive" }, { status: 403 });
+      return NextResponse.json({ error: "Your login is not approved by Admin yet. Please wait for approval." }, { status: 403 });
     }
 
     const storedHash = row.password_hash || row.passwordHash || row.PasswordHash || "";

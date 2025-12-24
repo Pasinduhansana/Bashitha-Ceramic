@@ -130,7 +130,10 @@ export default function LoginForm({ setIsLogin }) {
         </div>
 
         <div className="text-xs sm:text-sm">
-          <a href="/forgot-password" className="font-medium text-gray-200 hover:text-white hover:underline">
+          <a
+            onClick={() => toast.error("Please Contact administrator for password reset")}
+            className="font-medium text-gray-200 hover:text-white hover:underline"
+          >
             Forgot password ?
           </a>
         </div>

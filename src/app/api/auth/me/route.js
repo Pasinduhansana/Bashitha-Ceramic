@@ -32,6 +32,38 @@ export async function GET(request) {
     }
 
     const user = users[0];
+
+    // Fetch permissions for this user (role-based and user overrides)
+    // 1. Get all permissions for the user's role
+    const [rolePerms] = await db.execute(
+      `SELECT p.permission_key
+       FROM role_permissions rp
+       JOIN permissions p ON rp.permission_id = p.id
+       WHERE rp.role_id = (SELECT role_id FROM users WHERE id = ?)
+      `,
+      [user.id]
+    );
+    const rolePermissions = rolePerms.map((row) => row.permission_key);
+
+    // 2. Get all user-specific permission overrides (is_allowed = 1)
+    const [userPerms] = await db.execute(
+      `SELECT p.permission_key, up.is_allowed
+       FROM user_permissions up
+       JOIN permissions p ON up.permission_id = p.id
+       WHERE up.user_id = ?
+      `,
+      [user.id]
+    );
+    // Apply user overrides: allow or remove from permissions
+    let permissions = new Set(rolePermissions);
+    for (const row of userPerms) {
+      if (row.is_allowed) {
+        permissions.add(row.permission_key);
+      } else {
+        permissions.delete(row.permission_key);
+      }
+    }
+
     return NextResponse.json({
       user: {
         id: user.id,
@@ -43,6 +75,7 @@ export async function GET(request) {
         img_url: user.img_url || null,
         role: user.role_name || "User",
         created_at: user.created_at,
+        permissions: Array.from(permissions),
       },
     });
   } catch (error) {

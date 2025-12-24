@@ -192,11 +192,11 @@ export default function RegisterForm({ setIsLogin }) {
         </div>
       </div>
 
-      {error && (
+      {/* {error && (
         <div className="rounded-md bg-red-50 p-4">
           <p className="text-sm text-red-800">{error}</p>
         </div>
-      )}
+      )} */}
 
       <div className="flex items-center">
         <input
@@ -225,7 +225,9 @@ export default function RegisterForm({ setIsLogin }) {
       {/* Google Sign Up Button */}
       <button
         type="button"
-        onClick={handleGoogleSignUp}
+        onClick={() => {
+          toast.error("Google sign-up is currently disabled. Please use other methods.");
+        }}
         disabled={googleLoading}
         className="flex w-full justify-center text-center items-center h-10 gap-2 sm:gap-3 px-4 sm:px-6 py-3 bg-white/40 backdrop-blur-md rounded-sm cursor-pointer hover:bg-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
       >
