@@ -25,7 +25,7 @@ export async function GET(request, { params }) {
        FROM users u
        LEFT JOIN roles r ON u.role_id = r.id
        WHERE u.id = ?`,
-      [id]
+      [id],
     );
 
     if (users.length === 0) {
@@ -44,8 +44,9 @@ export async function GET(request, { params }) {
 
 export async function PUT(request, { params }) {
   try {
+    let currentUser = null;
     try {
-      await requirePermission(PERMISSIONS.MANAGE_USERS);
+      currentUser = await requirePermission(PERMISSIONS.MANAGE_USERS);
     } catch (err) {
       if (err instanceof PermissionError) {
         return NextResponse.json({ success: false, message: err.message }, { status: err.status });
@@ -76,8 +77,16 @@ export async function PUT(request, { params }) {
       `UPDATE users 
        SET name = ?, username = ?, email = ?, role_id = ?, contact = ?, address = ?, updated_at = NOW()
        WHERE id = ?`,
-      [name, username, email, role_id, contact, address, id]
+      [name, username, email, role_id, contact, address, id],
     );
+
+    // Log audit
+    if (currentUser) {
+      await db.execute(`INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'UPDATE_USER', 'users', ?, NOW())`, [
+        currentUser.id,
+        id,
+      ]);
+    }
 
     return NextResponse.json({
       success: true,

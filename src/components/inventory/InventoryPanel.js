@@ -151,20 +151,22 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Product Info */}
               <div className="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-5">
-                <div className="flex items-start gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-[#1fb8a2] to-[#189d8b] text-white shrink-0">
-                    <Box className="h-7 w-7" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">{product.name}</h3>
-                    <p className="text-sm text-gray-600 mb-2">{product.description || "No description"}</p>
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium ${status.bg} ${status.color}`}>
-                        {product.qty === 0 ? <AlertCircle className="h-3.5 w-3.5" /> : <CheckCircle className="h-3.5 w-3.5" />}
-                        {status.text}
-                      </span>
-                      {product.category_name && <span className="text-xs text-gray-500">{product.category_name}</span>}
+                <div className="flex flex-col items-start gap-4">
+                  <div className="flex flex-row items-start gap-4">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-[#1fb8a2] to-[#189d8b] text-white shrink-0">
+                      <Box className="h-7 w-7" />
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">{product.name}</h3>
+                      <p className="text-sm text-gray-600 mb-2">{product.description || "No description"}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex w-28 items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium ${status.bg} ${status.color}`}>
+                      {product.qty === 0 ? <AlertCircle className="h-3.5 w-3.5" /> : <CheckCircle className="h-3.5 w-3.5" />}
+                      {status.text}
+                    </span>
+                    {product.category_name && <span className="text-xs text-gray-500">{product.category_name}</span>}
                   </div>
                 </div>
 
@@ -197,9 +199,9 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => setAdjustmentType("add")}
-                      className={`flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all ${
+                      className={`flex items-center justify-center gap-2 rounded-lg border px-4  text-sm font-medium transition-all ${
                         adjustmentType === "add"
-                          ? "border-green-500 bg-green-50 text-green-700"
+                          ? "border-[#1fb8a2] bg-[#1fb8a2]/10 text-[#1fb8a2]"
                           : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
                       }`}
                     >
@@ -208,7 +210,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                     </button>
                     <button
                       onClick={() => setAdjustmentType("remove")}
-                      className={`flex items-center justify-center gap-2 rounded-lg border-2 px-4 py-3 text-sm font-medium transition-all ${
+                      className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-all ${
                         adjustmentType === "remove"
                           ? "border-red-500 bg-red-50 text-red-700"
                           : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
@@ -229,7 +231,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                     onChange={(e) => setQuantity(e.target.value)}
                     min="1"
                     placeholder="Enter quantity"
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20"
+                    className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                   />
                 </div>
 
@@ -239,9 +241,11 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                   <select
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20"
+                    className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 text-gray-900 [&_option:first-child]:text-gray-400"
                   >
-                    <option value="">Select reason...</option>
+                    <option value="" className="text-gray-400">
+                      Select reason...
+                    </option>
                     {adjustmentType === "add" ? (
                       <>
                         <option value="MANUAL_ADD">Manual Addition</option>
@@ -265,7 +269,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                   disabled={loading}
                   className={`flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-white transition-all ${
                     adjustmentType === "add"
-                      ? "bg-gradient-to-r from-green-600 to-green-700 hover:shadow-lg"
+                      ? "bg-gradient-to-r from-[#1fb8a2] to-[#189d8b] hover:shadow-lg"
                       : "bg-gradient-to-r from-red-600 to-red-700 hover:shadow-lg"
                   } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                 >

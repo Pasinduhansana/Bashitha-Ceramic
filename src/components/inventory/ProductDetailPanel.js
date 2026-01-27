@@ -114,7 +114,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
       const payload = {
         ...form,
         category_id: form.category_id ? Number(form.category_id) : null,
-        cost_price: form.cost_price === "" || form.cost_price === null ? null : Number(form.cost_price),
+        cost_price: null,
         selling_price: form.selling_price === "" || form.selling_price === null ? null : Number(form.selling_price),
         reorder_level: form.reorder_level === "" || form.reorder_level === null ? null : Number(form.reorder_level),
         code: form.code,
@@ -237,12 +237,14 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                       </div>
 
                       <div className="space-y-3 px-5 pb-5 pt-4">
-                        <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="flex items-start justify-between gap-3">
                           <div>
                             <p className="text-xs font-semibold uppercase text-gray-500">Name</p>
                             <p className="text-lg font-semibold text-gray-900">{product.name}</p>
                           </div>
-                          <StockPill qty={product.qty} reorderLevel={product.reorder_level || 0} />
+                          <div className="flex-shrink-0">
+                            <StockPill qty={product.qty} reorderLevel={product.reorder_level || 0} />
+                          </div>
                         </div>
                         <p className="text-sm text-gray-600 leading-relaxed">{product.description || "No description"}</p>
                         <div className="flex flex-wrap gap-2 text-xs text-gray-600">
@@ -258,7 +260,6 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                       <StatBadge icon={Layers} label="Brand / Shade" value={product.brand || product.shade || product.new_shade} />
                       <StatBadge icon={Ruler} label="Size" value={product.size} />
                       <StatBadge icon={CircleDashed} label="Reorder Level" value={product.reorder_level ?? "—"} />
-                      <StatBadge icon={DollarSign} label="Cost Price" value={product.cost_price ? `$${product.cost_price}` : "—"} />
                       <StatBadge icon={DollarSign} label="Selling Price" value={product.selling_price ? `$${product.selling_price}` : "—"} />
                     </div>
                   </motion.div>
@@ -287,7 +288,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                           value={form.name}
                           onChange={(e) => handleChange("name", e.target.value)}
                           disabled={!editing}
-                          className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-[#1fb8a2] disabled:bg-gray-50"
+                          className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                         />
                       </div>
                       <div>
@@ -296,9 +297,11 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                           value={form.category_id || ""}
                           onChange={(e) => handleChange("category_id", e.target.value)}
                           disabled={!editing}
-                          className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-[#1fb8a2] disabled:bg-gray-50"
+                          className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50 text-gray-900 [&_option:first-child]:text-gray-400"
                         >
-                          <option value="">Select category</option>
+                          <option value="" className="text-gray-400">
+                            Select category
+                          </option>
                           {categories.map((cat) => (
                             <option key={cat.id} value={cat.id}>
                               {cat.name}
@@ -314,7 +317,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                           onChange={(e) => handleChange("description", e.target.value)}
                           disabled={!editing}
                           rows={3}
-                          className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-[#1fb8a2] disabled:bg-gray-50"
+                          className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                         />
                       </div>
 
@@ -325,7 +328,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                             value={form.product_type || ""}
                             onChange={(e) => handleChange("product_type", e.target.value)}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-[#1fb8a2] disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                         <div>
@@ -334,7 +337,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                             value={form.unit || ""}
                             onChange={(e) => handleChange("unit", e.target.value)}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-[#1fb8a2] disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                       </div>
@@ -346,7 +349,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                             value={form.brand || ""}
                             onChange={(e) => handleChange("brand", e.target.value)}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-[#1fb8a2] disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                         <div>
@@ -358,7 +361,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                               setForm((prev) => ({ ...prev, shade: value, new_shade: value }));
                             }}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-[#1fb8a2] disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                       </div>
@@ -373,7 +376,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                               setForm((prev) => ({ ...prev, code: value, new_code: value }));
                             }}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-[#1fb8a2] disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                         <div>
@@ -382,22 +385,12 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                             value={form.size || ""}
                             onChange={(e) => handleChange("size", e.target.value)}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-[#1fb8a2] disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                       </div>
 
-                      <div className="grid gap-3 sm:grid-cols-3">
-                        <div>
-                          <label className="text-xs font-semibold text-gray-600">Cost Price</label>
-                          <input
-                            type="number"
-                            value={form.cost_price ?? ""}
-                            onChange={(e) => handleChange("cost_price", e.target.value)}
-                            disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-[#1fb8a2] disabled:bg-gray-50"
-                          />
-                        </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
                         <div>
                           <label className="text-xs font-semibold text-gray-600">Selling Price</label>
                           <input
@@ -405,7 +398,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                             value={form.selling_price ?? ""}
                             onChange={(e) => handleChange("selling_price", e.target.value)}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-[#1fb8a2] disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                         <div>
@@ -415,7 +408,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                             value={form.reorder_level ?? ""}
                             onChange={(e) => handleChange("reorder_level", e.target.value)}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-[#1fb8a2] disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                       </div>

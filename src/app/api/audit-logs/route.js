@@ -45,18 +45,83 @@ export async function GET(request) {
       params.push(`%${search}%`, `%${search}%`);
     }
 
-    query += ` ORDER BY a.timestamp DESC LIMIT ?`;
-    params.push(parseInt(limit));
+    query += ` ORDER BY a.timestamp DESC LIMIT ${parseInt(limit)}`;
 
     const [logs] = await db.execute(query, params);
 
-    // Format logs for frontend
-    const formattedLogs = logs.map((log) => ({
-      ...log,
-      details: `${log.action.replace(/_/g, " ")} on ${log.table_name} (ID: ${log.record_id})`,
-    }));
+    // Fetch product details for CREATE_PRODUCT, UPDATE_PRODUCT, UPDATE_INVENTORY, and DELETE_PRODUCT actions
+    const logsWithDetails = await Promise.all(
+      logs.map(async (log) => {
+        let productDetails = null;
+        let enhancedDetails = log.details;
 
-    return NextResponse.json({ logs: formattedLogs });
+        // If it's a product-related action
+        if (
+          (log.action === "CREATE_PRODUCT" ||
+            log.action === "UPDATE_PRODUCT" ||
+            log.action === "DELETE_PRODUCT" ||
+            log.action === "UPDATE_INVENTORY") &&
+          log.table_name === "products" &&
+          log.record_id
+        ) {
+          // For DELETE_PRODUCT, try to get data from old_data field first
+          if (log.action === "DELETE_PRODUCT" && log.old_data) {
+            try {
+              productDetails = JSON.parse(log.old_data);
+              enhancedDetails = `Deleted product: ${productDetails.name}`;
+            } catch (err) {
+              console.error("Error parsing old_data:", err);
+            }
+          }
+
+          // If no old_data or not a delete, fetch from products table
+          if (!productDetails) {
+            try {
+              const [productRows] = await db.execute(
+                `SELECT p.*, c.name as category_name 
+                 FROM products p 
+                 LEFT JOIN categories c ON p.category_id = c.id 
+                 WHERE p.id = ?`,
+                [log.record_id],
+              );
+              if (productRows.length > 0) {
+                productDetails = productRows[0];
+
+                // Enhance details text based on action
+                if (log.action === "CREATE_PRODUCT") {
+                  enhancedDetails = `Created product: ${productDetails.name}`;
+                } else if (log.action === "UPDATE_PRODUCT") {
+                  enhancedDetails = `Updated product: ${productDetails.name}`;
+                } else if (log.action === "UPDATE_INVENTORY") {
+                  // Try to get quantity change from stock_logs
+                  const [stockLogs] = await db.execute(
+                    `SELECT qty, action FROM stock_logs WHERE product_id = ? AND user_id = ? ORDER BY created_at DESC LIMIT 1`,
+                    [log.record_id, log.user_id],
+                  );
+                  if (stockLogs.length > 0) {
+                    const qtyChange = stockLogs[0].qty;
+                    const changeText = qtyChange > 0 ? `Added ${qtyChange}` : `Removed ${Math.abs(qtyChange)}`;
+                    enhancedDetails = `Updated inventory: ${productDetails.name} (${changeText} ${productDetails.unit || "units"})`;
+                  } else {
+                    enhancedDetails = `Updated inventory: ${productDetails.name}`;
+                  }
+                }
+              }
+            } catch (err) {
+              console.error(`Error fetching product details for record ${log.record_id}:`, err);
+            }
+          }
+        }
+
+        return {
+          ...log,
+          details: enhancedDetails,
+          productDetails,
+        };
+      }),
+    );
+
+    return NextResponse.json({ logs: logsWithDetails });
   } catch (error) {
     console.error("Error fetching audit logs:", error);
     return NextResponse.json({ error: "Failed to fetch audit logs" }, { status: 500 });

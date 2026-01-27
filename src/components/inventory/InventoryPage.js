@@ -89,11 +89,7 @@ export default function InventoryPage() {
   const fetchProducts = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (searchTerm) params.append("search", searchTerm);
-      if (categoryFilter) params.append("category", categoryFilter);
-
-      const response = await fetch(`/api/products?${params}`);
+      const response = await fetch(`/api/products`);
       const data = await response.json();
 
       if (response.ok) {
@@ -109,15 +105,12 @@ export default function InventoryPage() {
     }
   };
 
-  // Handle search with debounce
+  // Fetch products once when Products tab is active
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (activeNav === "Products") {
-        fetchProducts();
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [searchTerm, categoryFilter]);
+    if (activeNav === "Products") {
+      fetchProducts();
+    }
+  }, [activeNav]);
 
   const filteredProducts = useMemo(() => {
     let list = products;
@@ -198,13 +191,30 @@ export default function InventoryPage() {
           </div>
         </div>
       ),
-      { duration: 5000, position: "top-center" }
+      { duration: 5000, position: "top-center" },
     );
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
-      <InventoryHeader onSettingsClick={() => setShowSettings(true)} onProfileClick={() => setShowProfile(true)} />
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors" suppressHydrationWarning>
+      <InventoryHeader
+        onSettingsClick={() => setShowSettings(true)}
+        onProfileClick={() => setShowProfile(true)}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        onSearchFocus={() => {
+          if (activeNav !== "Products") {
+            setActiveNav("Products");
+          }
+        }}
+        products={products}
+        onProductSelect={(product) => {
+          setSelectedProduct(product);
+          setProductDetailMode("view");
+          setShowProductDetail(true);
+          setSearchTerm("");
+        }}
+      />
       <InventoryNavigation active={activeNav} onChange={setActiveNav} userPermissions={userPermissions} />
 
       <AnimatePresence mode="wait">

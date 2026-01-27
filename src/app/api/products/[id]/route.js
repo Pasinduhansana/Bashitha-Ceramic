@@ -28,7 +28,7 @@ export async function GET(request, { params }) {
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
       WHERE p.id = ?`,
-      [id]
+      [id],
     );
 
     if (products.length === 0) {
@@ -49,7 +49,7 @@ export async function GET(request, { params }) {
       WHERE sl.product_id = ?
       ORDER BY sl.created_at DESC
       LIMIT 50`,
-      [id]
+      [id],
     );
 
     return NextResponse.json({
@@ -121,7 +121,7 @@ export async function PUT(request, { params }) {
     if (user) {
       await db.execute(
         `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'UPDATE_PRODUCT', 'products', ?, NOW())`,
-        [user.id, id]
+        [user.id, id],
       );
     }
 
@@ -158,17 +158,24 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ error: "Cannot delete product with existing transactions" }, { status: 400 });
     }
 
+    // Get product details before deletion for audit log
+    const [productDetails] = await db.execute(
+      `SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = ?`,
+      [id],
+    );
+    const productData = productDetails[0] ? JSON.stringify(productDetails[0]) : null;
+
     // Delete stock logs
     await db.execute(`DELETE FROM stock_logs WHERE product_id = ?`, [id]);
 
     // Delete product
     await db.execute(`DELETE FROM products WHERE id = ?`, [id]);
 
-    // Log audit
+    // Log audit with product data
     if (user) {
       await db.execute(
-        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'DELETE_PRODUCT', 'products', ?, NOW())`,
-        [user.id, id]
+        `INSERT INTO audit_logs (user_id, action, table_name, record_id, old_data, timestamp) VALUES (?, 'DELETE_PRODUCT', 'products', ?, ?, NOW())`,
+        [user.id, id, productData],
       );
     }
 
@@ -245,7 +252,7 @@ export async function PATCH(request, { params }) {
     if (user) {
       await db.execute(
         `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'UPDATE_INVENTORY', 'products', ?, NOW())`,
-        [user.id, id]
+        [user.id, id],
       );
     }
 

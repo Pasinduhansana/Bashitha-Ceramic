@@ -32,8 +32,8 @@ function groupLogsBySection(logs) {
       ts >= startOfToday
         ? "TODAY"
         : ts >= startOfYesterday
-        ? "YESTERDAY"
-        : ts.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+          ? "YESTERDAY"
+          : ts.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 
     if (!sections[label]) sections[label] = [];
     sections[label].push(log);
@@ -117,7 +117,7 @@ function ProductCard({ item }) {
 }
 
 export default function Activities() {
-  const [dateFilter, setDateFilter] = useState("Today");
+  const [dateFilter, setDateFilter] = useState("Last 30 days");
   const [userFilter, setUserFilter] = useState("All Users");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
@@ -460,7 +460,7 @@ export default function Activities() {
               placeholder="Search Activity..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 transition-all"
+              className="w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-gray-400 dark:focus:border-gray-600 transition-all"
             />
           </div>
         </div>
@@ -473,7 +473,7 @@ export default function Activities() {
             placeholder="Search Activity..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 transition-all"
+            className="w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-gray-400 dark:focus:border-gray-600 transition-all"
           />
         </div>
       </div>
@@ -534,6 +534,101 @@ export default function Activities() {
                           {new Date(log.timestamp).toLocaleString()} by {log.user_name || "Unknown"}
                         </p>
                       </div>
+
+                      {/* Product Details Table - Only for CREATE_PRODUCT or DELETE_PRODUCT */}
+                      {log.productDetails && (log.action === "CREATE_PRODUCT" || log.action === "DELETE_PRODUCT") && (
+                        <div className="mt-3 overflow-hidden rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-xs">
+                              <thead className="bg-gray-50 dark:bg-gray-900/50">
+                                <tr>
+                                  <th
+                                    className="px-3 py-2 text-left font-semibold text-gray-700 dark:text-gray-300"
+                                    style={{ width: "180px", minWidth: "180px" }}
+                                  >
+                                    Product Name
+                                  </th>
+                                  <th
+                                    className="px-3 py-2 text-left font-semibold text-gray-700 dark:text-gray-300"
+                                    style={{ width: "120px", minWidth: "120px" }}
+                                  >
+                                    Category
+                                  </th>
+                                  <th
+                                    className="px-3 py-2 text-left font-semibold text-gray-700 dark:text-gray-300"
+                                    style={{ width: "140px", minWidth: "140px" }}
+                                  >
+                                    Brand/Shade
+                                  </th>
+                                  <th
+                                    className="px-3 py-2 text-left font-semibold text-gray-700 dark:text-gray-300"
+                                    style={{ width: "100px", minWidth: "100px" }}
+                                  >
+                                    Size
+                                  </th>
+                                  <th
+                                    className="px-3 py-2 text-left font-semibold text-gray-700 dark:text-gray-300"
+                                    style={{ width: "100px", minWidth: "100px" }}
+                                  >
+                                    Price
+                                  </th>
+                                  <th
+                                    className="px-3 py-2 text-left font-semibold text-gray-700 dark:text-gray-300"
+                                    style={{ width: "100px", minWidth: "100px" }}
+                                  >
+                                    Stock
+                                  </th>
+                                  <th
+                                    className="px-3 py-2 text-left font-semibold text-gray-700 dark:text-gray-300"
+                                    style={{ width: "110px", minWidth: "110px" }}
+                                  >
+                                    Status
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr className="border-t border-gray-200 dark:border-gray-700">
+                                  <td className="px-3 py-2.5 text-gray-900 dark:text-white font-medium" style={{ width: "180px", minWidth: "180px" }}>
+                                    {log.productDetails.name}
+                                  </td>
+                                  <td className="px-3 py-2.5 text-gray-600 dark:text-gray-400" style={{ width: "120px", minWidth: "120px" }}>
+                                    {log.productDetails.category_name || "N/A"}
+                                  </td>
+                                  <td className="px-3 py-2.5 text-gray-600 dark:text-gray-400" style={{ width: "140px", minWidth: "140px" }}>
+                                    {log.productDetails.brand || log.productDetails.shade
+                                      ? `${log.productDetails.brand || ""} ${log.productDetails.shade || ""}`.trim()
+                                      : "N/A"}
+                                  </td>
+                                  <td className="px-3 py-2.5 text-gray-600 dark:text-gray-400" style={{ width: "100px", minWidth: "100px" }}>
+                                    {log.productDetails.size || "N/A"}
+                                  </td>
+                                  <td className="px-3 py-2.5 text-[#1fb8a2] font-semibold" style={{ width: "100px", minWidth: "100px" }}>
+                                    ${log.productDetails.selling_price || 0}
+                                  </td>
+                                  <td className="px-3 py-2.5 text-gray-900 dark:text-white font-medium" style={{ width: "100px", minWidth: "100px" }}>
+                                    {log.productDetails.qty || 0} {log.productDetails.unit || "Pcs"}
+                                  </td>
+                                  <td className="px-3 py-2.5" style={{ width: "110px", minWidth: "110px" }}>
+                                    {log.productDetails.qty === 0 ? (
+                                      <span className="inline-flex items-center gap-1 rounded-full bg-red-50 dark:bg-red-900/20 px-2 py-0.5 text-[10px] font-semibold text-red-600 dark:text-red-400">
+                                        Out of Stock
+                                      </span>
+                                    ) : log.productDetails.qty <= log.productDetails.reorder_level ? (
+                                      <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 dark:bg-orange-900/20 px-2 py-0.5 text-[10px] font-semibold text-orange-600 dark:text-orange-400">
+                                        Low Stock
+                                      </span>
+                                    ) : (
+                                      <span className="inline-flex items-center gap-1 rounded-full bg-green-50 dark:bg-green-900/20 px-2 py-0.5 text-[10px] font-semibold text-green-600 dark:text-green-400">
+                                        In Stock
+                                      </span>
+                                    )}
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

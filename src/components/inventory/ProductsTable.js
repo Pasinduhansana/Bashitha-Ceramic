@@ -1,7 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Package, Check, X, Edit, Eye, Trash2, TrendingUp, Camera } from "lucide-react";
+import { useState } from "react";
+import { Package, Check, X, Edit, PackagePlus, Trash2, TrendingUp, Camera, MoreVertical } from "lucide-react";
 import { getOptimizedImageUrl } from "@/lib/imageUtils";
 
 // Utility function to truncate text
@@ -32,6 +33,8 @@ function StatusLabel({ qty, reorderLevel }) {
 }
 
 export default function ProductsTable({ products, onAction, viewMode = "list" }) {
+  const [openMenuId, setOpenMenuId] = useState(null);
+
   if (viewMode === "grid") {
     // TILE/GRID VIEW - Fully responsive professional design
     return (
@@ -71,7 +74,7 @@ export default function ProductsTable({ products, onAction, viewMode = "list" })
                     className="rounded-full p-1.5 sm:p-2 bg-white/90 backdrop-blur-sm text-gray-700 hover:bg-green-50 hover:text-green-600 shadow-md sm:shadow-lg transition-all"
                     title="View Details"
                   >
-                    <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                    <PackagePlus className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   </button>
                   <button
                     onClick={(e) => {
@@ -155,8 +158,8 @@ export default function ProductsTable({ products, onAction, viewMode = "list" })
                         product.qty === 0
                           ? "bg-gradient-to-r from-red-500 to-red-600"
                           : product.qty <= product.reorder_level
-                          ? "bg-gradient-to-r from-orange-500 to-orange-600"
-                          : "bg-gradient-to-r from-green-500 to-green-600"
+                            ? "bg-gradient-to-r from-orange-500 to-orange-600"
+                            : "bg-gradient-to-r from-green-500 to-green-600"
                       }`}
                       style={{ width: `${Math.min((product.qty / (product.reorder_level || 100)) * 100, 100)}%` }}
                     />
@@ -269,28 +272,56 @@ export default function ProductsTable({ products, onAction, viewMode = "list" })
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex items-center justify-center gap-1.5">
+                <div className="flex items-center justify-center gap-2">
                   <button
                     onClick={() => onAction?.("view", product)}
-                    className="rounded-md p-2 border border-transparent text-gray-400 hover:border-green-200 hover:bg-green-50 hover:text-green-600 dark:hover:border-green-800 dark:hover:bg-green-900/20 dark:hover:text-green-400 transition-all"
-                    title="View Details"
+                    className="inline-flex items-center gap-2 rounded-lg bg-transparent border-2 border-[#1fb8a2] text-[#1fb8a2] hover:bg-[#1fb8a2] hover:text-white px-3 py-2 text-xs font-semibold transition-all"
+                    title="Stock Change"
                   >
-                    <Eye className="h-4 w-4" />
+                    <PackagePlus className="h-4 w-4" />
+                    <span>Stock Change</span>
                   </button>
-                  <button
-                    onClick={() => onAction?.("edit", product)}
-                    className="rounded-md p-2 border border-transparent text-gray-400 hover:border-blue-200 hover:bg-blue-50 hover:text-blue-600 dark:hover:border-blue-800 dark:hover:bg-blue-900/20 dark:hover:text-blue-400 transition-all"
-                    title="Edit Product"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => onAction?.("delete", product)}
-                    className="rounded-md p-2 border border-transparent text-gray-400 hover:border-red-200 hover:bg-red-50 hover:text-red-600 dark:hover:border-red-800 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all"
-                    title="Delete Product"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <div className="relative">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpenMenuId(openMenuId === product.id ? null : product.id);
+                      }}
+                      className="rounded-lg p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700 dark:hover:text-gray-300 transition-all"
+                      title="More actions"
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </button>
+                    {openMenuId === product.id && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
+                        <div className="absolute right-0 top-full mt-1 z-20 w-48 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMenuId(null);
+                              onAction?.("edit", product);
+                            }}
+                            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-[#1fb8a2]/10 hover:text-[#1fb8a2] dark:hover:bg-[#1fb8a2]/20 dark:hover:text-[#1fb8a2] transition-all"
+                          >
+                            <Edit className="h-4 w-4" />
+                            <span>Edit Product</span>
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMenuId(null);
+                              onAction?.("delete", product);
+                            }}
+                            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20 dark:hover:text-red-400 transition-all"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span>Delete Product</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             ))}

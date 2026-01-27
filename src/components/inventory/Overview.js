@@ -140,32 +140,32 @@ export default function Overview() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 p-3 sm:p-4 md:p-6 transition-colors">
-      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
         {/* Hero Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-center mb-4 sm:mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Date and Task Button */}
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-5 flex flex-col sm:flex-row items-center gap-3 sm:gap-5 transition-colors w-full">
+          <div className="flex items-center gap-4">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 flex items-center gap-5 transition-colors w-full">
               <div className="text-center sm:text-left">
-                <div className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{currentDate.day}</div>
+                <div className="text-3xl font-bold text-gray-900 dark:text-white">{currentDate.day}</div>
                 <div className="text-xs text-gray-600 dark:text-gray-400">{currentDate.dayName},</div>
                 <div className="text-xs text-gray-600 dark:text-gray-400">{currentDate.monthName}</div>
               </div>
-              <button className="hidden sm:flex bg-gradient-to-r from-[#1fb8a2] to-[#17a694] hover:from-[#1aa693] hover:to-[#158f82] text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-full items-center gap-2 text-xs font-bold transition-all shadow-md hover:shadow-lg flex-1 sm:flex-none justify-center">
+              <button className="hidden sm:flex bg-gradient-to-r from-[#1fb8a2] to-[#17a694] hover:from-[#1aa693] hover:to-[#158f82] text-white px-5 py-2.5 rounded-full items-center gap-2 text-xs font-bold transition-all shadow-md hover:shadow-lg flex-1 justify-center">
                 Show my Tasks
-                <ArrowRight className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                <ArrowRight className="h-3.5 w-3.5" />
               </button>
-              <button className="p-2 sm:p-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg sm:rounded-xl transition-colors">
+              <button className="p-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors">
                 <CalendarDays className="h-4 w-4 text-gray-600 dark:text-gray-300" />
               </button>
             </div>
           </div>
 
           {/* Help Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-6 text-center transition-colors">
-            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-2">Hey, Need help?👋</h2>
-            <p className="text-xs sm:text-sm text-gray-400 dark:text-gray-500">Just ask me anything!</p>
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 text-center transition-colors">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Hey, Need help?👋</h2>
+            <p className="text-sm text-gray-400 dark:text-gray-500">Just ask me anything!</p>
             <div className="mt-3 flex items-center justify-center gap-2">
               <Mic className="h-4 w-4 text-gray-400 dark:text-gray-500" />
             </div>
@@ -173,11 +173,11 @@ export default function Overview() {
         </div>
 
         {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
           {/* Payment Card Section */}
-          <div className="md:col-span-1 lg:col-span-4 space-y-4">
+          <div className="lg:col-span-4 space-y-6">
             {/* Credit Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-5 transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Plus className="h-4 w-4 text-gray-600 dark:text-gray-400" />
@@ -188,13 +188,13 @@ export default function Overview() {
               </div>
               <div className="mb-3">
                 <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-1">Linked to main account</p>
-                <p className="text-base sm:text-lg font-mono font-semibold text-gray-900 dark:text-white">•••• 2719</p>
+                <p className="text-lg font-mono font-semibold text-gray-900 dark:text-white">•••• 2719</p>
               </div>
               <div className="flex gap-2 mb-3">
-                <button className="flex-1 bg-black dark:bg-gray-900 text-white py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs font-bold hover:bg-gray-800 dark:hover:bg-gray-950 transition-colors">
+                <button className="flex-1 bg-black dark:bg-gray-900 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-gray-800 dark:hover:bg-gray-950 transition-colors">
                   Receive
                 </button>
-                <button className="flex-1 border-2 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <button className="flex-1 border-2 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white py-2.5 rounded-xl text-xs font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                   Send
                 </button>
               </div>
@@ -213,9 +213,9 @@ export default function Overview() {
           </div>
 
           {/* Direct Debits Section */}
-          <div className="md:col-span-1 lg:col-span-4 space-y-4">
+          <div className="lg:col-span-4 space-y-6">
             {/* Total Income */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-5 transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold">Direct Debits</span>
                 <MoreVertical className="h-4 w-4 text-gray-400 dark:text-gray-500" />
@@ -223,11 +223,11 @@ export default function Overview() {
               <div className="mb-1">
                 <span className="text-[10px] text-gray-500 dark:text-gray-400">Total income</span>
               </div>
-              <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white mb-4">${stats.totalIncome.toFixed(2)}</div>
+              <div className="text-2xl font-bold text-gray-900 dark:text-white mb-4">${stats.totalIncome.toFixed(2)}</div>
             </div>
 
             {/* Total Paid */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-4 sm:p-5 transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold">Weekly</span>
                 <MoreVertical className="h-4 w-4 text-gray-400 dark:text-gray-500" />
@@ -236,8 +236,8 @@ export default function Overview() {
                 <span className="text-[10px] text-gray-500 dark:text-gray-400">Total paid</span>
               </div>
               <div className="flex items-center justify-between">
-                <div className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">${stats.totalPaid.toFixed(2)}</div>
-                <div className="bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 text-[10px] px-2 sm:px-3 py-1 rounded-full font-semibold">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">${stats.totalPaid.toFixed(2)}</div>
+                <div className="bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 text-[10px] px-3 py-1 rounded-full font-semibold">
                   View Mode
                 </div>
               </div>
@@ -245,7 +245,7 @@ export default function Overview() {
           </div>
 
           {/* System Lock & Calendar */}
-          <div className="md:col-span-1 lg:col-span-4 space-y-4">
+          <div className="lg:col-span-4 space-y-6">
             {/* System Lock Progress */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
               <div className="flex items-center justify-between mb-3">
@@ -355,76 +355,50 @@ export default function Overview() {
           </div>
 
           {/* Activity Manager */}
-          <div className="lg:col-span-5 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-base font-bold text-gray-900 dark:text-white">Activity manager</h3>
-              <div className="flex items-center gap-2">
-                <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                  <Search className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400" />
-                </button>
-                <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                  <MoreVertical className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400" />
-                </button>
-                <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                  <Filter className="h-3.5 w-3.5 text-gray-600 dark:text-gray-400" />
-                </button>
-              </div>
+          <div className="lg:col-span-5 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 transition-colors">
+            <div className="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+              <h3 className="text-xs font-bold text-gray-900 dark:text-white">Activity Manager</h3>
+              <button className="text-[10px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">View All</button>
             </div>
-            {/* Filter Pills */}
-            <div className="flex gap-2 mb-3">
-              <button className="px-3 py-1.5 bg-[#1fb8a2]/10 text-[#1fb8a2] rounded-full text-xs font-bold">× Team</button>
-              <button className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-bold">
-                × Insights
-              </button>
-              <button className="px-3 py-1.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs font-bold">
-                × Today
-              </button>
-            </div>
-            {/* Activity Chart */}
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-2xl font-bold text-gray-900 dark:text-white">$43.20</span>
-                <span className="text-[10px] text-gray-500 dark:text-gray-400 font-semibold">USD</span>
-              </div>
-              <div className="flex items-end justify-between h-20 gap-1">
-                {[30, 50, 40, 70, 45, 80, 35, 65, 50, 75, 40, 60].map((height, i) => (
-                  <div
-                    key={i}
-                    className={`flex-1 rounded-t-lg ${i === 5 ? "bg-gradient-to-t from-[#1fb8a2] to-[#17a694]" : "bg-gray-200 dark:bg-gray-700"}`}
-                    style={{ height: `${height}%` }}
-                  />
-                ))}
-              </div>
-            </div>
-            {/* Activity List */}
-            <div className="space-y-2">
-              {activities.map((activity, i) => (
-                <div key={i} className="flex items-center justify-between p-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
-                    <div
-                      className={`h-2.5 w-2.5 rounded-full flex-shrink-0 ${
-                        activity.status === "critical"
-                          ? "bg-red-500"
-                          : activity.status === "active"
-                          ? "bg-gradient-to-r from-[#1fb8a2] to-[#17a694]"
-                          : activity.status === "pending"
-                          ? "bg-orange-400"
-                          : "bg-gray-300 dark:bg-gray-600"
-                      }`}
-                    />
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs font-semibold text-gray-900 dark:text-white truncate block">{activity.task}</span>
-                      <span className="text-[10px] text-gray-500 dark:text-gray-400">{activity.amount}</span>
+            <div className="p-4">
+              {stats.recentActivities.length > 0 ? (
+                <div className="space-y-3">
+                  {stats.recentActivities.map((activity, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                      <div
+                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                          activity.type === "success"
+                            ? "bg-green-100 dark:bg-green-900/20"
+                            : activity.type === "warning"
+                              ? "bg-orange-100 dark:bg-orange-900/20"
+                              : "bg-red-100 dark:bg-red-900/20"
+                        }`}
+                      >
+                        {activity.type === "success" ? (
+                          <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+                        ) : activity.type === "warning" ? (
+                          <AlertCircle className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                        ) : (
+                          <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-gray-900 dark:text-white truncate">{activity.title}</p>
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400">{activity.time}</p>
+                      </div>
                     </div>
-                  </div>
-                  <span className="text-[10px] text-gray-500 dark:text-gray-400 flex-shrink-0 ml-2">{activity.time}</span>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <div className="text-center py-6">
+                  <p className="text-xs text-gray-500 dark:text-gray-400">No recent activities</p>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Main Stocks & Wallet */}
-          <div className="lg:col-span-4 space-y-4">
+          <div className="lg:col-span-4 space-y-6">
             {/* Main Stocks */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
               <div className="flex items-center justify-between mb-3">
@@ -456,46 +430,41 @@ export default function Overview() {
               </div>
             </div>
 
-            {/* Wallet Verification */}
+            {/* Main Stocks */}
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
-              <div className="flex items-center justify-between mb-3">
-                <div className="bg-gradient-to-br from-orange-100 to-orange-50 dark:from-orange-900/30 dark:to-orange-800/20 p-2.5 rounded-xl">
-                  <svg className="h-6 w-6 text-orange-600 dark:text-orange-400" fill="currentColor" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="10" opacity="0.2" />
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v2h-2v-2zm0-10h2v8h-2V7z" />
-                  </svg>
-                </div>
-                <button className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
-                  <MoreVertical className="h-4 w-4" />
-                </button>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xs font-bold text-gray-900 dark:text-white">Main Stocks</h3>
+                <button className="text-[10px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">View All</button>
               </div>
-              <h4 className="text-xs font-bold text-gray-900 dark:text-white mb-2">Wallet Verification</h4>
-              <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-3">
-                In order to comply with regulations, each participant will have to verify their wallet.
-              </p>
-              <button className="w-full bg-gradient-to-r from-[#1fb8a2] to-[#17a694] hover:from-[#1aa693] hover:to-[#158f82] text-white py-2.5 rounded-xl text-xs font-bold transition-all shadow-md hover:shadow-lg">
-                Enable
-              </button>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                  <Package className="h-4 w-4 text-[#1fb8a2] mb-2" />
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.totalProducts}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400">Products</p>
+                </div>
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                  <Users className="h-4 w-4 text-[#1fb8a2] mb-2" />
+                  <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.totalCustomers}</p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400">Customers</p>
+                </div>
+              </div>
             </div>
 
-            {/* Business Survey */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
-              <button className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 float-right">
-                <X className="h-3.5 w-3.5" />
-              </button>
-              <div className="mb-3">
-                <HelpCircle className="h-6 w-6 text-gray-400 dark:text-gray-500 mb-2" />
+            {/* Wallet */}
+            <div className="bg-gradient-to-br from-[#1fb8a2] to-[#17a694] rounded-2xl shadow-lg p-5 text-white">
+              <div className="flex items-center justify-between mb-4">
+                <Wallet className="h-6 w-6" />
+                <button className="text-[10px] opacity-80 hover:opacity-100">Manage</button>
               </div>
-              <h4 className="text-xs font-bold text-gray-900 dark:text-white mb-2">How is your business management going?</h4>
-              <div className="flex gap-2 mt-3">
-                {["😊", "😐", "😢", "😡", "😍"].map((emoji, i) => (
-                  <button
-                    key={i}
-                    className="w-9 h-9 rounded-full border-2 border-gray-200 dark:border-gray-600 hover:border-[#1fb8a2] dark:hover:border-[#1fb8a2] transition-colors flex items-center justify-center text-base"
-                  >
-                    {emoji}
-                  </button>
-                ))}
+              <p className="text-[10px] opacity-80 mb-1">Total Balance</p>
+              <p className="text-2xl font-bold mb-4">${stats.totalRevenue.toFixed(2)}</p>
+              <div className="flex gap-2">
+                <button className="flex-1 bg-white/20 backdrop-blur-sm hover:bg-white/30 py-2 rounded-xl text-xs font-bold transition-colors">
+                  Withdraw
+                </button>
+                <button className="flex-1 bg-white/20 backdrop-blur-sm hover:bg-white/30 py-2 rounded-xl text-xs font-bold transition-colors">
+                  Top Up
+                </button>
               </div>
             </div>
           </div>
