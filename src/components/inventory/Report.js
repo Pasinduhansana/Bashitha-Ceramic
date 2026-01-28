@@ -219,7 +219,7 @@ export default function Report() {
           </div>
           <button
             onClick={handleDownloadAll}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#1fb8a2] to-[#17a694] hover:from-[#1aa693] hover:to-[#158f82] text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[#1fb8a2] to-[#17a694] hover:from-[#1aa693] hover:to-[#158f82] text-white rounded-md font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <Download className="h-5 w-5" />
             Download All Reports
@@ -228,37 +228,37 @@ export default function Report() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow">
+          <div className="bg-white rounded-md shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Available Reports</p>
                 <p className="text-3xl font-bold text-gray-900">{stats.totalReports}</p>
               </div>
-              <div className="bg-[#1fb8a2]/10 p-3 rounded-xl">
+              <div className="bg-[#1fb8a2]/10 p-3 rounded-md">
                 <FileSpreadsheet className="h-8 w-8 text-[#1fb8a2]" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow">
+          <div className="bg-white rounded-md shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Downloaded Today</p>
                 <p className="text-3xl font-bold text-gray-900">{stats.downloadedToday}</p>
               </div>
-              <div className="bg-emerald-50 p-3 rounded-xl">
+              <div className="bg-emerald-50 p-3 rounded-md">
                 <CheckCircle2 className="h-8 w-8 text-emerald-600" />
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow">
+          <div className="bg-white rounded-md shadow-md border border-gray-100 p-6 hover:shadow-lg transition-shadow">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-1">Export Formats</p>
                 <p className="text-3xl font-bold text-gray-900">2</p>
               </div>
-              <div className="bg-cyan-50 p-3 rounded-xl">
+              <div className="bg-cyan-50 p-3 rounded-md">
                 <FileBarChart className="h-8 w-8 text-cyan-600" />
               </div>
             </div>
@@ -267,9 +267,9 @@ export default function Report() {
       </div>
 
       {/* Filters Card */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-800 p-6 sm:p-8">
+      <div className="bg-white dark:bg-gray-900 rounded-md shadow-lg border border-gray-200 dark:border-gray-800 p-6 sm:p-8">
         <div className="flex items-center gap-3 mb-6">
-          <div className="bg-[#1fb8a2]/10 p-2 rounded-lg">
+          <div className="bg-[#1fb8a2]/10 p-2 rounded-md">
             <Filter className="h-5 w-5 text-[#1fb8a2]" />
           </div>
           <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Filter & Export Options</h3>
@@ -286,7 +286,7 @@ export default function Report() {
               type="date"
               value={dateRange.from}
               onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1fb8a2] focus:border-[#1fb8a2] transition-all"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-[#1fb8a2] focus:border-[#1fb8a2] transition-all"
             />
           </div>
 
@@ -299,7 +299,7 @@ export default function Report() {
               type="date"
               value={dateRange.to}
               onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1fb8a2] focus:border-[#1fb8a2] transition-all"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-[#1fb8a2] focus:border-[#1fb8a2] transition-all"
             />
           </div>
 
@@ -312,7 +312,7 @@ export default function Report() {
             <select
               value={selectedFormat}
               onChange={(e) => setSelectedFormat(e.target.value)}
-              className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-[#1fb8a2] focus:border-[#1fb8a2] transition-all bg-white font-medium"
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-md focus:ring-2 focus:ring-[#1fb8a2] focus:border-[#1fb8a2] transition-all bg-white font-medium"
             >
               <option value="csv">📊 CSV (Excel Compatible)</option>
               <option value="json">📄 JSON (Developer Format)</option>
@@ -321,7 +321,7 @@ export default function Report() {
         </div>
 
         {dateRange.from && dateRange.to && (
-          <div className="mt-6 p-4 bg-[#1fb8a2]/10 dark:bg-[#1fb8a2]/5 border-2 border-[#1fb8a2]/20 rounded-xl">
+          <div className="mt-6 p-4 bg-[#1fb8a2]/10 dark:bg-[#1fb8a2]/5 border-2 border-[#1fb8a2]/20 rounded-md">
             <div className="flex items-center gap-2">
               <Clock className="h-5 w-5 text-[#1fb8a2]" />
               <p className="text-sm font-medium text-gray-800">
@@ -344,11 +344,11 @@ export default function Report() {
             return (
               <div
                 key={report.id}
-                className="group bg-white rounded-2xl shadow-lg border-2 border-gray-100 p-6 hover:shadow-xl hover:border-[#1fb8a2]/30 transition-all duration-300"
+                className="group bg-white rounded-md shadow-lg border-2 border-gray-100 p-6 hover:shadow-xl hover:border-[#1fb8a2]/30 transition-all duration-300"
               >
                 {/* Icon */}
                 <div
-                  className={`inline-flex items-center justify-center w-14 h-14 rounded-xl border-2 ${report.color} mb-4 group-hover:scale-110 transition-transform duration-300`}
+                  className={`inline-flex items-center justify-center w-14 h-14 rounded-md border-2 ${report.color} mb-4 group-hover:scale-110 transition-transform duration-300`}
                 >
                   <Icon className="h-7 w-7" />
                 </div>
@@ -363,7 +363,7 @@ export default function Report() {
                 <button
                   onClick={() => handleDownload(report)}
                   disabled={isLoading}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#1fb8a2] to-[#17a694] hover:from-[#1aa693] hover:to-[#158f82] text-white rounded-xl font-semibold shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-[#1fb8a2] to-[#17a694] hover:from-[#1aa693] hover:to-[#158f82] text-white rounded-md font-semibold shadow-md hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-md"
                 >
                   {isLoading ? (
                     <>
@@ -384,9 +384,9 @@ export default function Report() {
       </div>
 
       {/* Info Section */}
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border-2 border-[#1fb8a2]/30 p-6 sm:p-8 shadow-lg">
+      <div className="bg-white dark:bg-gray-900 rounded-md border-2 border-[#1fb8a2]/30 p-6 sm:p-8 shadow-lg">
         <div className="flex items-start gap-4">
-          <div className="bg-[#1fb8a2] p-3 rounded-xl shadow-md">
+          <div className="bg-[#1fb8a2] p-3 rounded-md shadow-md">
             <TrendingUp className="h-6 w-6 text-white" />
           </div>
           <div className="flex-1">

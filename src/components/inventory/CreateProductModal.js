@@ -158,7 +158,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                   <p className="text-xs uppercase tracking-wide text-white/80">New Product</p>
                   <h2 className="text-lg font-semibold leading-tight">Create Product</h2>
                 </div>
-                <button onClick={onClose} className="rounded-lg p-2 text-white/80 hover:bg-white/15" aria-label="Close modal">
+                <button onClick={onClose} className="rounded-md p-2 text-white/80 hover:bg-white/15" aria-label="Close modal">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -174,7 +174,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                       value={form.name}
                       onChange={(e) => handleChange("name", e.target.value)}
                       placeholder="Enter product name"
-                      className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
+                      className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                       required
                     />
                   </div>
@@ -184,7 +184,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                     <select
                       value={form.category_id}
                       onChange={(e) => handleChange("category_id", e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 text-gray-900 [&_option:first-child]:text-gray-400"
+                      className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 text-gray-900 [&_option:first-child]:text-gray-400"
                     >
                       <option value="" className="text-gray-400">
                         Select category
@@ -205,7 +205,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                       onChange={(e) => handleChange("description", e.target.value)}
                       placeholder="Enter product description"
                       rows={3}
-                      className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
+                      className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                     />
                   </div>
 
@@ -214,7 +214,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                     <label className="text-xs font-semibold text-gray-600">Product Image</label>
                     <div className="mt-1 flex items-center gap-4">
                       {imagePreview && (
-                        <div className="relative h-20 w-20 rounded-lg border  border-gray-200 overflow-hidden">
+                        <div className="relative h-20 w-20 rounded-md border  border-gray-200 overflow-hidden">
                           <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
                         </div>
                       )}
@@ -222,7 +222,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                         type="file"
                         accept="image/*"
                         onChange={handleImageChange}
-                        className="flex-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#1fb8a2] file:text-white hover:file:bg-[#189d8b] cursor-pointer"
+                        className="flex-1 text-sm text-gray-600 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[#1fb8a2] file:text-white hover:file:bg-[#189d8b] cursor-pointer"
                       />
                     </div>
                   </div>
@@ -236,7 +236,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                         value={form.product_type || ""}
                         onChange={(e) => handleChange("product_type", e.target.value)}
                         placeholder="e.g., Ceramic"
-                        className="mt-1 w-full rounded-lg border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
+                        className="mt-1 w-full rounded-md border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                       />
                     </div>
                     <div>
@@ -246,7 +246,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                         value={form.unit || ""}
                         onChange={(e) => handleChange("unit", e.target.value)}
                         placeholder="e.g., Pcs, Kg"
-                        className="mt-1 w-full rounded-lg border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
+                        className="mt-1 w-full rounded-md border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                       />
                     </div>
                   </div>
@@ -260,7 +260,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                         value={form.brand || ""}
                         onChange={(e) => handleChange("brand", e.target.value)}
                         placeholder="Brand name"
-                        className="mt-1 w-full rounded-lg border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
+                        className="mt-1 w-full rounded-md border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                       />
                     </div>
                     <div>
@@ -270,7 +270,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                         value={form.shade || ""}
                         onChange={(e) => handleChange("shade", e.target.value)}
                         placeholder="Color/Shade"
-                        className="mt-1 w-full rounded-lg border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
+                        className="mt-1 w-full rounded-md border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                       />
                     </div>
                   </div>
@@ -284,7 +284,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                         value={form.code || ""}
                         onChange={(e) => handleChange("code", e.target.value)}
                         placeholder="Product code"
-                        className="mt-1 w-full rounded-lg border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
+                        className="mt-1 w-full rounded-md border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                       />
                     </div>
                     <div>
@@ -294,7 +294,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                         value={form.size || ""}
                         onChange={(e) => handleChange("size", e.target.value)}
                         placeholder="Size"
-                        className="mt-1 w-full rounded-lg border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
+                        className="mt-1 w-full rounded-md border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                       />
                     </div>
                   </div>
@@ -310,7 +310,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                         placeholder="0.00"
                         step="0.01"
                         required
-                        className="mt-1 w-full rounded-lg border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
+                        className="mt-1 w-full rounded-md border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                       />
                     </div>
                     <div>
@@ -320,7 +320,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                         value={form.reorder_level || ""}
                         onChange={(e) => handleChange("reorder_level", e.target.value)}
                         placeholder="0"
-                        className="mt-1 w-full rounded-lg border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
+                        className="mt-1 w-full rounded-md border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                       />
                     </div>
                   </div>
@@ -333,7 +333,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                       value={form.qty || "0"}
                       onChange={(e) => handleChange("qty", e.target.value)}
                       placeholder="0"
-                      className="mt-1 w-full rounded-lg border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
+                      className="mt-1 w-full rounded-md border outline-none border-gray-200 px-3 py-2 text-sm focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                     />
                   </div>
 
@@ -342,14 +342,14 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                     <button
                       type="button"
                       onClick={onClose}
-                      className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50"
+                      className="rounded-md border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={saving}
-                      className="inline-flex items-center gap-2 rounded-lg bg-[#1fb8a2] px-4 py-2 text-sm font-semibold text-white shadow hover:bg-[#189d8b] disabled:cursor-not-allowed disabled:opacity-70"
+                      className="inline-flex items-center gap-2 rounded-md bg-[#1fb8a2] px-4 py-2 text-sm font-semibold text-white shadow hover:bg-[#189d8b] disabled:cursor-not-allowed disabled:opacity-70"
                     >
                       {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                       Create Product

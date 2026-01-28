@@ -7,13 +7,13 @@ import { cookies } from "next/headers";
 export async function GET(request) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token");
+    const token = cookieStore.get("auth_token");
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const decoded = verifyToken(token.value);
-    const userId = decoded.userId;
+    const userId = decoded.id;
 
     const db = getDb();
 
@@ -57,13 +57,13 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token");
+    const token = cookieStore.get("auth_token");
     if (!token) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const decoded = verifyToken(token.value);
-    const userId = decoded.userId;
+    const userId = decoded.id;
 
     const { notificationId } = await request.json();
 

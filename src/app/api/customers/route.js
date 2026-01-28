@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 export async function GET(request) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = cookieStore.get("auth_token")?.value;
     const user = token ? verifyToken(token) : null;
 
     if (!user) {
@@ -49,7 +49,7 @@ export async function GET(request) {
 export async function POST(request) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = cookieStore.get("auth_token")?.value;
     const user = token ? verifyToken(token) : null;
 
     if (!user) {
@@ -77,7 +77,7 @@ export async function POST(request) {
     // Log audit
     await db.execute(
       `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'CREATE_CUSTOMER', 'customers', ?, NOW())`,
-      [user.id, customer_id]
+      [user.id, customer_id],
     );
 
     return NextResponse.json({ success: true, customer_id });

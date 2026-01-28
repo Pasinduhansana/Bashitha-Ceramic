@@ -201,7 +201,7 @@ export default function UserProfilePanel({ isOpen, onClose }) {
                   type="text"
                   value={profile.name}
                   onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-                  className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-[#1fb8a2] focus:border-[#1fb8a2] transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                  className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-md focus:ring-2 focus:ring-[#1fb8a2] focus:border-[#1fb8a2] transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
                   placeholder="Enter your full name"
                 />
               </div>
@@ -216,7 +216,7 @@ export default function UserProfilePanel({ isOpen, onClose }) {
                   type="email"
                   value={profile.email}
                   disabled
-                  className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm cursor-not-allowed"
+                  className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm cursor-not-allowed"
                   placeholder="your.email@example.com"
                 />
               </div>
@@ -231,7 +231,7 @@ export default function UserProfilePanel({ isOpen, onClose }) {
                   type="tel"
                   value={profile.phone}
                   onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                  className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-[#1fb8a2] focus:border-[#1fb8a2] transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
+                  className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-md focus:ring-2 focus:ring-[#1fb8a2] focus:border-[#1fb8a2] transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm"
                   placeholder="+1 (555) 123-4567"
                 />
               </div>
@@ -246,7 +246,7 @@ export default function UserProfilePanel({ isOpen, onClose }) {
                   value={profile.address}
                   onChange={(e) => setProfile({ ...profile, address: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-[#1fb8a2] focus:border-[#1fb8a2] transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
+                  className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-md focus:ring-2 focus:ring-[#1fb8a2] focus:border-[#1fb8a2] transition-all bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm resize-none"
                   placeholder="Enter your address"
                 />
               </div>
@@ -261,7 +261,7 @@ export default function UserProfilePanel({ isOpen, onClose }) {
                   type="text"
                   value={profile.role}
                   disabled
-                  className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm cursor-not-allowed"
+                  className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm cursor-not-allowed"
                 />
               </div>
 
@@ -275,7 +275,7 @@ export default function UserProfilePanel({ isOpen, onClose }) {
                   type="text"
                   value={profile.joinedDate}
                   disabled
-                  className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm cursor-not-allowed"
+                  className="w-full px-4 py-2.5 border-2 border-gray-200 dark:border-gray-700 rounded-md bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 text-sm cursor-not-allowed"
                 />
               </div>
             </div>
@@ -285,7 +285,7 @@ export default function UserProfilePanel({ isOpen, onClose }) {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#1fb8a2] to-[#17a694] hover:from-[#1aa693] hover:to-[#158f82] text-white rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-[#1fb8a2] to-[#17a694] hover:from-[#1aa693] hover:to-[#158f82] text-white rounded-md font-semibold shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
                 {saving ? (
                   <>
@@ -301,7 +301,7 @@ export default function UserProfilePanel({ isOpen, onClose }) {
               </button>
               <button
                 onClick={onClose}
-                className="px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm"
+                className="px-6 py-3 border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-md font-semibold hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-sm"
               >
                 Cancel
               </button>

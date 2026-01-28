@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 export async function GET(request, { params }) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = cookieStore.get("auth_token")?.value;
     const user = token ? verifyToken(token) : null;
 
     if (!user) {
@@ -27,7 +27,7 @@ export async function GET(request, { params }) {
       LEFT JOIN invoices i ON c.id = i.customer_id
       WHERE c.id = ?
       GROUP BY c.id`,
-      [id]
+      [id],
     );
 
     if (customers.length === 0) {
@@ -48,7 +48,7 @@ export async function GET(request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = cookieStore.get("auth_token")?.value;
     const user = token ? verifyToken(token) : null;
 
     if (!user) {
@@ -70,7 +70,7 @@ export async function PUT(request, { params }) {
     // Log audit
     await db.execute(
       `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'UPDATE_CUSTOMER', 'customers', ?, NOW())`,
-      [user.id, id]
+      [user.id, id],
     );
 
     return NextResponse.json({ success: true });
@@ -84,7 +84,7 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = cookieStore.get("auth_token")?.value;
     const user = token ? verifyToken(token) : null;
 
     if (!user) {
@@ -106,7 +106,7 @@ export async function DELETE(request, { params }) {
     // Log audit
     await db.execute(
       `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'DELETE_CUSTOMER', 'customers', ?, NOW())`,
-      [user.id, id]
+      [user.id, id],
     );
 
     return NextResponse.json({ success: true });

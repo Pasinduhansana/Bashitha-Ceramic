@@ -76,10 +76,10 @@ function StatusLabel({ status }) {
 
 function ProductCard({ item }) {
   return (
-    <div className="relative grid grid-cols-[2fr_0.8fr_1fr_1.2fr_1fr_1.3fr] gap-4 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-3 hover:bg-linear-to-r hover:from-gray-50/50 hover:to-transparent dark:hover:from-gray-700/30 transition-all duration-200">
+    <div className="relative grid grid-cols-[2fr_0.8fr_1fr_1.2fr_1fr_1.3fr] gap-4 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-5 py-3 hover:bg-linear-to-r hover:from-gray-50/50 hover:to-transparent dark:hover:from-gray-700/30 transition-all duration-200">
       {/* Product Info */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-linear-to-br from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-800 border-2 border-gray-200 dark:border-gray-600 shadow-sm">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-linear-to-br from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-800 border-2 border-gray-200 dark:border-gray-600 shadow-sm">
           <Package className="h-4 w-4 text-gray-500 dark:text-gray-400" />
         </div>
         <div className="min-w-0">
@@ -126,7 +126,7 @@ export default function Activities() {
   const [categoryOpen, setCategoryOpen] = useState(false);
 
   const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(true);
@@ -222,13 +222,13 @@ export default function Activities() {
             <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 block mb-1">Date:</label>
             <button
               onClick={() => setDateOpen(!dateOpen)}
-              className="flex w-full items-center gap-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex w-full items-center gap-2 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               {dateFilter}
               <ChevronDown className="h-3 w-3 ml-auto" />
             </button>
             {dateOpen && (
-              <div className="absolute top-full z-20 mt-1 w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1">
+              <div className="absolute top-full z-20 mt-1 w-full rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1">
                 {["Today", "Yesterday", "Last 7 days", "Last 30 days"].map((opt) => (
                   <button
                     key={opt}
@@ -254,13 +254,13 @@ export default function Activities() {
             <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 block mb-1">User:</label>
             <button
               onClick={() => setUserOpen(!userOpen)}
-              className="flex w-full items-center gap-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex w-full items-center gap-2 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               {userFilter}
               <ChevronDown className="h-3 w-3 ml-auto" />
             </button>
             {userOpen && (
-              <div className="absolute top-full z-20 mt-1 w-full max-h-48 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1 overflow-y-auto">
+              <div className="absolute top-full z-20 mt-1 w-full max-h-48 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1 overflow-y-auto">
                 {usersLoading ? (
                   <div className="flex items-center justify-center py-4">
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#1fb8a2]"></div>
@@ -305,13 +305,13 @@ export default function Activities() {
             <label className="text-xs font-semibold text-gray-700 dark:text-gray-300 block mb-1">Category:</label>
             <button
               onClick={() => setCategoryOpen(!categoryOpen)}
-              className="flex w-full items-center gap-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex w-full items-center gap-2 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               {categoryFilter}
               <ChevronDown className="h-3 w-3 ml-auto" />
             </button>
             {categoryOpen && (
-              <div className="absolute top-full z-20 mt-1 w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1">
+              <div className="absolute top-full z-20 mt-1 w-full rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1">
                 {["All", "Entries", "Updates", "Deletions"].map((opt) => (
                   <button
                     key={opt}
@@ -341,13 +341,13 @@ export default function Activities() {
               <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">Date :</span>
               <button
                 onClick={() => setDateOpen(!dateOpen)}
-                className="flex items-center gap-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 min-w-25 transition-colors"
+                className="flex items-center gap-2 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 min-w-25 transition-colors"
               >
                 {dateFilter}
                 <ChevronDown className="h-3 w-3 ml-auto" />
               </button>
               {dateOpen && (
-                <div className="absolute top-full z-20 mt-2 w-40 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1">
+                <div className="absolute top-full z-20 mt-2 w-40 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1">
                   {["Today", "Yesterday", "Last 7 days", "Last 30 days"].map((opt) => (
                     <button
                       key={opt}
@@ -373,13 +373,13 @@ export default function Activities() {
               <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">User :</span>
               <button
                 onClick={() => setUserOpen(!userOpen)}
-                className="flex items-center gap-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 min-w-25 transition-colors"
+                className="flex items-center gap-2 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 min-w-25 transition-colors"
               >
                 {userFilter}
                 <ChevronDown className="h-3 w-3 ml-auto" />
               </button>
               {userOpen && (
-                <div className="absolute top-full z-20 mt-2 w-56 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1 max-h-64 overflow-y-auto">
+                <div className="absolute top-full z-20 mt-2 w-56 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1 max-h-64 overflow-y-auto">
                   {usersLoading ? (
                     <div className="flex items-center justify-center py-4">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#1fb8a2]"></div>
@@ -424,13 +424,13 @@ export default function Activities() {
               <span className="text-xs font-semibold text-gray-700 dark:text-gray-300 whitespace-nowrap">Category :</span>
               <button
                 onClick={() => setCategoryOpen(!categoryOpen)}
-                className="flex items-center gap-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 min-w-25 transition-colors"
+                className="flex items-center gap-2 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 min-w-25 transition-colors"
               >
                 {categoryFilter}
                 <ChevronDown className="h-3 w-3 ml-auto" />
               </button>
               {categoryOpen && (
-                <div className="absolute top-full z-20 mt-2 w-40 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1">
+                <div className="absolute top-full z-20 mt-2 w-40 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1">
                   {["All", "Entries", "Updates", "Deletions"].map((opt) => (
                     <button
                       key={opt}
@@ -460,7 +460,7 @@ export default function Activities() {
               placeholder="Search Activity..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-gray-400 dark:focus:border-gray-600 transition-all"
+              className="w-full rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-gray-400 dark:focus:border-gray-600 transition-all"
             />
           </div>
         </div>
@@ -473,7 +473,7 @@ export default function Activities() {
             placeholder="Search Activity..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-gray-400 dark:focus:border-gray-600 transition-all"
+            className="w-full rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-gray-400 dark:focus:border-gray-600 transition-all"
           />
         </div>
       </div>
@@ -481,8 +481,9 @@ export default function Activities() {
       {/* Activity Timeline */}
       <div className="space-y-6">
         {loading && (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#1fb8a2]"></div>
+          <div className="flex flex-col items-center justify-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1fb8a2]"></div>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">Loading activities...</p>
           </div>
         )}
         {!loading && groupedSections.length === 0 && (
@@ -537,7 +538,7 @@ export default function Activities() {
 
                       {/* Product Details Table - Only for CREATE_PRODUCT or DELETE_PRODUCT */}
                       {log.productDetails && (log.action === "CREATE_PRODUCT" || log.action === "DELETE_PRODUCT") && (
-                        <div className="mt-3 overflow-hidden rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                        <div className="mt-3 overflow-hidden rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
                           <div className="overflow-x-auto">
                             <table className="w-full text-xs">
                               <thead className="bg-gray-50 dark:bg-gray-900/50">

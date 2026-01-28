@@ -172,7 +172,7 @@ export default function People() {
           </div>
         </div>
       ),
-      { duration: 5000, position: "top-center" }
+      { duration: 5000, position: "top-center" },
     );
   };
 
@@ -219,7 +219,7 @@ export default function People() {
           </div>
         </div>
       ),
-      { duration: 5000, position: "top-center" }
+      { duration: 5000, position: "top-center" },
     );
   };
 
@@ -267,17 +267,17 @@ export default function People() {
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors px-4 sm:px-6 py-4 sm:py-6">
       {/* Header */}
       <div className="mb-6">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-1">User Management</h2>
+        <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1">User Management</h2>
         <p className="text-sm text-gray-500">Manage your organization's users, roles, and permissions</p>
       </div>
 
       {/* Stats Cards */}
       {stats && (
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 mb-6">
-          <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-white to-blue-50/30 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="rounded-md border border-gray-200 bg-gradient-to-br from-white to-blue-50/30 p-4 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-medium text-gray-600">Total Users</span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-100">
                 <Users className="h-4 w-4 text-blue-600" />
               </div>
             </div>
@@ -285,10 +285,10 @@ export default function People() {
             <p className="text-xs text-green-600 mt-0.5">+{stats.growth}% from last month</p>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-white to-green-50/30 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="rounded-md border border-gray-200 bg-gradient-to-br from-white to-green-50/30 p-4 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-medium text-gray-600">Active Users</span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-green-100">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-green-100">
                 <UserCheck className="h-4 w-4 text-green-600" />
               </div>
             </div>
@@ -298,10 +298,10 @@ export default function People() {
             </p>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="rounded-md border border-gray-200 bg-gradient-to-br from-white to-gray-50/50 p-4 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-medium text-gray-600">Inactive Users</span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-gray-100">
                 <UserX className="h-4 w-4 text-gray-600" />
               </div>
             </div>
@@ -311,10 +311,10 @@ export default function People() {
             </p>
           </div>
 
-          <div className="rounded-lg border border-gray-200 bg-gradient-to-br from-white to-purple-50/30 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="rounded-md border border-gray-200 bg-gradient-to-br from-white to-purple-50/30 p-4 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-1.5">
               <span className="text-xs font-medium text-gray-600">New Today</span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-purple-100">
+              <div className="flex h-8 w-8 items-center justify-center rounded-md bg-purple-100">
                 <Calendar className="h-4 w-4 text-purple-600" />
               </div>
             </div>
@@ -471,13 +471,13 @@ export default function People() {
         {/* User List/Tile View */}
         <div className="flex-1">
           {loading ? (
-            <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-12">
+            <div className="rounded-md border border-gray-200 bg-white shadow-sm p-12">
               <div className="flex items-center justify-center">
                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-gray-200 border-t-[#1fb8a2]"></div>
               </div>
             </div>
           ) : users.length === 0 ? (
-            <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-12">
+            <div className="rounded-md border border-gray-200 bg-white shadow-sm p-12">
               <div className="flex flex-col items-center justify-center text-gray-500">
                 <Users className="h-12 w-12 mb-2" />
                 <p>No users found</p>
@@ -485,7 +485,7 @@ export default function People() {
             </div>
           ) : viewMode === "list" ? (
             // LIST VIEW
-            <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+            <div className="rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
               {/* Table Header */}
               <div className="border-b border-gray-200 bg-gray-50 px-6 py-3">
                 <h3 className="font-semibold text-gray-900">User List</h3>
@@ -557,7 +557,7 @@ export default function People() {
                   <div
                     key={user.id}
                     onClick={() => setSelectedUser(user)}
-                    className={`relative rounded-xl border bg-white p-5 shadow-sm cursor-pointer transition-all hover:shadow-md ${
+                    className={`relative rounded-md border bg-white p-5 shadow-sm cursor-pointer transition-all hover:shadow-md ${
                       selectedUser?.id === user.id ? "border-[#1fb8a2] ring-2 ring-[#1fb8a2]/20" : "border-gray-200 hover:border-[#1fb8a2]/50"
                     }`}
                   >
@@ -613,7 +613,7 @@ export default function People() {
               </div>
 
               {/* Pagination for Tile View */}
-              <div className="rounded-xl border border-gray-200 bg-white shadow-sm px-6 py-3 flex items-center justify-between">
+              <div className="rounded-md border border-gray-200 bg-white shadow-sm px-6 py-3 flex items-center justify-between">
                 <span className="text-sm text-gray-600">
                   Showing 1 to {users.length} of {users.length} users
                 </span>
@@ -629,7 +629,7 @@ export default function People() {
 
         {/* User Details Panel */}
         <div className="w-full lg:w-96 flex-shrink-0">
-          <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+          <div className="rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
             {/* Header */}
             <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-3 flex items-center justify-between">
               <h3 className="font-semibold text-gray-900">User Details</h3>
@@ -745,7 +745,7 @@ export default function People() {
         <>
           <div className="fixed inset-0 bg-black/50 z-40 backdrop-blur-sm" onClick={() => setShowEditModal(false)} />
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white shadow-2xl">
+            <div className="w-full max-w-md rounded-md border border-gray-200 bg-white shadow-2xl">
               <div className="border-b border-gray-200 px-6 py-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900">Edit User</h3>
                 <button onClick={() => setShowEditModal(false)} className="text-gray-400 hover:text-gray-600">

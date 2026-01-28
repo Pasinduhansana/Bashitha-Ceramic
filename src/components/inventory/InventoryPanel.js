@@ -133,7 +133,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
             <div className="border-b border-gray-200 bg-gradient-to-r from-[#1fb8a2] to-[#189d8b] px-6 py-5">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-white/20 backdrop-blur-sm">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-md bg-white/20 backdrop-blur-sm">
                     <Package className="h-6 w-6 text-white" />
                   </div>
                   <div>
@@ -141,7 +141,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                     <p className="text-sm text-white/80">Adjust stock levels</p>
                   </div>
                 </div>
-                <button onClick={onClose} className="rounded-lg p-2 text-white/80 hover:bg-white/20 transition-colors">
+                <button onClick={onClose} className="rounded-md p-2 text-white/80 hover:bg-white/20 transition-colors">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -150,10 +150,10 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {/* Product Info */}
-              <div className="rounded-xl border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-5">
+              <div className="rounded-md border border-gray-200 bg-gradient-to-br from-gray-50 to-white p-5">
                 <div className="flex flex-col items-start gap-4">
                   <div className="flex flex-row items-start gap-4">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gradient-to-br from-[#1fb8a2] to-[#189d8b] text-white shrink-0">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-md bg-gradient-to-br from-[#1fb8a2] to-[#189d8b] text-white shrink-0">
                       <Box className="h-7 w-7" />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -172,17 +172,17 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
 
                 {/* Stock Stats */}
                 <div className="mt-4 grid grid-cols-3 gap-3">
-                  <div className="rounded-lg bg-white border border-gray-200 p-3">
+                  <div className="rounded-md bg-white border border-gray-200 p-3">
                     <p className="text-xs text-gray-500 mb-1">Current Stock</p>
                     <p className="text-xl font-bold text-gray-900">{product.qty}</p>
                     <p className="text-xs text-gray-500">{product.unit || "Pcs"}</p>
                   </div>
-                  <div className="rounded-lg bg-white border border-gray-200 p-3">
+                  <div className="rounded-md bg-white border border-gray-200 p-3">
                     <p className="text-xs text-gray-500 mb-1">Reorder Level</p>
                     <p className="text-xl font-bold text-gray-900">{product.reorder_level || 0}</p>
                     <p className="text-xs text-gray-500">{product.unit || "Pcs"}</p>
                   </div>
-                  <div className="rounded-lg bg-white border border-gray-200 p-3">
+                  <div className="rounded-md bg-white border border-gray-200 p-3">
                     <p className="text-xs text-gray-500 mb-1">Selling Price</p>
                     <p className="text-xl font-bold text-[#1fb8a2]">${product.selling_price || 0}</p>
                   </div>
@@ -190,7 +190,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
               </div>
 
               {/* Adjustment Form */}
-              <div className="rounded-xl border border-gray-200 bg-white p-5">
+              <div className="rounded-md border border-gray-200 bg-white p-5">
                 <h4 className="text-sm font-semibold text-gray-900 mb-4">Adjust Inventory</h4>
 
                 {/* Action Type */}
@@ -199,7 +199,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                   <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => setAdjustmentType("add")}
-                      className={`flex items-center justify-center gap-2 rounded-lg border px-4  text-sm font-medium transition-all ${
+                      className={`flex items-center justify-center gap-2 rounded-md border px-4  text-sm font-medium transition-all ${
                         adjustmentType === "add"
                           ? "border-[#1fb8a2] bg-[#1fb8a2]/10 text-[#1fb8a2]"
                           : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
@@ -210,7 +210,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                     </button>
                     <button
                       onClick={() => setAdjustmentType("remove")}
-                      className={`flex items-center justify-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-all ${
+                      className={`flex items-center justify-center gap-2 rounded-md border px-4 py-3 text-sm font-medium transition-all ${
                         adjustmentType === "remove"
                           ? "border-red-500 bg-red-50 text-red-700"
                           : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
@@ -231,7 +231,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                     onChange={(e) => setQuantity(e.target.value)}
                     min="1"
                     placeholder="Enter quantity"
-                    className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
+                    className="w-full rounded-md border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 placeholder:text-gray-400"
                   />
                 </div>
 
@@ -241,7 +241,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                   <select
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="w-full rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 text-gray-900 [&_option:first-child]:text-gray-400"
+                    className="w-full rounded-md border border-gray-200 bg-white px-4 py-2.5 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 text-gray-900 [&_option:first-child]:text-gray-400"
                   >
                     <option value="" className="text-gray-400">
                       Select reason...
@@ -267,7 +267,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                 <button
                   onClick={handleAdjustInventory}
                   disabled={loading}
-                  className={`flex w-full items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-white transition-all ${
+                  className={`flex w-full items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-medium text-white transition-all ${
                     adjustmentType === "add"
                       ? "bg-gradient-to-r from-[#1fb8a2] to-[#189d8b] hover:shadow-lg"
                       : "bg-gradient-to-r from-red-600 to-red-700 hover:shadow-lg"
@@ -279,7 +279,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
               </div>
 
               {/* Stock History */}
-              <div className="rounded-xl border border-gray-200 bg-white p-5">
+              <div className="rounded-md border border-gray-200 bg-white p-5">
                 <h4 className="text-sm font-semibold text-gray-900 mb-4">Stock History</h4>
 
                 {loadingHistory ? (
@@ -293,10 +293,10 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                     {stockHistory.map((log) => (
                       <div
                         key={log.id}
-                        className="flex items-start gap-3 rounded-lg border border-gray-100 bg-gray-50/50 p-3 hover:bg-gray-50 transition-colors"
+                        className="flex items-start gap-3 rounded-md border border-gray-100 bg-gray-50/50 p-3 hover:bg-gray-50 transition-colors"
                       >
                         <div
-                          className={`flex h-8 w-8 items-center justify-center rounded-lg shrink-0 ${log.qty > 0 ? "bg-green-100" : "bg-red-100"}`}
+                          className={`flex h-8 w-8 items-center justify-center rounded-md shrink-0 ${log.qty > 0 ? "bg-green-100" : "bg-red-100"}`}
                         >
                           {getActionIcon(log.action)}
                         </div>

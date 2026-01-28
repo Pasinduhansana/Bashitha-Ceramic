@@ -115,6 +115,7 @@ export default function InventoryPage() {
   const filteredProducts = useMemo(() => {
     let list = products;
 
+    // Filter by tab (stock status)
     if (activeTab === "Out of Stock") {
       list = list.filter((p) => p.qty === 0);
     } else if (activeTab === "Low Stock") {
@@ -123,8 +124,26 @@ export default function InventoryPage() {
       list = list.filter((p) => p.qty > p.reorder_level * 2);
     }
 
+    // Filter by category
+    if (categoryFilter) {
+      list = list.filter((p) => p.category === categoryFilter);
+    }
+
+    // Filter by search term
+    if (searchTerm.trim()) {
+      const search = searchTerm.toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name?.toLowerCase().includes(search) ||
+          p.code?.toLowerCase().includes(search) ||
+          p.brand?.toLowerCase().includes(search) ||
+          p.shade?.toLowerCase().includes(search) ||
+          p.description?.toLowerCase().includes(search),
+      );
+    }
+
     return list;
-  }, [products, activeTab]);
+  }, [products, activeTab, categoryFilter, searchTerm]);
 
   // Pagination logic
   const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
@@ -200,6 +219,7 @@ export default function InventoryPage() {
       <InventoryHeader
         onSettingsClick={() => setShowSettings(true)}
         onProfileClick={() => setShowProfile(true)}
+        onNotificationsClick={() => setActiveNav("Activities")}
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         onSearchFocus={() => {
@@ -215,7 +235,17 @@ export default function InventoryPage() {
           setSearchTerm("");
         }}
       />
-      <InventoryNavigation active={activeNav} onChange={setActiveNav} userPermissions={userPermissions} />
+      <InventoryNavigation
+        active={activeNav}
+        onChange={setActiveNav}
+        userPermissions={userPermissions}
+        products={products}
+        onProductSelect={(product) => {
+          setSelectedProduct(product);
+          setProductDetailMode("view");
+          setShowProductDetail(true);
+        }}
+      />
 
       <AnimatePresence mode="wait">
         {activeNav === "Products" ? (
@@ -227,14 +257,30 @@ export default function InventoryPage() {
             transition={{ duration: 0.25 }}
             className="px-4 sm:px-6 py-4 sm:py-6"
           >
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Products</h2>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Products</h2>
+                {(searchTerm || categoryFilter) && (
+                  <button
+                    onClick={() => {
+                      setSearchTerm("");
+                      setCategoryFilter("");
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span className="hidden sm:inline">Clear Filters</span>
+                  </button>
+                )}
+              </div>
               <button
                 onClick={() => setShowCreateProduct(true)}
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-lg bg-[#1fb8a2] px-4 py-2.5 sm:py-2 text-sm font-semibold text-white shadow hover:bg-[#189d8b]"
+                className="inline-flex items-center justify-center gap-2 rounded-md bg-[#1fb8a2] px-3 sm:px-4 py-2 sm:py-2 text-xs sm:text-sm font-semibold text-white shadow hover:bg-[#189d8b]"
               >
                 <Plus className="h-4 w-4" />
-                Add Product
+                <span>Add Product</span>
               </button>
             </div>
 
@@ -265,7 +311,7 @@ export default function InventoryPage() {
                 <ProductsTable products={paginatedProducts} viewMode={viewMode} onAction={handleProductAction} />
 
                 {/* Pagination */}
-                <div className="mt-8 rounded-xl border border-gray-200 bg-white shadow-sm px-4 sm:px-6 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="mt-8 rounded-md border border-gray-200 bg-white shadow-sm px-4 sm:px-6 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <span className="text-sm text-gray-600 text-center sm:text-left">
                     Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredProducts.length)} of {filteredProducts.length} products
                   </span>
@@ -321,7 +367,7 @@ export default function InventoryPage() {
             ) : (
               <div className="px-4 sm:px-6 py-4 sm:py-6">
                 <h2 className="mb-4 text-xl sm:text-2xl font-semibold text-gray-900">{activeNav}</h2>
-                <div className="rounded-lg border border-gray-200 bg-white p-6 text-gray-600">{activeNav} content goes here.</div>
+                <div className="rounded-md border border-gray-200 bg-white p-6 text-gray-600">{activeNav} content goes here.</div>
               </div>
             )}
           </motion.div>

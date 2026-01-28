@@ -146,7 +146,7 @@ export default function Overview() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* Date and Task Button */}
           <div className="flex items-center gap-4">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 flex items-center gap-5 transition-colors w-full">
+            <div className="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 p-5 flex items-center gap-5 transition-colors w-full">
               <div className="text-center sm:text-left">
                 <div className="text-3xl font-bold text-gray-900 dark:text-white">{currentDate.day}</div>
                 <div className="text-xs text-gray-600 dark:text-gray-400">{currentDate.dayName},</div>
@@ -156,14 +156,14 @@ export default function Overview() {
                 Show my Tasks
                 <ArrowRight className="h-3.5 w-3.5" />
               </button>
-              <button className="p-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-colors">
+              <button className="p-2.5 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md transition-colors">
                 <CalendarDays className="h-4 w-4 text-gray-600 dark:text-gray-300" />
               </button>
             </div>
           </div>
 
           {/* Help Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 text-center transition-colors">
+          <div className="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 p-6 text-center transition-colors">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Hey, Need help?👋</h2>
             <p className="text-sm text-gray-400 dark:text-gray-500">Just ask me anything!</p>
             <div className="mt-3 flex items-center justify-center gap-2">
@@ -177,7 +177,7 @@ export default function Overview() {
           {/* Payment Card Section */}
           <div className="lg:col-span-4 space-y-6">
             {/* Credit Card */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <Plus className="h-4 w-4 text-gray-600 dark:text-gray-400" />
@@ -191,10 +191,10 @@ export default function Overview() {
                 <p className="text-lg font-mono font-semibold text-gray-900 dark:text-white">•••• 2719</p>
               </div>
               <div className="flex gap-2 mb-3">
-                <button className="flex-1 bg-black dark:bg-gray-900 text-white py-2.5 rounded-xl text-xs font-bold hover:bg-gray-800 dark:hover:bg-gray-950 transition-colors">
+                <button className="flex-1 bg-black dark:bg-gray-900 text-white py-2.5 rounded-md text-xs font-bold hover:bg-gray-800 dark:hover:bg-gray-950 transition-colors">
                   Receive
                 </button>
-                <button className="flex-1 border-2 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white py-2.5 rounded-xl text-xs font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <button className="flex-1 border-2 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white py-2.5 rounded-md text-xs font-bold hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                   Send
                 </button>
               </div>
@@ -215,7 +215,7 @@ export default function Overview() {
           {/* Direct Debits Section */}
           <div className="lg:col-span-4 space-y-6">
             {/* Total Income */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold">Direct Debits</span>
                 <MoreVertical className="h-4 w-4 text-gray-400 dark:text-gray-500" />
@@ -227,7 +227,7 @@ export default function Overview() {
             </div>
 
             {/* Total Paid */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs text-gray-600 dark:text-gray-400 font-semibold">Weekly</span>
                 <MoreVertical className="h-4 w-4 text-gray-400 dark:text-gray-500" />
@@ -247,7 +247,7 @@ export default function Overview() {
           {/* System Lock & Calendar */}
           <div className="lg:col-span-4 space-y-6">
             {/* System Lock Progress */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
               <div className="flex items-center justify-between mb-3">
                 <Lock className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                 <MoreVertical className="h-4 w-4 text-gray-400 dark:text-gray-500" />
@@ -289,7 +289,7 @@ export default function Overview() {
             </div>
 
             {/* Calendar & Revenue */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <span className="text-xl font-bold text-gray-900 dark:text-white">13 Days</span>
@@ -325,7 +325,7 @@ export default function Overview() {
         {/* Bottom Section */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Annual Profits */}
-          <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+          <div className="lg:col-span-3 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-bold text-gray-900 dark:text-white">Annual profits</h3>
               <button className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 font-semibold">2023 ▾</button>
@@ -355,7 +355,7 @@ export default function Overview() {
           </div>
 
           {/* Activity Manager */}
-          <div className="lg:col-span-5 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 transition-colors">
+          <div className="lg:col-span-5 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 transition-colors">
             <div className="p-5 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
               <h3 className="text-xs font-bold text-gray-900 dark:text-white">Activity Manager</h3>
               <button className="text-[10px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">View All</button>
@@ -364,7 +364,7 @@ export default function Overview() {
               {stats.recentActivities.length > 0 ? (
                 <div className="space-y-3">
                   {stats.recentActivities.map((activity, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <div key={idx} className="flex items-center gap-3 p-3 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                       <div
                         className={`w-8 h-8 rounded-full flex items-center justify-center ${
                           activity.type === "success"
@@ -400,7 +400,7 @@ export default function Overview() {
           {/* Main Stocks & Wallet */}
           <div className="lg:col-span-4 space-y-6">
             {/* Main Stocks */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h3 className="text-xs font-bold text-gray-900 dark:text-white">Main Stocks</h3>
@@ -431,18 +431,18 @@ export default function Overview() {
             </div>
 
             {/* Main Stocks */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
+            <div className="bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-100 dark:border-gray-700 p-5 transition-colors">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xs font-bold text-gray-900 dark:text-white">Main Stocks</h3>
                 <button className="text-[10px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300">View All</button>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-md p-3">
                   <Package className="h-4 w-4 text-[#1fb8a2] mb-2" />
                   <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.totalProducts}</p>
                   <p className="text-[10px] text-gray-500 dark:text-gray-400">Products</p>
                 </div>
-                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-xl p-3">
+                <div className="bg-gray-50 dark:bg-gray-700/50 rounded-md p-3">
                   <Users className="h-4 w-4 text-[#1fb8a2] mb-2" />
                   <p className="text-lg font-bold text-gray-900 dark:text-white">{stats.totalCustomers}</p>
                   <p className="text-[10px] text-gray-500 dark:text-gray-400">Customers</p>
@@ -451,7 +451,7 @@ export default function Overview() {
             </div>
 
             {/* Wallet */}
-            <div className="bg-gradient-to-br from-[#1fb8a2] to-[#17a694] rounded-2xl shadow-lg p-5 text-white">
+            <div className="bg-gradient-to-br from-[#1fb8a2] to-[#17a694] rounded-md shadow-lg p-5 text-white">
               <div className="flex items-center justify-between mb-4">
                 <Wallet className="h-6 w-6" />
                 <button className="text-[10px] opacity-80 hover:opacity-100">Manage</button>
@@ -459,10 +459,10 @@ export default function Overview() {
               <p className="text-[10px] opacity-80 mb-1">Total Balance</p>
               <p className="text-2xl font-bold mb-4">${stats.totalRevenue.toFixed(2)}</p>
               <div className="flex gap-2">
-                <button className="flex-1 bg-white/20 backdrop-blur-sm hover:bg-white/30 py-2 rounded-xl text-xs font-bold transition-colors">
+                <button className="flex-1 bg-white/20 backdrop-blur-sm hover:bg-white/30 py-2 rounded-md text-xs font-bold transition-colors">
                   Withdraw
                 </button>
-                <button className="flex-1 bg-white/20 backdrop-blur-sm hover:bg-white/30 py-2 rounded-xl text-xs font-bold transition-colors">
+                <button className="flex-1 bg-white/20 backdrop-blur-sm hover:bg-white/30 py-2 rounded-md text-xs font-bold transition-colors">
                   Top Up
                 </button>
               </div>

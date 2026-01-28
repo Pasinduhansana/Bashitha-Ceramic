@@ -5,7 +5,7 @@ import { Search, ChevronDown } from "lucide-react";
 import { List, Grid3X3 } from "lucide-react";
 import { splitBilingualText } from "@/lib/languageUtils";
 
-const PRODUCT_TABS = ["All Products", "Out of Stock", "Low Stock", "Excess Stock", "Suspended Products"];
+const PRODUCT_TABS = ["All Products", "Out of Stock", "Low Stock", "Excess Stock"];
 const STATUS_OPTIONS = ["All", "Balanced", "Out of Stock", "On Track"];
 
 export default function InventoryFilters({
@@ -47,7 +47,7 @@ export default function InventoryFilters({
         {/* Mobile: Status filters LEFT + View toggle RIGHT on same line */}
         <div className="flex items-center justify-between gap-3 lg:hidden">
           {/* Status Radio Buttons */}
-          <div className="flex items-center gap-1 border-2 border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+          <div className="flex items-center gap-1 border-2 border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
             {STATUS_OPTIONS.map((filter) => (
               <button
                 key={filter}
@@ -64,7 +64,7 @@ export default function InventoryFilters({
           </div>
 
           {/* View Toggle */}
-          <div className="flex rounded-lg border-2 border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+          <div className="flex rounded-md border-2 border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
             <button
               onClick={() => onViewModeChange("list")}
               className={`p-2 transition-colors ${
@@ -92,7 +92,7 @@ export default function InventoryFilters({
         <div className="hidden lg:flex lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
             {/* Status Radio Buttons */}
-            <div className="flex items-center gap-1 border-2 border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+            <div className="flex items-center gap-1 border-2 border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
               {STATUS_OPTIONS.map((filter) => (
                 <button
                   key={filter}
@@ -113,13 +113,13 @@ export default function InventoryFilters({
               <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">Category :</span>
               <button
                 onClick={() => setCategoryOpen((s) => !s)}
-                className="flex items-center gap-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="flex items-center gap-2 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 {categoryFilter ? splitBilingualText(categoryFilter) : "All Categories"}
                 <ChevronDown className="h-3 w-3" />
               </button>
               {categoryOpen && (
-                <div className="absolute z-20 mt-2 w-48 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1 max-h-60 overflow-y-auto top-full">
+                <div className="absolute z-20 mt-2 w-48 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1 max-h-60 overflow-y-auto top-full">
                   <button
                     className={`flex w-full items-center gap-2 rounded px-3 py-2 text-xs font-medium ${
                       !categoryFilter
@@ -164,12 +164,23 @@ export default function InventoryFilters({
                 placeholder="Search product..."
                 value={searchTerm}
                 onChange={(e) => onSearchTermChange(e.target.value)}
-                className="w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 transition-all"
+                className="w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-8 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-[#1fb8a2] transition-all"
               />
+              {searchTerm && (
+                <button
+                  onClick={() => onSearchTermChange("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                  title="Clear search"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
             </div>
 
             {/* View Toggle */}
-            <div className="flex rounded-lg border-2 border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
+            <div className="flex rounded-md border-2 border-gray-200 dark:border-gray-700 overflow-hidden shadow-sm">
               <button
                 onClick={() => onViewModeChange("list")}
                 className={`p-2 transition-colors ${
@@ -200,13 +211,13 @@ export default function InventoryFilters({
           <div className="relative flex flex-col gap-2">
             <button
               onClick={() => setCategoryOpen((s) => !s)}
-              className="flex items-center gap-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center gap-2 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               {categoryFilter ? splitBilingualText(categoryFilter) : "All Categories"}
               <ChevronDown className="h-3 w-3 ml-auto" />
             </button>
             {categoryOpen && (
-              <div className="absolute z-20 mt-2 w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1 max-h-60 overflow-y-auto top-full">
+              <div className="absolute z-20 mt-2 w-full rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1 max-h-60 overflow-y-auto top-full">
                 <button
                   className={`flex w-full items-center gap-2 rounded px-3 py-2 text-xs font-medium ${
                     !categoryFilter
@@ -248,8 +259,19 @@ export default function InventoryFilters({
               placeholder="Search product..."
               value={searchTerm}
               onChange={(e) => onSearchTermChange(e.target.value)}
-              className="w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 transition-all"
+              className="w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-8 text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 outline-none focus:border-[#1fb8a2] transition-all"
             />
+            {searchTerm && (
+              <button
+                onClick={() => onSearchTermChange("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                title="Clear search"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
       </div>

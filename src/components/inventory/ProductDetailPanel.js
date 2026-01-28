@@ -26,8 +26,8 @@ const defaultForm = {
 
 function StatBadge({ icon: Icon, label, value }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-gray-200 bg-white/80 px-3 py-3 shadow-sm">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-gray-100 to-white text-gray-700">
+    <div className="flex items-start gap-3 rounded-md border border-gray-200 bg-white/80 px-3 py-3 shadow-sm">
+      <div className="flex h-9 w-9 items-center justify-center rounded-md bg-gradient-to-br from-gray-100 to-white text-gray-700">
         <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">
@@ -41,20 +41,20 @@ function StatBadge({ icon: Icon, label, value }) {
 function StockPill({ qty, reorderLevel }) {
   if (qty === 0) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-red-50 px-3 py-1 text-xs font-medium text-red-600">
+      <span className="inline-flex items-center gap-1 rounded-md bg-red-50 px-3 py-1 text-xs font-medium text-red-600">
         <AlertTriangle className="h-3.5 w-3.5" /> Out of Stock
       </span>
     );
   }
   if (qty <= reorderLevel) {
     return (
-      <span className="inline-flex items-center gap-1 rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-600">
+      <span className="inline-flex items-center gap-1 rounded-md bg-orange-50 px-3 py-1 text-xs font-medium text-orange-600">
         <AlertTriangle className="h-3.5 w-3.5" /> Low Stock
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
+    <span className="inline-flex items-center gap-1 rounded-md bg-green-50 px-3 py-1 text-xs font-medium text-green-700">
       <ShieldCheck className="h-3.5 w-3.5" /> In Stock
     </span>
   );
@@ -179,10 +179,10 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                       <img
                         src={getOptimizedImageUrl(form.photo_url, { width: 80, height: 80 })}
                         alt={product.name}
-                        className="h-11 w-11 rounded-lg object-cover border-2 border-white/30"
+                        className="h-11 w-11 rounded-md object-cover border-2 border-white/30"
                       />
                     ) : (
-                      <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-white/15">
+                      <div className="flex h-11 w-11 items-center justify-center rounded-md bg-white/15">
                         <Camera className="h-5 w-5" />
                       </div>
                     )}
@@ -196,12 +196,12 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                   {!editing && (
                     <button
                       onClick={() => setEditing(true)}
-                      className="rounded-lg bg-white/90 px-3 py-2 text-sm font-semibold text-[#137e6e] shadow hover:bg-white"
+                      className="rounded-md bg-white/90 px-3 py-2 text-sm font-semibold text-[#137e6e] shadow hover:bg-white"
                     >
                       Edit
                     </button>
                   )}
-                  <button onClick={onClose} className="rounded-lg p-2 text-white/80 hover:bg-white/15" aria-label="Close product detail">
+                  <button onClick={onClose} className="rounded-md p-2 text-white/80 hover:bg-white/15" aria-label="Close product detail">
                     <X className="h-5 w-5" />
                   </button>
                 </div>
@@ -212,7 +212,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                 <div className="grid gap-4 sm:gap-6 lg:grid-cols-[1.3fr_1fr]">
                   {/* Left column: detail + image */}
                   <motion.div layout className="space-y-3 sm:space-y-4">
-                    <div className="rounded-lg sm:rounded-2xl border border-gray-200 bg-white shadow-sm">
+                    <div className="rounded-md sm:rounded-md border border-gray-200 bg-white shadow-sm">
                       <div className="relative h-40 sm:h-64 w-full overflow-hidden rounded-t-lg sm:rounded-t-2xl bg-gradient-to-br from-gray-100 to-white">
                         {form.photo_url ? (
                           <img
@@ -228,7 +228,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                         {editing && (
                           <button
                             onClick={handleImagePick}
-                            className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-white/90 px-4 py-2 text-sm font-semibold text-gray-800 shadow hover:bg-white"
+                            className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-md bg-white/90 px-4 py-2 text-sm font-semibold text-gray-800 shadow hover:bg-white"
                           >
                             {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />} Upload Image
                           </button>
@@ -248,9 +248,9 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                         </div>
                         <p className="text-sm text-gray-600 leading-relaxed">{product.description || "No description"}</p>
                         <div className="flex flex-wrap gap-2 text-xs text-gray-600">
-                          {product.category_name && <span className="rounded-full bg-gray-100 px-3 py-1 font-semibold">{product.category_name}</span>}
-                          {product.unit && <span className="rounded-full bg-gray-100 px-3 py-1 font-semibold">Unit: {product.unit}</span>}
-                          {product.product_type && <span className="rounded-full bg-gray-100 px-3 py-1 font-semibold">{product.product_type}</span>}
+                          {product.category_name && <span className="rounded-md bg-gray-100 px-3 py-1 font-semibold">{product.category_name}</span>}
+                          {product.unit && <span className="rounded-md bg-gray-100 px-3 py-1 font-semibold">Unit: {product.unit}</span>}
+                          {product.product_type && <span className="rounded-md bg-gray-100 px-3 py-1 font-semibold">{product.product_type}</span>}
                         </div>
                       </div>
                     </div>
@@ -265,7 +265,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                   </motion.div>
 
                   {/* Right column: edit form */}
-                  <motion.div layout className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+                  <motion.div layout className="rounded-md border border-gray-200 bg-white p-5 shadow-sm">
                     <div className="mb-4 flex items-center justify-between">
                       <div>
                         <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Product Data</p>
@@ -274,7 +274,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                       {onManageStock && (
                         <button
                           onClick={onManageStock}
-                          className="rounded-lg border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-[#1fb8a2] hover:text-[#1fb8a2]"
+                          className="rounded-md border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:border-[#1fb8a2] hover:text-[#1fb8a2]"
                         >
                           Manage Stock
                         </button>
@@ -288,7 +288,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                           value={form.name}
                           onChange={(e) => handleChange("name", e.target.value)}
                           disabled={!editing}
-                          className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
+                          className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                         />
                       </div>
                       <div>
@@ -297,7 +297,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                           value={form.category_id || ""}
                           onChange={(e) => handleChange("category_id", e.target.value)}
                           disabled={!editing}
-                          className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50 text-gray-900 [&_option:first-child]:text-gray-400"
+                          className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50 text-gray-900 [&_option:first-child]:text-gray-400"
                         >
                           <option value="" className="text-gray-400">
                             Select category
@@ -317,7 +317,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                           onChange={(e) => handleChange("description", e.target.value)}
                           disabled={!editing}
                           rows={3}
-                          className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
+                          className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                         />
                       </div>
 
@@ -328,7 +328,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                             value={form.product_type || ""}
                             onChange={(e) => handleChange("product_type", e.target.value)}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                         <div>
@@ -337,7 +337,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                             value={form.unit || ""}
                             onChange={(e) => handleChange("unit", e.target.value)}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                       </div>
@@ -349,7 +349,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                             value={form.brand || ""}
                             onChange={(e) => handleChange("brand", e.target.value)}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                         <div>
@@ -361,7 +361,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                               setForm((prev) => ({ ...prev, shade: value, new_shade: value }));
                             }}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                       </div>
@@ -376,7 +376,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                               setForm((prev) => ({ ...prev, code: value, new_code: value }));
                             }}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                         <div>
@@ -385,7 +385,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                             value={form.size || ""}
                             onChange={(e) => handleChange("size", e.target.value)}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                       </div>
@@ -398,7 +398,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                             value={form.selling_price ?? ""}
                             onChange={(e) => handleChange("selling_price", e.target.value)}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                         <div>
@@ -408,7 +408,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                             value={form.reorder_level ?? ""}
                             onChange={(e) => handleChange("reorder_level", e.target.value)}
                             disabled={!editing}
-                            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
+                            className="mt-1 w-full rounded-md border border-gray-200 px-3 py-2 text-sm outline-none focus:border-[#1fb8a2] focus:ring-1 focus:ring-[#1fb8a2]/20 disabled:bg-gray-50"
                           />
                         </div>
                       </div>
@@ -417,7 +417,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                         <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
                           <button
                             onClick={handleCancelEdit}
-                            className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50"
+                            className="rounded-md border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-50"
                             type="button"
                           >
                             Cancel
@@ -425,7 +425,7 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                           <button
                             onClick={handleSave}
                             disabled={saving}
-                            className="inline-flex items-center gap-2 rounded-lg bg-[#1fb8a2] px-4 py-2 text-sm font-semibold text-white shadow hover:bg-[#189d8b] disabled:cursor-not-allowed disabled:opacity-70"
+                            className="inline-flex items-center gap-2 rounded-md bg-[#1fb8a2] px-4 py-2 text-sm font-semibold text-white shadow hover:bg-[#189d8b] disabled:cursor-not-allowed disabled:opacity-70"
                           >
                             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} Save Changes
                           </button>

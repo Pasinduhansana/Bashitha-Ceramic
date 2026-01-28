@@ -104,10 +104,10 @@ export default function Settings() {
 
       <div className="space-y-6">
         {/* General Settings */}
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-blue-100">
                 <User className="h-5 w-5 text-blue-600" />
               </div>
               <div>
@@ -168,10 +168,10 @@ export default function Settings() {
         </div>
 
         {/* Notification Settings */}
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-purple-100">
                 <Bell className="h-5 w-5 text-purple-600" />
               </div>
               <div>
@@ -258,10 +258,10 @@ export default function Settings() {
         </div>
 
         {/* Security Settings */}
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-red-100">
                 <Shield className="h-5 w-5 text-red-600" />
               </div>
               <div>
@@ -309,10 +309,10 @@ export default function Settings() {
         </div>
 
         {/* Display Settings */}
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-green-100">
                 <Globe className="h-5 w-5 text-green-600" />
               </div>
               <div>
@@ -323,9 +323,9 @@ export default function Settings() {
           </div>
           <div className="p-6 space-y-4">
             {/* Bilingual Data Display Preference */}
-            <div className="rounded-lg border border-blue-200 bg-blue-50/30 p-4">
+            <div className="rounded-md border border-blue-200 bg-blue-50/30 p-4">
               <div className="flex items-start gap-3 mb-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-100">
+                <div className="flex h-8 w-8 items-center justify-center rounded-md bg-blue-100">
                   <Languages className="h-4 w-4 text-blue-600" />
                 </div>
                 <div className="flex-1">
@@ -337,7 +337,7 @@ export default function Settings() {
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => setSettings({ ...settings, displayLanguage: "english" })}
-                      className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+                      className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
                         settings.displayLanguage === "english"
                           ? "bg-[#1fb8a2] text-white shadow-md"
                           : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
@@ -348,7 +348,7 @@ export default function Settings() {
                     </button>
                     <button
                       onClick={() => setSettings({ ...settings, displayLanguage: "sinhala" })}
-                      className={`flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all ${
+                      className={`flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-all ${
                         settings.displayLanguage === "sinhala"
                           ? "bg-[#1fb8a2] text-white shadow-md"
                           : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
@@ -420,10 +420,10 @@ export default function Settings() {
         </div>
 
         {/* Inventory Settings */}
-        <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-md border border-gray-200 bg-white shadow-sm overflow-hidden">
           <div className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white px-6 py-4">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100">
+              <div className="flex h-10 w-10 items-center justify-center rounded-md bg-orange-100">
                 <Database className="h-5 w-5 text-orange-600" />
               </div>
               <div>

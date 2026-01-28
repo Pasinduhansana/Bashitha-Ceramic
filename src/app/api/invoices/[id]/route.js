@@ -7,7 +7,7 @@ import { cookies } from "next/headers";
 export async function GET(request, { params }) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = cookieStore.get("auth_token")?.value;
     const user = token ? verifyToken(token) : null;
 
     if (!user) {
@@ -28,7 +28,7 @@ export async function GET(request, { params }) {
       LEFT JOIN customers c ON i.customer_id = c.id
       LEFT JOIN users u ON i.user_id = u.id
       WHERE i.id = ?`,
-      [id]
+      [id],
     );
 
     if (invoices.length === 0) {
@@ -44,7 +44,7 @@ export async function GET(request, { params }) {
       FROM invoice_items ii
       LEFT JOIN products p ON ii.product_id = p.id
       WHERE ii.invoice_id = ?`,
-      [id]
+      [id],
     );
 
     return NextResponse.json({ invoice: invoices[0], items });
@@ -58,7 +58,7 @@ export async function GET(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = cookieStore.get("auth_token")?.value;
     const user = token ? verifyToken(token) : null;
 
     if (!user) {
@@ -78,7 +78,7 @@ export async function DELETE(request, { params }) {
       // Log stock restoration
       await db.execute(
         `INSERT INTO stock_logs (product_id, action, qty, invoice_id, user_id, created_at) VALUES (?, 'INVOICE_DELETE', ?, ?, ?, NOW())`,
-        [item.product_id, item.qty, id, user.id]
+        [item.product_id, item.qty, id, user.id],
       );
     }
 
@@ -91,7 +91,7 @@ export async function DELETE(request, { params }) {
     // Log audit
     await db.execute(
       `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'DELETE_INVOICE', 'invoices', ?, NOW())`,
-      [user.id, id]
+      [user.id, id],
     );
 
     return NextResponse.json({ success: true });
@@ -105,7 +105,7 @@ export async function DELETE(request, { params }) {
 export async function PATCH(request, { params }) {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = cookieStore.get("auth_token")?.value;
     const user = token ? verifyToken(token) : null;
 
     if (!user) {
@@ -126,7 +126,7 @@ export async function PATCH(request, { params }) {
     // Log audit
     await db.execute(
       `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'UPDATE_INVOICE', 'invoices', ?, NOW())`,
-      [user.id, id]
+      [user.id, id],
     );
 
     return NextResponse.json({ success: true });

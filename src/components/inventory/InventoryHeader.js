@@ -22,7 +22,7 @@ export default function InventoryHeader({
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  // Filter products based on search term
+  // Filter products based on search term (local filtering)
   const filteredProducts = searchTerm.trim()
     ? products
         .filter(
@@ -74,17 +74,9 @@ export default function InventoryHeader({
       if (response.ok) {
         // Remove the notification from the list
         setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
-        toast.success("Notification marked as read", {
-          duration: 2000,
-          style: {
-            background: "#1fb8a2",
-            color: "#fff",
-          },
-        });
       }
     } catch (error) {
       console.error("Error marking notification as read:", error);
-      toast.error("Failed to mark notification as read");
     }
   };
 
@@ -172,16 +164,16 @@ export default function InventoryHeader({
           <div className="relative">
             <button
               onClick={() => setThemeOpen((s) => !s)}
-              className="flex items-center gap-2 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 sm:px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center gap-2 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 sm:px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               {theme === "dark" ? <Moon className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> : <Sun className="h-3 w-3 sm:h-3.5 sm:w-3.5" />}
               <span className="hidden md:inline text-xs">{theme === "dark" ? "Dark" : "Light"}</span>
               <ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
             </button>
             {themeOpen && (
-              <div className="absolute z-20 mt-2 w-32 sm:w-36 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1">
+              <div className="absolute z-20 mt-2 w-32 sm:w-36 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1">
                 <button
-                  className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                  className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors ${
                     theme === "light" ? "bg-[#1fb8a2]/10 text-[#1fb8a2]" : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                   }`}
                   onClick={() => applyTheme("light")}
@@ -189,7 +181,7 @@ export default function InventoryHeader({
                   <Sun className="h-3 w-3" /> Light
                 </button>
                 <button
-                  className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                  className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors ${
                     theme === "dark" ? "bg-[#1fb8a2]/10 text-[#1fb8a2]" : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
                   }`}
                   onClick={() => applyTheme("dark")}
@@ -217,12 +209,12 @@ export default function InventoryHeader({
               setSearchOpen(true);
             }}
             onBlur={() => setTimeout(() => setSearchOpen(false), 200)}
-            className="w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs outline-none focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all"
+            className="w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs outline-none focus:border-[#1fb8a2] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all"
           />
 
           {/* Autocomplete Dropdown - Desktop */}
           {searchOpen && filteredProducts.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 max-h-80 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-1 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 max-h-80 overflow-y-auto">
               {filteredProducts.map((product) => (
                 <button
                   key={product.id}
@@ -232,7 +224,7 @@ export default function InventoryHeader({
                   }}
                   className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors text-left"
                 >
-                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-[#1fb8a2]/10 to-[#1fb8a2]/5 flex items-center justify-center">
+                  <div className="flex-shrink-0 w-10 h-10 rounded-md bg-gradient-to-br from-[#1fb8a2]/10 to-[#1fb8a2]/5 flex items-center justify-center">
                     <span className="text-[#1fb8a2] font-bold text-xs">{product.code || product.name?.charAt(0)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
@@ -276,7 +268,7 @@ export default function InventoryHeader({
             {notificationOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setNotificationOpen(false)} />
-                <div className="absolute right-0 top-full mt-2 w-80 max-h-96 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl z-20 max-w-sm sm:max-w-md md:max-w-lg">
+                <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-md max-h-96 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl z-20">
                   <div className="border-b border-gray-200 dark:border-gray-700 px-4 py-3">
                     <h3 className="text-sm font-bold text-gray-900 dark:text-white">Notifications</h3>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
@@ -310,7 +302,7 @@ export default function InventoryHeader({
                               </div>
                               <button
                                 onClick={(e) => markAsRead(notification.id, e)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity p-1 text-[#1fb8a2] hover:bg-[#1fb8a2]/10 rounded-lg"
+                                className="flex-shrink-0 p-1 text-[#1fb8a2] hover:bg-[#1fb8a2]/10 rounded-md transition-colors"
                                 title="Mark as read"
                               >
                                 <CheckCircle className="h-4 w-4" />
@@ -328,7 +320,10 @@ export default function InventoryHeader({
                   {notifications.length > 0 && (
                     <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-2">
                       <button
-                        onClick={() => onNotificationsClick?.()}
+                        onClick={() => {
+                          setNotificationOpen(false);
+                          onNotificationsClick?.();
+                        }}
                         className="text-xs font-semibold text-[#1fb8a2] hover:underline w-full text-center py-1"
                       >
                         View all notifications
@@ -362,7 +357,7 @@ export default function InventoryHeader({
           {/* Logout Button */}
           <button
             onClick={onLogout}
-            className="flex items-center gap-1 sm:gap-2 rounded-lg bg-gradient-to-r from-[#1fb8a2] to-[#17a694] hover:from-[#1aa693] hover:to-[#158f82] px-2 sm:px-4 py-1.5 sm:py-2 text-xs font-bold text-white shadow-md hover:shadow-lg transition-all whitespace-nowrap"
+            className="flex items-center gap-1 sm:gap-2 rounded-md border-2 border-gray-300 bg-transparent hover:border-[#DC143C] hover:bg-[#DC143C] px-2 sm:px-4 py-1.5 sm:py-2 text-xs font-bold text-gray-700 hover:text-white shadow-md hover:shadow-lg transition-all whitespace-nowrap"
             title="Logout"
           >
             <LogOut className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
@@ -404,7 +399,7 @@ export default function InventoryHeader({
               {notificationOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setNotificationOpen(false)} />
-                  <div className="absolute right-0 top-full mt-2 w-80 max-h-96 rounded-xl border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl z-20">
+                  <div className="fixed left-4 right-4 top-20 sm:absolute sm:left-auto sm:right-0 sm:top-full mt-2 sm:w-96 max-w-md max-h-96 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl z-20">
                     <div className="border-b border-gray-200 dark:border-gray-700 px-4 py-3">
                       <h3 className="text-sm font-bold text-gray-900 dark:text-white">Notifications</h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
@@ -428,20 +423,20 @@ export default function InventoryHeader({
                                 <div
                                   className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${getNotificationColor(notification.action)} font-bold text-xs`}
                                 >
-                                  {notification.action?.charAt(0) || "N"}
+                                  {getInitials(notification.user_name)}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-gray-900 dark:text-white line-clamp-2">{notification.details}</p>
+                                  <p className="text-xs font-semibold text-gray-900 dark:text-white leading-snug">{notification.description}</p>
                                   <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
-                                    {formatNotificationTime(notification.timestamp)}
+                                    {formatNotificationTime(notification.timestamp)} by {notification.user_name || "Unknown"}
                                   </p>
                                 </div>
                                 <button
                                   onClick={(e) => markAsRead(notification.id, e)}
-                                  className="opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-600 transition-all"
+                                  className="flex-shrink-0 p-1 text-[#1fb8a2] hover:bg-[#1fb8a2]/10 rounded-md transition-colors"
                                   title="Mark as read"
                                 >
-                                  <CheckCircle className="h-4 w-4 text-[#1fb8a2]" />
+                                  <CheckCircle className="h-4 w-4" />
                                 </button>
                               </div>
                             </div>
@@ -470,7 +465,7 @@ export default function InventoryHeader({
             {/* Logout Button */}
             <button
               onClick={onLogout}
-              className="flex items-center gap-1 rounded-lg bg-gradient-to-r from-[#1fb8a2] to-[#17a694] hover:from-[#1aa693] hover:to-[#158f82] px-2 py-1.5 text-xs font-bold text-white shadow-md hover:shadow-lg transition-all"
+              className="flex items-center gap-1 rounded-md border-2 border-gray-300 bg-transparent hover:border-[#DC143C] hover:bg-[#DC143C] px-2 py-1.5 text-xs font-bold text-gray-700 hover:text-white transition-all"
               title="Logout"
             >
               <LogOut className="h-3 w-3" />
@@ -478,53 +473,7 @@ export default function InventoryHeader({
           </div>
         </div>
 
-        {/* Search Bar - Mobile */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchTerm}
-            onChange={(e) => {
-              onSearchChange?.(e.target.value);
-              setSearchOpen(true);
-            }}
-            onFocus={() => {
-              onSearchFocus?.();
-              setSearchOpen(true);
-            }}
-            onBlur={() => setTimeout(() => setSearchOpen(false), 200)}
-            className="w-full rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs outline-none focus:border-[#1fb8a2] focus:ring-2 focus:ring-[#1fb8a2]/20 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all"
-          />
-
-          {/* Autocomplete Dropdown - Mobile */}
-          {searchOpen && filteredProducts.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 rounded-lg border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 max-h-64 overflow-y-auto">
-              {filteredProducts.map((product) => (
-                <button
-                  key={product.id}
-                  onClick={() => {
-                    onProductSelect?.(product);
-                    setSearchOpen(false);
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors text-left"
-                >
-                  <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-gradient-to-br from-[#1fb8a2]/10 to-[#1fb8a2]/5 flex items-center justify-center">
-                    <span className="text-[#1fb8a2] font-bold text-[10px]">{product.code || product.name?.charAt(0)}</span>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold text-gray-900 dark:text-white truncate">{product.name}</p>
-                    <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">{product.brand || product.shade || "No details"}</p>
-                  </div>
-                  <div className="flex-shrink-0 text-right">
-                    <p className="text-[10px] font-semibold text-[#1fb8a2]">${product.selling_price || 0}</p>
-                    <p className="text-[10px] text-gray-500 dark:text-gray-400">{product.qty || 0}</p>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Search Bar - Mobile - Removed from here, will be in Navigation */}
       </div>
     </header>
   );
