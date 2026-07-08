@@ -27,22 +27,22 @@ export async function POST(request) {
     const pool = getDb();
 
     // Ensure roles table exists
-    await pool.execute(`
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS roles (
-        id INT PRIMARY KEY AUTO_INCREMENT,
+        id SERIAL PRIMARY KEY,
         role_name VARCHAR(100) NOT NULL,
         description VARCHAR(255)
       )
     `);
 
     // Ensure default role exists
-    const [existingRole] = await pool.execute("SELECT id FROM roles WHERE id = 1 LIMIT 1");
+    const { rows: existingRole } = await pool.query("SELECT id FROM roles WHERE id = 1 LIMIT 1");
     if (!existingRole || existingRole.length === 0) {
-      await pool.execute("INSERT INTO roles (role_name, description) VALUES (?, ?)", ["default user", "Default user access"]);
+      await pool.query("INSERT INTO roles (role_name, description) VALUES ($1, $2)", ["default user", "Default user access"]);
     }
 
     // Check if username or email already exists
-    const [existing] = await pool.execute("SELECT id FROM users WHERE username = ? OR email = ? LIMIT 1", [username, email]);
+    const { rows: existing } = await pool.query("SELECT id FROM users WHERE username = $1 OR email = $2 LIMIT 1", [username, email]);
     if (existing && existing.length > 0) {
       return NextResponse.json({ error: "Username or email already in use" }, { status: 409 });
     }
@@ -51,16 +51,19 @@ export async function POST(request) {
     const displayName = fullName.trim();
 
     // Insert user with defaults: role_id=1, is_active=0 (pending admin approval)
-    const [result] = await pool.execute("INSERT INTO users (name, username, email, password_hash, role_id, is_active) VALUES (?, ?, ?, ?, ?, ?)", [
-      displayName,
-      username.toLowerCase(),
-      email.trim(),
-      hash,
-      1,
-      0, // Not active until admin approves
-    ]);
+    const { rows } = await pool.query(
+      "INSERT INTO users (name, username, email, password_hash, role_id, is_active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+      [
+        displayName,
+        username.toLowerCase(),
+        email.trim(),
+        hash,
+        1,
+        0, // Not active until admin approves
+      ],
+    );
 
-    const userId = result?.insertId;
+    const userId = rows[0]?.id;
 
     const user = {
       id: userId,

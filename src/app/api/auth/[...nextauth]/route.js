@@ -17,22 +17,22 @@ export const authOptions = {
           const pool = getDb();
 
           // Ensure roles table exists
-          await pool.execute(`
+          await pool.query(`
             CREATE TABLE IF NOT EXISTS roles (
-              id INT PRIMARY KEY AUTO_INCREMENT,
+              id SERIAL PRIMARY KEY,
               role_name VARCHAR(100) NOT NULL,
               description VARCHAR(255)
             )
           `);
 
           // Ensure default role exists
-          const [existingRole] = await pool.execute("SELECT id FROM roles WHERE id = 1 LIMIT 1");
+          const { rows: existingRole } = await pool.query("SELECT id FROM roles WHERE id = 1 LIMIT 1");
           if (!existingRole || existingRole.length === 0) {
-            await pool.execute("INSERT INTO roles (id, role_name, description) VALUES (?, ?, ?)", [1, "default user", "Default user access"]);
+            await pool.query("INSERT INTO roles (id, role_name, description) VALUES ($1, $2, $3)", [1, "default user", "Default user access"]);
           }
 
           // Check if user exists by email
-          const [existingUser] = await pool.execute("SELECT id, username FROM users WHERE email = ? LIMIT 1", [user.email]);
+          const { rows: existingUser } = await pool.query("SELECT id, username FROM users WHERE email = $1 LIMIT 1", [user.email]);
 
           if (existingUser && existingUser.length > 0) {
             // User exists, return true to sign in
@@ -48,13 +48,13 @@ export const authOptions = {
           const dummyPassword = Math.random().toString(36).slice(-8);
           const hash = await bcrypt.hash(dummyPassword, 10);
 
-          await pool.execute("INSERT INTO users (name, username, email, password_hash, role_id, is_active) VALUES (?, ?, ?, ?, ?, ?)", [
+          await pool.query("INSERT INTO users (name, username, email, password_hash, role_id, is_active) VALUES ($1, $2, $3, $4, $5, $6)", [
             profile?.name || user.name || "User",
             username,
             user.email,
             hash,
             1,
-            1,
+            true,
           ]);
 
           return true;

@@ -1,4 +1,4 @@
-export const runtime = "nodejs"; // Ensure Node runtime for mysql2
+export const runtime = "nodejs"; // Ensure Node runtime for PostgreSQL
 
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
@@ -13,16 +13,16 @@ export async function POST(request) {
       return NextResponse.json({ error: "Username or email and password are required" }, { status: 400 });
     }
 
-    if (!process.env.MYSQL_HOST || !process.env.MYSQL_DATABASE || !process.env.MYSQL_USER) {
-      console.error("Login error: missing MySQL environment variables");
+    if (!process.env.POSTGRES_HOST || !process.env.POSTGRES_DATABASE || !process.env.POSTGRES_USER) {
+      console.error("Login error: missing PostgreSQL environment variables");
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
     const pool = getDb();
 
-    const [rows] = await pool.execute(
-      "SELECT id, username, email, password_hash, role_id, name, is_active FROM users WHERE username = ? OR email = ? LIMIT 1",
-      [identifier, identifier]
+    const { rows } = await pool.query(
+      "SELECT id, username, email, password_hash, role_id, name, is_active FROM users WHERE LOWER(username) = LOWER($1) OR LOWER(email) = LOWER($2) LIMIT 1",
+      [identifier, identifier],
     );
 
     const row = rows?.[0];

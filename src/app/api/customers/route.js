@@ -30,13 +30,14 @@ export async function GET(request) {
     const params = [];
 
     if (search) {
-      query += ` AND (c.name LIKE ? OR c.contact LIKE ?)`;
+      const paramIndex = params.length + 1;
+      query += ` AND (c.name LIKE $${paramIndex} OR c.contact LIKE $${paramIndex + 1})`;
       params.push(`%${search}%`, `%${search}%`);
     }
 
     query += ` GROUP BY c.id ORDER BY c.created_at DESC`;
 
-    const [customers] = await db.execute(query, params);
+    const { rows: customers } = await db.query(query, params);
 
     return NextResponse.json({ customers });
   } catch (error) {
@@ -66,17 +67,17 @@ export async function POST(request) {
     const db = getDb();
 
     // Insert customer
-    const [result] = await db.execute(`INSERT INTO customers (name, contact, remark, created_at) VALUES (?, ?, ?, NOW())`, [
+    const { rows } = await db.query(`INSERT INTO customers (name, contact, remark, created_at) VALUES ($1, $2, $3, CURRENT_TIMESTAMP) RETURNING id`, [
       name,
       contact,
       remark || null,
     ]);
 
-    const customer_id = result.insertId;
+    const customer_id = rows[0].id;
 
     // Log audit
-    await db.execute(
-      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'CREATE_CUSTOMER', 'customers', ?, NOW())`,
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'CREATE_CUSTOMER', 'customers', $2, CURRENT_TIMESTAMP)`,
       [user.id, customer_id],
     );
 

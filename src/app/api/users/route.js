@@ -42,19 +42,20 @@ export async function GET(request) {
 
     // Filter by status
     if (status && status !== "all") {
-      sql += " AND u.is_active = ?";
+      sql += " AND u.is_active = $" + (params.length + 1);
       params.push(status === "active" ? 1 : 0);
     }
 
     // Filter by role
     if (role && role !== "all") {
-      sql += " AND u.role_id = ?";
+      sql += " AND u.role_id = $" + (params.length + 1);
       params.push(parseInt(role));
     }
 
     // Search by name, email, or username
     if (search) {
-      sql += " AND (u.name LIKE ? OR u.email LIKE ? OR u.username LIKE ?)";
+      const paramIndex = params.length + 1;
+      sql += ` AND (u.name LIKE $${paramIndex} OR u.email LIKE $${paramIndex + 1} OR u.username LIKE $${paramIndex + 2})`;
       const searchTerm = `%${search}%`;
       params.push(searchTerm, searchTerm, searchTerm);
     }
@@ -62,7 +63,7 @@ export async function GET(request) {
     sql += " ORDER BY u.created_at DESC";
 
     const db = getDb();
-    const [users] = await db.execute(sql, params);
+    const { rows: users } = await db.query(sql, params);
 
     // Don't send password hashes to client
     const sanitizedUsers = users.map((user) => ({
@@ -103,7 +104,7 @@ export async function POST(request) {
 
     // Check if user already exists
     const db = getDb();
-    const [existingUsers] = await db.execute("SELECT id FROM users WHERE email = ? OR username = ?", [email, username]);
+    const { rows: existingUsers } = await db.query("SELECT id FROM users WHERE email = $1 OR username = $2", [email, username]);
 
     if (existingUsers.length > 0) {
       return NextResponse.json({ success: false, message: "User with this email or username already exists" }, { status: 400 });
@@ -113,16 +114,16 @@ export async function POST(request) {
     const password_hash = await bcrypt.hash(password, 10);
 
     // Insert new user
-    const [result] = await db.execute(
+    const { rows } = await db.query(
       `INSERT INTO users (name, username, email, password_hash, role_id, is_active, contact, address, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, 1, ?, ?, NOW(), NOW())`,
-      [name, username, email, password_hash, role_id || 2, contact || null, address || null]
+       VALUES ($1, $2, $3, $4, $5, 1, $6, $7, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id`,
+      [name, username, email, password_hash, role_id || 2, contact || null, address || null],
     );
 
     return NextResponse.json({
       success: true,
       message: "User created successfully",
-      userId: result.insertId,
+      userId: rows[0].id,
     });
   } catch (error) {
     console.error("Error creating user:", error);

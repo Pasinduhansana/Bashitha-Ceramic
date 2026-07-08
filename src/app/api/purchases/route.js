@@ -38,13 +38,14 @@ export async function GET(request) {
     const params = [];
 
     if (search) {
-      query += ` AND (s.name LIKE ? OR u.name LIKE ?)`;
+      const paramIndex = params.length + 1;
+      query += ` AND (s.name LIKE $${paramIndex} OR u.name LIKE $${paramIndex + 1})`;
       params.push(`%${search}%`, `%${search}%`);
     }
 
     query += ` GROUP BY p.id ORDER BY p.purchase_date DESC`;
 
-    const [purchases] = await db.execute(query, params);
+    const { rows: purchases } = await db.query(query, params);
 
     return NextResponse.json({ purchases });
   } catch (error) {
@@ -83,18 +84,17 @@ export async function POST(request) {
     }
 
     // Insert purchase
-    const [result] = await db.execute(`INSERT INTO purchases (supplier_id, user_id, total_amount, purchase_date) VALUES (?, ?, ?, NOW())`, [
-      supplier_id,
-      user.id,
-      total_amount,
-    ]);
+    const { rows } = await db.query(
+      `INSERT INTO purchases (supplier_id, user_id, total_amount, purchase_date) VALUES ($1, $2, $3, CURRENT_TIMESTAMP) RETURNING id`,
+      [supplier_id, user.id, total_amount],
+    );
 
-    const purchase_id = result.insertId;
+    const purchase_id = rows[0].id;
 
     // Insert purchase items and update stock
     for (const item of items) {
       // Insert purchase item
-      await db.execute(`INSERT INTO purchase_items (purchase_id, product_id, qty, cost_price) VALUES (?, ?, ?, ?)`, [
+      await db.query(`INSERT INTO purchase_items (purchase_id, product_id, qty, cost_price) VALUES ($1, $2, $3, $4)`, [
         purchase_id,
         item.product_id,
         item.qty,
@@ -102,21 +102,19 @@ export async function POST(request) {
       ]);
 
       // Update product stock and cost price
-      await db.execute(`UPDATE products SET qty = qty + ?, cost_price = ? WHERE id = ?`, [item.qty, item.cost_price, item.product_id]);
+      await db.query(`UPDATE products SET qty = qty + $1, cost_price = $2 WHERE id = $3`, [item.qty, item.cost_price, item.product_id]);
 
       // Log stock change
-      await db.execute(`INSERT INTO stock_logs (product_id, action, qty, purchase_id, user_id, created_at) VALUES (?, 'PURCHASE', ?, ?, ?, NOW())`, [
-        item.product_id,
-        item.qty,
-        purchase_id,
-        user.id,
-      ]);
+      await db.query(
+        `INSERT INTO stock_logs (product_id, action, qty, purchase_id, user_id, created_at) VALUES ($1, 'PURCHASE', $2, $3, $4, CURRENT_TIMESTAMP)`,
+        [item.product_id, item.qty, purchase_id, user.id],
+      );
     }
 
     // Log audit
-    await db.execute(
-      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'CREATE_PURCHASE', 'purchases', ?, NOW())`,
-      [user.id, purchase_id]
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'CREATE_PURCHASE', 'purchases', $2, CURRENT_TIMESTAMP)`,
+      [user.id, purchase_id],
     );
 
     return NextResponse.json({ success: true, purchase_id });

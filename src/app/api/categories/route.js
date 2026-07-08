@@ -7,7 +7,7 @@ export async function GET(request) {
     const db = await getDb();
 
     // Fetch all categories
-    const [categories] = await db.execute(`SELECT id, name FROM categories ORDER BY name ASC`);
+    const { rows: categories } = await db.query(`SELECT id, name FROM categories ORDER BY name ASC`);
 
     return NextResponse.json({ categories });
   } catch (error) {

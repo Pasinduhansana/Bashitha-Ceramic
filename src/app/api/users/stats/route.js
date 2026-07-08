@@ -14,14 +14,14 @@ export async function GET() {
     }
 
     const db = getDb();
-    const [stats] = await db.execute(`
+    const { rows: stats } = await db.query(`
       SELECT 
         COUNT(*) as total_users,
         SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active_users,
         SUM(CASE WHEN is_active = 0 THEN 1 ELSE 0 END) as inactive_users,
-        SUM(CASE WHEN DATE(created_at) = CURDATE() THEN 1 ELSE 0 END) as new_today,
-        SUM(CASE WHEN DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) THEN 1 ELSE 0 END) as new_this_month,
-        SUM(CASE WHEN DATE(created_at) >= DATE_SUB(CURDATE(), INTERVAL 2 MONTH) AND DATE(created_at) < DATE_SUB(CURDATE(), INTERVAL 1 MONTH) THEN 1 ELSE 0 END) as new_last_month
+        SUM(CASE WHEN DATE(created_at) = CURRENT_DATE THEN 1 ELSE 0 END) as new_today,
+        SUM(CASE WHEN DATE(created_at) >= CURRENT_DATE - INTERVAL '1 month' THEN 1 ELSE 0 END) as new_this_month,
+        SUM(CASE WHEN DATE(created_at) >= CURRENT_DATE - INTERVAL '2 months' AND DATE(created_at) < CURRENT_DATE - INTERVAL '1 month' THEN 1 ELSE 0 END) as new_last_month
       FROM users
     `);
 

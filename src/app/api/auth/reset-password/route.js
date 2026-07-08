@@ -17,9 +17,10 @@ export async function POST(request) {
     const pool = getDb();
 
     // Validate token
-    const [rows] = await pool.execute("SELECT prt.userId FROM password_reset_tokens prt WHERE prt.token = ? AND prt.expiresAt > NOW() LIMIT 1", [
-      token,
-    ]);
+    const { rows } = await pool.query(
+      "SELECT prt.userId FROM password_reset_tokens prt WHERE prt.token = $1 AND prt.expiresAt > CURRENT_TIMESTAMP LIMIT 1",
+      [token],
+    );
     const row = rows?.[0];
     if (!row) {
       return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
@@ -28,8 +29,8 @@ export async function POST(request) {
     const hash = await bcrypt.hash(password, 10);
 
     // Update password and cleanup token
-    await pool.execute("UPDATE users SET password_hash = ? WHERE id = ?", [hash, row.userId]);
-    await pool.execute("DELETE FROM password_reset_tokens WHERE userId = ?", [row.userId]);
+    await pool.query("UPDATE users SET password_hash = $1 WHERE id = $2", [hash, row.userid]);
+    await pool.query("DELETE FROM password_reset_tokens WHERE userId = $1", [row.userid]);
 
     return NextResponse.json({ success: true });
   } catch (error) {

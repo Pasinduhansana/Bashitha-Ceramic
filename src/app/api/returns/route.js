@@ -45,18 +45,19 @@ export async function GET(request) {
     const params = [];
 
     if (status && status !== "all") {
-      query += ` AND r.status = ?`;
+      query += ` AND r.status = $${params.length + 1}`;
       params.push(status);
     }
 
     if (search) {
-      query += ` AND (p.name LIKE ? OR i.invoice_no LIKE ?)`;
+      const paramIndex = params.length + 1;
+      query += ` AND (p.name LIKE $${paramIndex} OR i.invoice_no LIKE $${paramIndex + 1})`;
       params.push(`%${search}%`, `%${search}%`);
     }
 
     query += ` ORDER BY r.created_at DESC`;
 
-    const [returns] = await db.execute(query, params);
+    const { rows: returns } = await db.query(query, params);
 
     // Add type field for frontend
     const returnsWithType = returns.map((ret) => ({
@@ -99,19 +100,19 @@ export async function POST(request) {
     const db = getDb();
 
     // Insert return
-    const [result] = await db.execute(
+    const { rows } = await db.query(
       `INSERT INTO returns (invoice_id, purchase_id, product_id, qty, reason, status, user_id, created_at) 
-       VALUES (?, ?, ?, ?, ?, 'pending', ?, NOW())`,
-      [invoice_id || null, purchase_id || null, product_id, qty, reason, user.id]
+       VALUES ($1, $2, $3, $4, $5, 'pending', $6, CURRENT_TIMESTAMP) RETURNING id`,
+      [invoice_id || null, purchase_id || null, product_id, qty, reason, user.id],
     );
 
-    const return_id = result.insertId;
+    const return_id = rows[0].id;
 
     // Log audit
-    await db.execute(`INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'CREATE_RETURN', 'returns', ?, NOW())`, [
-      user.id,
-      return_id,
-    ]);
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'CREATE_RETURN', 'returns', $2, CURRENT_TIMESTAMP)`,
+      [user.id, return_id],
+    );
 
     return NextResponse.json({ success: true, return_id });
   } catch (error) {

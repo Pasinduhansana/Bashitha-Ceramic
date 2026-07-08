@@ -36,18 +36,19 @@ export async function GET(request) {
     const params = [];
 
     if (action && action !== "all") {
-      query += ` AND a.action LIKE ?`;
+      query += ` AND a.action LIKE $${params.length + 1}`;
       params.push(`${action}%`);
     }
 
     if (search) {
-      query += ` AND (u.name LIKE ? OR a.action LIKE ?)`;
+      const paramIndex = params.length + 1;
+      query += ` AND (u.name LIKE $${paramIndex} OR a.action LIKE $${paramIndex + 1})`;
       params.push(`%${search}%`, `%${search}%`);
     }
 
     query += ` ORDER BY a.timestamp DESC LIMIT ${parseInt(limit)}`;
 
-    const [logs] = await db.execute(query, params);
+    const { rows: logs } = await db.query(query, params);
 
     // Fetch product details for CREATE_PRODUCT, UPDATE_PRODUCT, UPDATE_INVENTORY, and DELETE_PRODUCT actions
     const logsWithDetails = await Promise.all(
@@ -77,11 +78,11 @@ export async function GET(request) {
           // If no old_data or not a delete, fetch from products table
           if (!productDetails) {
             try {
-              const [productRows] = await db.execute(
+              const { rows: productRows } = await db.query(
                 `SELECT p.*, c.name as category_name 
                  FROM products p 
                  LEFT JOIN categories c ON p.category_id = c.id 
-                 WHERE p.id = ?`,
+                 WHERE p.id = $1`,
                 [log.record_id],
               );
               if (productRows.length > 0) {
@@ -94,8 +95,8 @@ export async function GET(request) {
                   enhancedDetails = `Updated product: ${productDetails.name}`;
                 } else if (log.action === "UPDATE_INVENTORY") {
                   // Try to get quantity change from stock_logs
-                  const [stockLogs] = await db.execute(
-                    `SELECT qty, action FROM stock_logs WHERE product_id = ? AND user_id = ? ORDER BY created_at DESC LIMIT 1`,
+                  const { rows: stockLogs } = await db.query(
+                    `SELECT qty, action FROM stock_logs WHERE product_id = $1 AND user_id = $2 ORDER BY created_at DESC LIMIT 1`,
                     [log.record_id, log.user_id],
                   );
                   if (stockLogs.length > 0) {

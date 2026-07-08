@@ -8,7 +8,7 @@ export async function GET(request) {
     const userId = searchParams.get("userId") || "default";
 
     const db = await getDb();
-    const [rows] = await db.execute(`SELECT preferences FROM user_preferences WHERE user_id = ?`, [userId]);
+    const { rows } = await db.query(`SELECT preferences FROM user_preferences WHERE user_id = $1`, [userId]);
 
     if (rows.length > 0) {
       return NextResponse.json({ preferences: JSON.parse(rows[0].preferences) });
@@ -52,17 +52,20 @@ export async function POST(request) {
     const db = await getDb();
 
     // Check if preferences exist
-    const [existing] = await db.execute(`SELECT id FROM user_preferences WHERE user_id = ?`, [userId]);
+    const { rows: existing } = await db.query(`SELECT id FROM user_preferences WHERE user_id = $1`, [userId]);
 
     if (existing.length > 0) {
       // Update existing preferences
-      await db.execute(`UPDATE user_preferences SET preferences = ?, updated_at = NOW() WHERE user_id = ?`, [JSON.stringify(preferences), userId]);
+      await db.query(`UPDATE user_preferences SET preferences = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2`, [
+        JSON.stringify(preferences),
+        userId,
+      ]);
     } else {
       // Insert new preferences
-      await db.execute(`INSERT INTO user_preferences (user_id, preferences, created_at, updated_at) VALUES (?, ?, NOW(), NOW())`, [
-        userId,
-        JSON.stringify(preferences),
-      ]);
+      await db.query(
+        `INSERT INTO user_preferences (user_id, preferences, created_at, updated_at) VALUES ($1, $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
+        [userId, JSON.stringify(preferences)],
+      );
     }
 
     // Also save displayLanguage to localStorage via response

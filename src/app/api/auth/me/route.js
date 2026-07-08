@@ -17,14 +17,14 @@ export async function GET(request) {
 
   try {
     const db = getDb();
-    const [users] = await db.execute(
+    const { rows: users } = await db.query(
       `SELECT 
         u.id, u.name, u.username, u.email, u.contact, u.address, u.img_url, u.created_at,
         r.role_name
       FROM users u
       LEFT JOIN roles r ON u.role_id = r.id
-      WHERE u.id = ?`,
-      [payload.id]
+      WHERE u.id = $1`,
+      [payload.id],
     );
 
     if (users.length === 0) {
@@ -35,24 +35,24 @@ export async function GET(request) {
 
     // Fetch permissions for this user (role-based and user overrides)
     // 1. Get all permissions for the user's role
-    const [rolePerms] = await db.execute(
+    const { rows: rolePerms } = await db.query(
       `SELECT p.permission_key
        FROM role_permissions rp
        JOIN permissions p ON rp.permission_id = p.id
-       WHERE rp.role_id = (SELECT role_id FROM users WHERE id = ?)
+       WHERE rp.role_id = (SELECT role_id FROM users WHERE id = $1)
       `,
-      [user.id]
+      [user.id],
     );
     const rolePermissions = rolePerms.map((row) => row.permission_key);
 
     // 2. Get all user-specific permission overrides (is_allowed = 1)
-    const [userPerms] = await db.execute(
+    const { rows: userPerms } = await db.query(
       `SELECT p.permission_key, up.is_allowed
        FROM user_permissions up
        JOIN permissions p ON up.permission_id = p.id
-       WHERE up.user_id = ?
+       WHERE up.user_id = $1
       `,
-      [user.id]
+      [user.id],
     );
     // Apply user overrides: allow or remove from permissions
     let permissions = new Set(rolePermissions);
@@ -102,7 +102,7 @@ export async function PUT(request) {
     const { name, phone, address, img_url } = body;
 
     const db = getDb();
-    await db.execute(`UPDATE users SET name = ?, contact = ?, address = ?, img_url = ?, updated_at = NOW() WHERE id = ?`, [
+    await db.query(`UPDATE users SET name = $1, contact = $2, address = $3, img_url = $4, updated_at = CURRENT_TIMESTAMP WHERE id = $5`, [
       name,
       phone || null,
       address || null,

@@ -17,14 +17,14 @@ export async function GET(request, { params }) {
     const { id } = await params;
     const db = getDb();
 
-    const [users] = await db.execute(
+    const { rows: users } = await db.query(
       `SELECT 
         u.id, u.name, u.username, u.email, u.role_id, u.is_active, 
         u.contact, u.address, u.created_at, u.updated_at,
         r.role_name
        FROM users u
        LEFT JOIN roles r ON u.role_id = r.id
-       WHERE u.id = ?`,
+       WHERE u.id = $1`,
       [id],
     );
 
@@ -60,32 +60,32 @@ export async function PUT(request, { params }) {
     const db = getDb();
 
     // Check if user exists
-    const [existingUsers] = await db.execute("SELECT id FROM users WHERE id = ?", [id]);
+    const { rows: existingUsers } = await db.query("SELECT id FROM users WHERE id = $1", [id]);
     if (existingUsers.length === 0) {
       return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
     }
 
     // Check for duplicate email/username (excluding current user)
-    const [duplicates] = await db.execute("SELECT id FROM users WHERE (email = ? OR username = ?) AND id != ?", [email, username, id]);
+    const { rows: duplicates } = await db.query("SELECT id FROM users WHERE (email = $1 OR username = $2) AND id != $3", [email, username, id]);
 
     if (duplicates.length > 0) {
       return NextResponse.json({ success: false, message: "Email or username already in use" }, { status: 400 });
     }
 
     // Update user
-    await db.execute(
+    await db.query(
       `UPDATE users 
-       SET name = ?, username = ?, email = ?, role_id = ?, contact = ?, address = ?, updated_at = NOW()
-       WHERE id = ?`,
+       SET name = $1, username = $2, email = $3, role_id = $4, contact = $5, address = $6, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $7`,
       [name, username, email, role_id, contact, address, id],
     );
 
     // Log audit
     if (currentUser) {
-      await db.execute(`INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'UPDATE_USER', 'users', ?, NOW())`, [
-        currentUser.id,
-        id,
-      ]);
+      await db.query(
+        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'UPDATE_USER', 'users', $2, CURRENT_TIMESTAMP)`,
+        [currentUser.id, id],
+      );
     }
 
     return NextResponse.json({
@@ -113,13 +113,13 @@ export async function DELETE(request, { params }) {
     const db = getDb();
 
     // Check if user exists
-    const [existingUsers] = await db.execute("SELECT id FROM users WHERE id = ?", [id]);
+    const { rows: existingUsers } = await db.query("SELECT id FROM users WHERE id = $1", [id]);
     if (existingUsers.length === 0) {
       return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
     }
 
     // Delete user
-    await db.execute("DELETE FROM users WHERE id = ?", [id]);
+    await db.query("DELETE FROM users WHERE id = $1", [id]);
 
     return NextResponse.json({
       success: true,
@@ -148,13 +148,13 @@ export async function PATCH(request, { params }) {
     const db = getDb();
 
     // Check if user exists
-    const [existingUsers] = await db.execute("SELECT id FROM users WHERE id = ?", [id]);
+    const { rows: existingUsers } = await db.query("SELECT id FROM users WHERE id = $1", [id]);
     if (existingUsers.length === 0) {
       return NextResponse.json({ success: false, message: "User not found" }, { status: 404 });
     }
 
     // Update user status
-    await db.execute("UPDATE users SET is_active = ?, updated_at = NOW() WHERE id = ?", [is_active ? 1 : 0, id]);
+    await db.query("UPDATE users SET is_active = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2", [is_active ? 1 : 0, id]);
 
     return NextResponse.json({
       success: true,

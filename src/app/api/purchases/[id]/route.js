@@ -22,7 +22,7 @@ export async function GET(request, { params }) {
     const db = getDb();
 
     // Fetch purchase
-    const [purchases] = await db.execute(
+    const { rows: purchases } = await db.query(
       `SELECT 
         p.*,
         s.name as supplier_name,
@@ -31,8 +31,8 @@ export async function GET(request, { params }) {
       FROM purchases p
       LEFT JOIN suppliers s ON p.supplier_id = s.id
       LEFT JOIN users u ON p.user_id = u.id
-      WHERE p.id = ?`,
-      [id]
+      WHERE p.id = $1`,
+      [id],
     );
 
     if (purchases.length === 0) {
@@ -40,15 +40,15 @@ export async function GET(request, { params }) {
     }
 
     // Fetch purchase items
-    const [items] = await db.execute(
+    const { rows: items } = await db.query(
       `SELECT 
         pi.*,
         p.name as product_name,
         p.code as product_code
       FROM purchase_items pi
       LEFT JOIN products p ON pi.product_id = p.id
-      WHERE pi.purchase_id = ?`,
-      [id]
+      WHERE pi.purchase_id = $1`,
+      [id],
     );
 
     return NextResponse.json({ purchase: purchases[0], items });
@@ -76,29 +76,29 @@ export async function DELETE(request, { params }) {
     const db = getDb();
 
     // Get purchase items to restore stock
-    const [items] = await db.execute(`SELECT product_id, qty FROM purchase_items WHERE purchase_id = ?`, [id]);
+    const { rows: items } = await db.query(`SELECT product_id, qty FROM purchase_items WHERE purchase_id = $1`, [id]);
 
     // Restore stock for each item
     for (const item of items) {
-      await db.execute(`UPDATE products SET qty = qty - ? WHERE id = ?`, [item.qty, item.product_id]);
+      await db.query(`UPDATE products SET qty = qty - $1 WHERE id = $2`, [item.qty, item.product_id]);
 
       // Log stock change
-      await db.execute(
-        `INSERT INTO stock_logs (product_id, action, qty, purchase_id, user_id, created_at) VALUES (?, 'PURCHASE_DELETE', ?, ?, ?, NOW())`,
-        [item.product_id, -item.qty, id, user.id]
+      await db.query(
+        `INSERT INTO stock_logs (product_id, action, qty, purchase_id, user_id, created_at) VALUES ($1, 'PURCHASE_DELETE', $2, $3, $4, CURRENT_TIMESTAMP)`,
+        [item.product_id, -item.qty, id, user.id],
       );
     }
 
     // Delete purchase items
-    await db.execute(`DELETE FROM purchase_items WHERE purchase_id = ?`, [id]);
+    await db.query(`DELETE FROM purchase_items WHERE purchase_id = $1`, [id]);
 
     // Delete purchase
-    await db.execute(`DELETE FROM purchases WHERE id = ?`, [id]);
+    await db.query(`DELETE FROM purchases WHERE id = $1`, [id]);
 
     // Log audit
-    await db.execute(
-      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'DELETE_PURCHASE', 'purchases', ?, NOW())`,
-      [user.id, id]
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'DELETE_PURCHASE', 'purchases', $2, CURRENT_TIMESTAMP)`,
+      [user.id, id],
     );
 
     return NextResponse.json({ success: true });

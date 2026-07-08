@@ -21,13 +21,13 @@ export async function GET(request, { params }) {
     const db = getDb();
 
     // Get product details
-    const [products] = await db.execute(
+    const { rows: products } = await db.query(
       `SELECT 
         p.*,
         c.name as category_name
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
-      WHERE p.id = ?`,
+      WHERE p.id = $1`,
       [id],
     );
 
@@ -36,7 +36,7 @@ export async function GET(request, { params }) {
     }
 
     // Get stock history
-    const [stockHistory] = await db.execute(
+    const { rows: stockHistory } = await db.query(
       `SELECT 
         sl.*,
         u.name as user_name,
@@ -46,7 +46,7 @@ export async function GET(request, { params }) {
       LEFT JOIN users u ON sl.user_id = u.id
       LEFT JOIN invoices i ON sl.invoice_id = i.id
       LEFT JOIN purchases p ON sl.purchase_id = p.id
-      WHERE sl.product_id = ?
+      WHERE sl.product_id = $1
       ORDER BY sl.created_at DESC
       LIMIT 50`,
       [id],
@@ -104,7 +104,7 @@ export async function PUT(request, { params }) {
 
     allowedFields.forEach((field) => {
       if (body[field] !== undefined) {
-        updateFields.push(`${field} = ?`);
+        updateFields.push(`${field} = $${updateValues.length + 1}`);
         updateValues.push(body[field]);
       }
     });
@@ -115,12 +115,12 @@ export async function PUT(request, { params }) {
 
     updateValues.push(id);
 
-    await db.execute(`UPDATE products SET ${updateFields.join(", ")}, updated_at = NOW() WHERE id = ?`, updateValues);
+    await db.query(`UPDATE products SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = $${updateValues.length}`, updateValues);
 
     // Log audit
     if (user) {
-      await db.execute(
-        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'UPDATE_PRODUCT', 'products', ?, NOW())`,
+      await db.query(
+        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'UPDATE_PRODUCT', 'products', $2, CURRENT_TIMESTAMP)`,
         [user.id, id],
       );
     }
@@ -150,31 +150,31 @@ export async function DELETE(request, { params }) {
     const db = getDb();
 
     // Check if product is used in any transactions
-    const [invoiceItems] = await db.execute(`SELECT COUNT(*) as count FROM invoice_items WHERE product_id = ?`, [id]);
+    const { rows: invoiceItems } = await db.query(`SELECT COUNT(*) as count FROM invoice_items WHERE product_id = $1`, [id]);
 
-    const [purchaseItems] = await db.execute(`SELECT COUNT(*) as count FROM purchase_items WHERE product_id = ?`, [id]);
+    const { rows: purchaseItems } = await db.query(`SELECT COUNT(*) as count FROM purchase_items WHERE product_id = $1`, [id]);
 
     if (invoiceItems[0].count > 0 || purchaseItems[0].count > 0) {
       return NextResponse.json({ error: "Cannot delete product with existing transactions" }, { status: 400 });
     }
 
     // Get product details before deletion for audit log
-    const [productDetails] = await db.execute(
-      `SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = ?`,
+    const { rows: productDetails } = await db.query(
+      `SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = $1`,
       [id],
     );
     const productData = productDetails[0] ? JSON.stringify(productDetails[0]) : null;
 
     // Delete stock logs
-    await db.execute(`DELETE FROM stock_logs WHERE product_id = ?`, [id]);
+    await db.query(`DELETE FROM stock_logs WHERE product_id = $1`, [id]);
 
     // Delete product
-    await db.execute(`DELETE FROM products WHERE id = ?`, [id]);
+    await db.query(`DELETE FROM products WHERE id = $1`, [id]);
 
     // Log audit with product data
     if (user) {
-      await db.execute(
-        `INSERT INTO audit_logs (user_id, action, table_name, record_id, old_data, timestamp) VALUES (?, 'DELETE_PRODUCT', 'products', ?, ?, NOW())`,
+      await db.query(
+        `INSERT INTO audit_logs (user_id, action, table_name, record_id, old_data, timestamp) VALUES ($1, 'DELETE_PRODUCT', 'products', $2, $3, CURRENT_TIMESTAMP)`,
         [user.id, id, productData],
       );
     }
@@ -211,7 +211,7 @@ export async function PATCH(request, { params }) {
     const db = getDb();
 
     // Get current stock
-    const [products] = await db.execute(`SELECT qty FROM products WHERE id = ?`, [id]);
+    const { rows: products } = await db.query(`SELECT qty FROM products WHERE id = $1`, [id]);
 
     if (products.length === 0) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
@@ -238,10 +238,10 @@ export async function PATCH(request, { params }) {
     }
 
     // Update product quantity
-    await db.execute(`UPDATE products SET qty = ?, updated_at = NOW() WHERE id = ?`, [newQty, id]);
+    await db.query(`UPDATE products SET qty = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, [newQty, id]);
 
     // Log stock change
-    await db.execute(`INSERT INTO stock_logs (product_id, action, qty, user_id, created_at) VALUES (?, ?, ?, ?, NOW())`, [
+    await db.query(`INSERT INTO stock_logs (product_id, action, qty, user_id, created_at) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)`, [
       id,
       stockAction,
       logQty,
@@ -250,8 +250,8 @@ export async function PATCH(request, { params }) {
 
     // Log audit
     if (user) {
-      await db.execute(
-        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'UPDATE_INVENTORY', 'products', ?, NOW())`,
+      await db.query(
+        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'UPDATE_INVENTORY', 'products', $2, CURRENT_TIMESTAMP)`,
         [user.id, id],
       );
     }

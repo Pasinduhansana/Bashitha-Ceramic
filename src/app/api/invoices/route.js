@@ -37,18 +37,19 @@ export async function GET(request) {
     const params = [];
 
     if (status && status !== "all") {
-      query += ` AND i.status = ?`;
+      query += ` AND i.status = $${params.length + 1}`;
       params.push(status);
     }
 
     if (search) {
-      query += ` AND (i.invoice_no LIKE ? OR c.name LIKE ?)`;
+      const paramIndex = params.length + 1;
+      query += ` AND (i.invoice_no LIKE $${paramIndex} OR c.name LIKE $${paramIndex + 1})`;
       params.push(`%${search}%`, `%${search}%`);
     }
 
     query += ` ORDER BY i.created_at DESC`;
 
-    const [invoices] = await db.execute(query, params);
+    const { rows: invoices } = await db.query(query, params);
 
     return NextResponse.json({ invoices });
   } catch (error) {
@@ -87,17 +88,16 @@ export async function POST(request) {
       customer_id = customer.existing_id;
     } else {
       // Create new customer
-      const [customerResult] = await db.execute(`INSERT INTO customers (name, contact, remark, created_at) VALUES (?, ?, ?, NOW())`, [
-        customer.name,
-        customer.contact,
-        customer.remark || null,
-      ]);
-      customer_id = customerResult.insertId;
+      const { rows } = await db.query(
+        `INSERT INTO customers (name, contact, remark, created_at) VALUES ($1, $2, $3, CURRENT_TIMESTAMP) RETURNING id`,
+        [customer.name, customer.contact, customer.remark || null],
+      );
+      customer_id = rows[0].id;
 
       // Log customer creation
-      await db.execute(
-        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'CREATE_CUSTOMER', 'customers', ?, NOW())`,
-        [user.id, customer_id]
+      await db.query(
+        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'CREATE_CUSTOMER', 'customers', $2, CURRENT_TIMESTAMP)`,
+        [user.id, customer_id],
       );
     }
 
@@ -109,23 +109,23 @@ export async function POST(request) {
     const net_amount = total_amount - (discount || 0);
 
     // Generate invoice number
-    const [[{ max_id }]] = await db.execute("SELECT MAX(id) as max_id FROM invoices");
-    const invoice_no = `INV-${new Date().getFullYear()}-${String((max_id || 0) + 1).padStart(3, "0")}`;
+    const { rows: maxRows } = await db.query("SELECT MAX(id) as max_id FROM invoices");
+    const invoice_no = `INV-${new Date().getFullYear()}-${String((maxRows[0].max_id || 0) + 1).padStart(3, "0")}`;
 
     // Insert invoice
-    const [result] = await db.execute(
+    const { rows } = await db.query(
       `INSERT INTO invoices (invoice_no, customer_id, user_id, total_amount, discount, net_amount, payment_method, created_at) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [invoice_no, customer_id, user.id, total_amount, discount || 0, net_amount, payment_method]
+       VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP) RETURNING id`,
+      [invoice_no, customer_id, user.id, total_amount, discount || 0, net_amount, payment_method],
     );
 
-    const invoice_id = result.insertId;
+    const invoice_id = rows[0].id;
 
     // Insert invoice items and update stock
     for (const item of items) {
       // Insert invoice item
       const line_total = item.qty * item.selling_price;
-      await db.execute(`INSERT INTO invoice_items (invoice_id, product_id, qty, selling_price, line_total) VALUES (?, ?, ?, ?, ?)`, [
+      await db.query(`INSERT INTO invoice_items (invoice_id, product_id, qty, selling_price, line_total) VALUES ($1, $2, $3, $4, $5)`, [
         invoice_id,
         item.product_id,
         item.qty,
@@ -134,21 +134,19 @@ export async function POST(request) {
       ]);
 
       // Update product stock
-      await db.execute(`UPDATE products SET qty = qty - ? WHERE id = ?`, [item.qty, item.product_id]);
+      await db.query(`UPDATE products SET qty = qty - $1 WHERE id = $2`, [item.qty, item.product_id]);
 
       // Log stock change
-      await db.execute(`INSERT INTO stock_logs (product_id, action, qty, invoice_id, user_id, created_at) VALUES (?, 'SALE', ?, ?, ?, NOW())`, [
-        item.product_id,
-        -item.qty,
-        invoice_id,
-        user.id,
-      ]);
+      await db.query(
+        `INSERT INTO stock_logs (product_id, action, qty, invoice_id, user_id, created_at) VALUES ($1, 'SALE', $2, $3, $4, CURRENT_TIMESTAMP)`,
+        [item.product_id, -item.qty, invoice_id, user.id],
+      );
     }
 
     // Log audit
-    await db.execute(
-      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'CREATE_INVOICE', 'invoices', ?, NOW())`,
-      [user.id, invoice_id]
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'CREATE_INVOICE', 'invoices', $2, CURRENT_TIMESTAMP)`,
+      [user.id, invoice_id],
     );
 
     return NextResponse.json({ success: true, invoice_id, invoice_no });

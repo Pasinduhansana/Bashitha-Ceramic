@@ -18,7 +18,7 @@ export async function GET(request, { params }) {
     const db = getDb();
 
     // Fetch invoice
-    const [invoices] = await db.execute(
+    const { rows: invoices } = await db.query(
       `SELECT 
         i.*,
         c.name as customer_name,
@@ -27,7 +27,7 @@ export async function GET(request, { params }) {
       FROM invoices i
       LEFT JOIN customers c ON i.customer_id = c.id
       LEFT JOIN users u ON i.user_id = u.id
-      WHERE i.id = ?`,
+      WHERE i.id = $1`,
       [id],
     );
 
@@ -36,14 +36,14 @@ export async function GET(request, { params }) {
     }
 
     // Fetch invoice items
-    const [items] = await db.execute(
+    const { rows: items } = await db.query(
       `SELECT 
         ii.*,
         p.name as product_name,
         p.code as product_code
       FROM invoice_items ii
       LEFT JOIN products p ON ii.product_id = p.id
-      WHERE ii.invoice_id = ?`,
+      WHERE ii.invoice_id = $1`,
       [id],
     );
 
@@ -69,28 +69,28 @@ export async function DELETE(request, { params }) {
     const db = getDb();
 
     // Get invoice items to restore stock
-    const [items] = await db.execute(`SELECT product_id, qty FROM invoice_items WHERE invoice_id = ?`, [id]);
+    const { rows: items } = await db.query(`SELECT product_id, qty FROM invoice_items WHERE invoice_id = $1`, [id]);
 
     // Restore stock for each item
     for (const item of items) {
-      await db.execute(`UPDATE products SET qty = qty + ? WHERE id = ?`, [item.qty, item.product_id]);
+      await db.query(`UPDATE products SET qty = qty + $1 WHERE id = $2`, [item.qty, item.product_id]);
 
       // Log stock restoration
-      await db.execute(
-        `INSERT INTO stock_logs (product_id, action, qty, invoice_id, user_id, created_at) VALUES (?, 'INVOICE_DELETE', ?, ?, ?, NOW())`,
+      await db.query(
+        `INSERT INTO stock_logs (product_id, action, qty, invoice_id, user_id, created_at) VALUES ($1, 'INVOICE_DELETE', $2, $3, $4, CURRENT_TIMESTAMP)`,
         [item.product_id, item.qty, id, user.id],
       );
     }
 
     // Delete invoice items
-    await db.execute(`DELETE FROM invoice_items WHERE invoice_id = ?`, [id]);
+    await db.query(`DELETE FROM invoice_items WHERE invoice_id = $1`, [id]);
 
     // Delete invoice
-    await db.execute(`DELETE FROM invoices WHERE id = ?`, [id]);
+    await db.query(`DELETE FROM invoices WHERE id = $1`, [id]);
 
     // Log audit
-    await db.execute(
-      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'DELETE_INVOICE', 'invoices', ?, NOW())`,
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'DELETE_INVOICE', 'invoices', $2, CURRENT_TIMESTAMP)`,
       [user.id, id],
     );
 
@@ -121,11 +121,11 @@ export async function PATCH(request, { params }) {
     }
 
     const db = getDb();
-    await db.execute(`UPDATE invoices SET status = ? WHERE id = ?`, [status, id]);
+    await db.query(`UPDATE invoices SET status = $1 WHERE id = $2`, [status, id]);
 
     // Log audit
-    await db.execute(
-      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'UPDATE_INVOICE', 'invoices', ?, NOW())`,
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'UPDATE_INVOICE', 'invoices', $2, CURRENT_TIMESTAMP)`,
       [user.id, id],
     );
 

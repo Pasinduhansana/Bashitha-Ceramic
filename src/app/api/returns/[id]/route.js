@@ -21,7 +21,7 @@ export async function GET(request, { params }) {
     const { id } = await params;
     const db = getDb();
 
-    const [returns] = await db.execute(
+    const { rows: returns } = await db.query(
       `SELECT 
         r.*,
         p.name as product_name,
@@ -37,8 +37,8 @@ export async function GET(request, { params }) {
       LEFT JOIN customers c ON i.customer_id = c.id
       LEFT JOIN suppliers s ON pu.supplier_id = s.id
       LEFT JOIN users u ON r.user_id = u.id
-      WHERE r.id = ?`,
-      [id]
+      WHERE r.id = $1`,
+      [id],
     );
 
     if (returns.length === 0) {
@@ -77,7 +77,7 @@ export async function PATCH(request, { params }) {
     const db = getDb();
 
     // Get return details
-    const [returns] = await db.execute(`SELECT * FROM returns WHERE id = ?`, [id]);
+    const { rows: returns } = await db.query(`SELECT * FROM returns WHERE id = $1`, [id]);
 
     if (returns.length === 0) {
       return NextResponse.json({ error: "Return not found" }, { status: 404 });
@@ -86,38 +86,38 @@ export async function PATCH(request, { params }) {
     const returnData = returns[0];
 
     // Update return status
-    await db.execute(`UPDATE returns SET status = ? WHERE id = ?`, [status, id]);
+    await db.query(`UPDATE returns SET status = $1 WHERE id = $2`, [status, id]);
 
     // If approved, update stock
     if (status === "approved") {
       if (returnData.invoice_id) {
         // Invoice return - add stock back
-        await db.execute(`UPDATE products SET qty = qty + ? WHERE id = ?`, [returnData.qty, returnData.product_id]);
+        await db.query(`UPDATE products SET qty = qty + $1 WHERE id = $2`, [returnData.qty, returnData.product_id]);
 
         // Log stock change
-        await db.execute(
+        await db.query(
           `INSERT INTO stock_logs (product_id, action, qty, return_id, user_id, created_at) 
-           VALUES (?, 'RETURN_INVOICE', ?, ?, ?, NOW())`,
-          [returnData.product_id, returnData.qty, id, user.id]
+           VALUES ($1, 'RETURN_INVOICE', $2, $3, $4, CURRENT_TIMESTAMP)`,
+          [returnData.product_id, returnData.qty, id, user.id],
         );
       } else if (returnData.purchase_id) {
         // Purchase return - reduce stock
-        await db.execute(`UPDATE products SET qty = qty - ? WHERE id = ?`, [returnData.qty, returnData.product_id]);
+        await db.query(`UPDATE products SET qty = qty - $1 WHERE id = $2`, [returnData.qty, returnData.product_id]);
 
         // Log stock change
-        await db.execute(
+        await db.query(
           `INSERT INTO stock_logs (product_id, action, qty, return_id, user_id, created_at) 
-           VALUES (?, 'RETURN_PURCHASE', ?, ?, ?, NOW())`,
-          [returnData.product_id, -returnData.qty, id, user.id]
+           VALUES ($1, 'RETURN_PURCHASE', $2, $3, $4, CURRENT_TIMESTAMP)`,
+          [returnData.product_id, -returnData.qty, id, user.id],
         );
       }
     }
 
     // Log audit
-    await db.execute(`INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'APPROVE_RETURN', 'returns', ?, NOW())`, [
-      user.id,
-      id,
-    ]);
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'APPROVE_RETURN', 'returns', $2, CURRENT_TIMESTAMP)`,
+      [user.id, id],
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -143,13 +143,13 @@ export async function DELETE(request, { params }) {
     const { id } = await params;
     const db = getDb();
 
-    await db.execute(`DELETE FROM returns WHERE id = ?`, [id]);
+    await db.query(`DELETE FROM returns WHERE id = $1`, [id]);
 
     // Log audit
-    await db.execute(`INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'DELETE_RETURN', 'returns', ?, NOW())`, [
-      user.id,
-      id,
-    ]);
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'DELETE_RETURN', 'returns', $2, CURRENT_TIMESTAMP)`,
+      [user.id, id],
+    );
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -98,18 +98,18 @@ export class PermissionError extends Error {
 
 async function ensurePermissionTables(db) {
   // permissions table
-  await db.execute(`
+  await db.query(`
     CREATE TABLE IF NOT EXISTS permissions (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       permission_key VARCHAR(100) UNIQUE,
       description VARCHAR(255)
     )
   `);
 
   // role_permissions table
-  await db.execute(`
+  await db.query(`
     CREATE TABLE IF NOT EXISTS role_permissions (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       role_id INT,
       permission_id INT,
       FOREIGN KEY (role_id) REFERENCES roles(id),
@@ -118,9 +118,9 @@ async function ensurePermissionTables(db) {
   `);
 
   // user_permissions table (overrides)
-  await db.execute(`
+  await db.query(`
     CREATE TABLE IF NOT EXISTS user_permissions (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id SERIAL PRIMARY KEY,
       user_id INT,
       permission_id INT,
       is_allowed BOOLEAN,
@@ -139,10 +139,10 @@ export async function ensurePermissionsSeed() {
   // Seed permissions
   const permissionIds = {};
   for (const [key, description] of Object.entries(PERMISSION_DEFINITIONS)) {
-    const [rows] = await db.execute("SELECT id FROM permissions WHERE permission_key = ? LIMIT 1", [key]);
+    const { rows } = await db.query("SELECT id FROM permissions WHERE permission_key = $1 LIMIT 1", [key]);
     if (rows.length === 0) {
-      const [result] = await db.execute("INSERT INTO permissions (permission_key, description) VALUES (?, ?)", [key, description]);
-      permissionIds[key] = result.insertId;
+      const result = await db.query("INSERT INTO permissions (permission_key, description) VALUES ($1, $2) RETURNING id", [key, description]);
+      permissionIds[key] = result.rows[0].id;
     } else {
       permissionIds[key] = rows[0].id;
     }
@@ -151,10 +151,10 @@ export async function ensurePermissionsSeed() {
   // Seed roles (user types)
   const roleIds = {};
   for (const role of ROLE_DEFINITIONS) {
-    const [rows] = await db.execute("SELECT id FROM roles WHERE role_name = ? LIMIT 1", [role.name]);
+    const { rows } = await db.query("SELECT id FROM roles WHERE role_name = $1 LIMIT 1", [role.name]);
     if (rows.length === 0) {
-      const [result] = await db.execute("INSERT INTO roles (role_name, description) VALUES (?, ?)", [role.name, role.description]);
-      roleIds[role.name] = result.insertId;
+      const result = await db.query("INSERT INTO roles (role_name, description) VALUES ($1, $2) RETURNING id", [role.name, role.description]);
+      roleIds[role.name] = result.rows[0].id;
     } else {
       roleIds[role.name] = rows[0].id;
     }
@@ -169,10 +169,13 @@ export async function ensurePermissionsSeed() {
       const permissionId = permissionIds[permKey];
       if (!permissionId) continue;
 
-      const [existing] = await db.execute("SELECT id FROM role_permissions WHERE role_id = ? AND permission_id = ? LIMIT 1", [roleId, permissionId]);
+      const { rows: existing } = await db.query("SELECT id FROM role_permissions WHERE role_id = $1 AND permission_id = $2 LIMIT 1", [
+        roleId,
+        permissionId,
+      ]);
 
       if (existing.length === 0) {
-        await db.execute("INSERT INTO role_permissions (role_id, permission_id) VALUES (?, ?)", [roleId, permissionId]);
+        await db.query("INSERT INTO role_permissions (role_id, permission_id) VALUES ($1, $2)", [roleId, permissionId]);
       }
     }
   }
@@ -182,13 +185,13 @@ export async function userHasPermission(userId, roleId, permissionKey) {
   const db = getDb();
 
   // First check for explicit user override
-  const [overrideRows] = await db.execute(
+  const { rows: overrideRows } = await db.query(
     `SELECT up.is_allowed
      FROM user_permissions up
      JOIN permissions p ON up.permission_id = p.id
-     WHERE up.user_id = ? AND p.permission_key = ?
+     WHERE up.user_id = $1 AND p.permission_key = $2
      LIMIT 1`,
-    [userId, permissionKey]
+    [userId, permissionKey],
   );
 
   if (overrideRows.length > 0) {
@@ -196,13 +199,13 @@ export async function userHasPermission(userId, roleId, permissionKey) {
   }
 
   // Fallback to role-based permission
-  const [rows] = await db.execute(
+  const { rows } = await db.query(
     `SELECT 1
      FROM role_permissions rp
      JOIN permissions p ON rp.permission_id = p.id
-     WHERE rp.role_id = ? AND p.permission_key = ?
+     WHERE rp.role_id = $1 AND p.permission_key = $2
      LIMIT 1`,
-    [roleId, permissionKey]
+    [roleId, permissionKey],
   );
 
   return rows.length > 0;

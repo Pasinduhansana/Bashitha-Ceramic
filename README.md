@@ -1,38 +1,294 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Bashitha Ceramics - Inventory Management System
 
-## Getting Started
+A comprehensive inventory and billing management system built with Next.js, PostgreSQL (Supabase), and modern web technologies.
 
-sample
+## 🚀 Features
 
-First, run the development server:
+- **User Management**: Role-based access control with Admin, Manager, and Staff roles
+- **Product Inventory**: Track products with categories, pricing, stock levels, and images
+- **Billing System**: Create invoices, manage purchases, and handle returns
+- **Customer Management**: Maintain customer records and transaction history
+- **Audit Logging**: Track all system changes with detailed audit logs
+- **Notifications**: Real-time notification system for important events
+- **Bilingual Support**: English and Sinhala language support
+- **Image Management**: Cloudinary integration for product images
+- **Responsive Design**: Modern UI with Tailwind CSS and Framer Motion
+
+---
+
+## 📋 Tech Stack
+
+- **Frontend**: Next.js 16.1.0, React 19.2.3
+- **Database**: PostgreSQL (hosted on Supabase)
+- **Authentication**: NextAuth.js 4.24.13
+- **Styling**: Tailwind CSS 4
+- **Image Upload**: Cloudinary
+- **Icons**: Lucide React, React Icons
+- **Animations**: Framer Motion
+- **Email**: Nodemailer
+
+---
+
+## 🗄️ Database Migration
+
+**This project has been migrated from MySQL to PostgreSQL (Supabase).**
+
+For detailed migration information, see:
+
+- [MIGRATION_SUMMARY.md](MIGRATION_SUMMARY.md) - What changed during migration
+- [SUPABASE_SETUP.md](SUPABASE_SETUP.md) - Complete Supabase setup guide
+
+---
+
+## 🛠️ Installation
+
+### Prerequisites
+
+- Node.js 18+ installed
+- A Supabase account ([sign up here](https://supabase.com))
+- Cloudinary account (optional, for image uploads)
+
+### Step 1: Clone the Repository
+
+```bash
+git clone <your-repo-url>
+cd bashitha-ceramics
+```
+
+### Step 2: Install Dependencies
+
+```bash
+npm install
+```
+
+### Step 3: Set Up Supabase
+
+Follow the complete guide in **[SUPABASE_SETUP.md](SUPABASE_SETUP.md)**
+
+Quick steps:
+
+1. Create a Supabase project
+2. Get your database credentials
+3. Run the SQL schema files in Supabase SQL Editor
+
+### Step 4: Configure Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```bash
+cp .env.example .env.local
+```
+
+Update the file with your credentials:
+
+```env
+# PostgreSQL (Supabase)
+POSTGRES_HOST=db.xxxxxxxxxxxxx.supabase.co
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_password
+POSTGRES_DATABASE=postgres
+POSTGRES_SSL=true
+
+# NextAuth
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_secret_here
+
+# Cloudinary (Optional)
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+```
+
+### Step 5: Initialize Database
+
+Run the SQL files in your Supabase SQL Editor:
+
+1. `public/DB_Schema.sql`
+2. `public/notification_reads_table.sql`
+3. `public/user_preferences_table.sql`
+
+### Step 6: Initialize Permissions
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then in another terminal:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+```bash
+curl http://localhost:3000/api/init-permissions
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Or visit: http://localhost:3000/api/init-permissions
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🚀 Getting Started
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Development Server
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev
+```
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000) with your browser.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Build for Production
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build
+npm start
+```
+
+---
+
+## 📁 Project Structure
+
+```
+bashitha-ceramics/
+├── src/
+│   ├── app/
+│   │   ├── api/              # API routes
+│   │   ├── billing/          # Billing page
+│   │   ├── inventory/        # Inventory page
+│   │   ├── login/            # Login page
+│   │   └── globals.css       # Global styles
+│   ├── components/
+│   │   ├── billing/          # Billing components
+│   │   ├── inventory/        # Inventory components
+│   │   ├── forms/            # Form components
+│   │   └── ui/               # UI components
+│   ├── hooks/                # Custom React hooks
+│   └── lib/
+│       ├── db.js             # Database connection
+│       ├── auth.js           # Authentication logic
+│       └── permissions.js    # Permission helpers
+├── public/
+│   ├── DB_Schema.sql         # Main database schema
+│   └── *.sql                 # Additional SQL files
+├── docs/                     # Documentation
+├── SUPABASE_SETUP.md        # Supabase setup guide
+├── MIGRATION_SUMMARY.md     # Migration details
+└── package.json
+```
+
+---
+
+## 🔐 Authentication & Authorization
+
+### Default Roles
+
+1. **Admin**: Full system access
+2. **Manager**: Manage inventory, view reports
+3. **Staff**: Basic operations only
+
+### Creating Admin User
+
+After initializing permissions, create an admin user:
+
+```sql
+-- In Supabase SQL Editor
+INSERT INTO users (name, username, email, password_hash, role_id, is_active)
+VALUES (
+  'Admin',
+  'admin',
+  'admin@example.com',
+  '$2a$10$YourBcryptHashHere',
+  1,
+  true
+);
+```
+
+Generate bcrypt hash:
+
+```bash
+node -e "const bcrypt = require('bcryptjs'); console.log(bcrypt.hashSync('your_password', 10));"
+```
+
+---
+
+## 📚 Additional Documentation
+
+- [SUPABASE_SETUP.md](SUPABASE_SETUP.md) - Supabase connection guide
+- [MIGRATION_SUMMARY.md](MIGRATION_SUMMARY.md) - MySQL to PostgreSQL migration
+- [USER_ACCESS_CONTROL.md](USER_ACCESS_CONTROL.md) - Permission system
+- [BILINGUAL_FEATURE_SUMMARY.md](docs/BILINGUAL_FEATURE_SUMMARY.md) - Language support
+- [NOTIFICATION_SYSTEM.md](docs/NOTIFICATION_SYSTEM.md) - Notification system
+- [CLOUDINARY_SETUP.md](CLOUDINARY_SETUP.md) - Image upload setup
+
+---
+
+## 🐛 Troubleshooting
+
+### Database Connection Issues
+
+See the troubleshooting section in [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
+
+### Common Problems
+
+1. **Connection timeout**: Check SSL settings (`POSTGRES_SSL=true`)
+2. **Authentication failed**: Verify database password
+3. **Table not found**: Run SQL schema files
+4. **Module not found**: Run `npm install`
+
+---
+
+## 🚀 Deployment
+
+### Vercel Deployment
+
+1. Push your code to GitHub
+2. Import project in Vercel
+3. Add environment variables
+4. Deploy!
+
+**Important**: Update `NEXTAUTH_URL` to your production domain.
+
+### Environment Variables for Production
+
+All variables from `.env.local` are needed, especially:
+
+- `POSTGRES_*` credentials
+- `NEXTAUTH_URL` (production domain)
+- `NEXTAUTH_SECRET` (generate new for production)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+---
+
+## 📄 License
+
+This project is private and proprietary.
+
+---
+
+## 📧 Support
+
+For issues and questions:
+
+- Check the documentation files
+- Review [SUPABASE_SETUP.md](SUPABASE_SETUP.md) for database issues
+- Check Supabase logs in your dashboard
+
+---
+
+## 🎉 Acknowledgments
+
+- Next.js team for the amazing framework
+- Supabase for excellent PostgreSQL hosting
+- Cloudinary for image management
+- All open-source contributors
+
+---
+
+**Built with ❤️ using Next.js and PostgreSQL**

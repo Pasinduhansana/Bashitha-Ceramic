@@ -15,7 +15,7 @@ export async function POST(request) {
     const pool = getDb();
 
     // Find user
-    const [users] = await pool.execute("SELECT id, username FROM users WHERE username = ? LIMIT 1", [username]);
+    const { rows: users } = await pool.query("SELECT id, username FROM users WHERE username = $1 LIMIT 1", [username]);
     const user = users?.[0];
 
     // Respond with success regardless, to avoid user enumeration
@@ -29,12 +29,14 @@ export async function POST(request) {
 
     // Ensure table exists (best effort for dev environments)
     await pool.query(
-      "CREATE TABLE IF NOT EXISTS password_reset_tokens (\n        id INT AUTO_INCREMENT PRIMARY KEY,\n        userId INT NOT NULL,\n        token VARCHAR(128) NOT NULL,\n        expiresAt DATETIME NOT NULL,\n        createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,\n        INDEX(token),\n        INDEX(userId)\n      ) ENGINE=InnoDB"
+      "CREATE TABLE IF NOT EXISTS password_reset_tokens (\n        id SERIAL PRIMARY KEY,\n        userId INT NOT NULL,\n        token VARCHAR(128) NOT NULL,\n        expiresAt TIMESTAMP NOT NULL,\n        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP\n      )",
     );
+    await pool.query("CREATE INDEX IF NOT EXISTS idx_password_reset_token ON password_reset_tokens(token)");
+    await pool.query("CREATE INDEX IF NOT EXISTS idx_password_reset_userId ON password_reset_tokens(userId)");
 
     // Upsert: delete old tokens for user, then insert new
-    await pool.execute("DELETE FROM password_reset_tokens WHERE userId = ?", [user.id]);
-    await pool.execute("INSERT INTO password_reset_tokens (userId, token, expiresAt) VALUES (?, ?, ?)", [user.id, token, expiresAt]);
+    await pool.query("DELETE FROM password_reset_tokens WHERE userId = $1", [user.id]);
+    await pool.query("INSERT INTO password_reset_tokens (userId, token, expiresAt) VALUES ($1, $2, $3)", [user.id, token, expiresAt]);
 
     // Send email to fixed recipient with reset link
     const appUrl = process.env.APP_URL || "http://localhost:3000";

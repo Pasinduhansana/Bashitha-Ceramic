@@ -1,20 +1,20 @@
 -- Roles
 CREATE TABLE roles (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   role_name VARCHAR(100),
   description VARCHAR(255)
 );
 
 -- Permissions
 CREATE TABLE permissions (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   permission_key VARCHAR(100),
   description VARCHAR(255)
 );
 
 -- Role-Permissions Mapping
 CREATE TABLE role_permissions (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   role_id INT,
   permission_id INT,
   FOREIGN KEY (role_id) REFERENCES roles(id),
@@ -23,7 +23,7 @@ CREATE TABLE role_permissions (
 
 -- Users
 CREATE TABLE users (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   name VARCHAR(150),
   username VARCHAR(100),
   email VARCHAR(150),
@@ -32,15 +32,15 @@ CREATE TABLE users (
   is_active BOOLEAN DEFAULT TRUE,
   contact VARCHAR(50),
   address VARCHAR(255),
-  img_url LONGTEXT,
+  img_url TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (role_id) REFERENCES roles(id)
 );
 
 -- User-Permissions (Override)
 CREATE TABLE user_permissions (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   user_id INT,
   permission_id INT,
   is_allowed BOOLEAN,
@@ -50,13 +50,13 @@ CREATE TABLE user_permissions (
 
 -- Categories
 CREATE TABLE categories (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   name VARCHAR(100)
 );
 
 -- Products
 CREATE TABLE products (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   product_type VARCHAR(50),
   name VARCHAR(150),
   brand VARCHAR(100),
@@ -74,13 +74,13 @@ CREATE TABLE products (
   category_id INT,
   description VARCHAR(255),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (category_id) REFERENCES categories(id)
 );
 
 -- Suppliers
 CREATE TABLE suppliers (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   name VARCHAR(150),
   contact VARCHAR(50),
   address VARCHAR(255),
@@ -90,7 +90,7 @@ CREATE TABLE suppliers (
 
 -- Purchases
 CREATE TABLE purchases (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   supplier_id INT,
   user_id INT,
   total_amount DECIMAL(10,2),
@@ -101,7 +101,7 @@ CREATE TABLE purchases (
 
 -- Purchase Items
 CREATE TABLE purchase_items (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   purchase_id INT,
   product_id INT,
   qty INT,
@@ -112,7 +112,7 @@ CREATE TABLE purchase_items (
 
 -- Customers
 CREATE TABLE customers (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   name VARCHAR(150),
   contact VARCHAR(50),
   remark VARCHAR(255),
@@ -121,7 +121,7 @@ CREATE TABLE customers (
 
 -- Invoices
 CREATE TABLE invoices (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   invoice_no VARCHAR(100),
   customer_id INT,
   user_id INT,
@@ -136,7 +136,7 @@ CREATE TABLE invoices (
 
 -- Invoice Items
 CREATE TABLE invoice_items (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   invoice_id INT,
   product_id INT,
   qty INT,
@@ -148,7 +148,7 @@ CREATE TABLE invoice_items (
 
 -- Returns
 CREATE TABLE returns (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   invoice_id INT NULL,
   purchase_id INT NULL,
   product_id INT,
@@ -165,7 +165,7 @@ CREATE TABLE returns (
 
 -- Stock Logs
 CREATE TABLE stock_logs (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   product_id INT,
   action VARCHAR(50),
   qty INT,
@@ -183,7 +183,7 @@ CREATE TABLE stock_logs (
 
 -- Audit Logs
 CREATE TABLE audit_logs (
-  id INT AUTO_INCREMENT PRIMARY KEY,
+  id SERIAL PRIMARY KEY,
   user_id INT,
   action VARCHAR(100),
   table_name VARCHAR(100),
@@ -191,3 +191,20 @@ CREATE TABLE audit_logs (
   timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (user_id) REFERENCES users(id)
 );
+
+-- Create trigger function for updating updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Create triggers for users table
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Create triggers for products table
+CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON products
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

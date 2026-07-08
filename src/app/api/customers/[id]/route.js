@@ -18,14 +18,14 @@ export async function GET(request, { params }) {
     const db = getDb();
 
     // Fetch customer
-    const [customers] = await db.execute(
+    const { rows: customers } = await db.query(
       `SELECT 
         c.*,
         COUNT(DISTINCT i.id) as invoice_count,
         COALESCE(SUM(i.net_amount), 0) as total_purchases
       FROM customers c
       LEFT JOIN invoices i ON c.id = i.customer_id
-      WHERE c.id = ?
+      WHERE c.id = $1
       GROUP BY c.id`,
       [id],
     );
@@ -35,7 +35,7 @@ export async function GET(request, { params }) {
     }
 
     // Fetch recent invoices
-    const [invoices] = await db.execute(`SELECT * FROM invoices WHERE customer_id = ? ORDER BY created_at DESC LIMIT 10`, [id]);
+    const { rows: invoices } = await db.query(`SELECT * FROM invoices WHERE customer_id = $1 ORDER BY created_at DESC LIMIT 10`, [id]);
 
     return NextResponse.json({ customer: customers[0], invoices });
   } catch (error) {
@@ -65,11 +65,11 @@ export async function PUT(request, { params }) {
 
     const db = getDb();
 
-    await db.execute(`UPDATE customers SET name = ?, contact = ?, remark = ? WHERE id = ?`, [name, contact, remark || null, id]);
+    await db.query(`UPDATE customers SET name = $1, contact = $2, remark = $3 WHERE id = $4`, [name, contact, remark || null, id]);
 
     // Log audit
-    await db.execute(
-      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'UPDATE_CUSTOMER', 'customers', ?, NOW())`,
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'UPDATE_CUSTOMER', 'customers', $2, CURRENT_TIMESTAMP)`,
       [user.id, id],
     );
 
@@ -95,17 +95,17 @@ export async function DELETE(request, { params }) {
     const db = getDb();
 
     // Check if customer has invoices
-    const [[{ count }]] = await db.execute(`SELECT COUNT(*) as count FROM invoices WHERE customer_id = ?`, [id]);
+    const { rows } = await db.query(`SELECT COUNT(*) as count FROM invoices WHERE customer_id = $1`, [id]);
 
-    if (count > 0) {
+    if (rows[0].count > 0) {
       return NextResponse.json({ error: "Cannot delete customer with existing invoices" }, { status: 400 });
     }
 
-    await db.execute(`DELETE FROM customers WHERE id = ?`, [id]);
+    await db.query(`DELETE FROM customers WHERE id = $1`, [id]);
 
     // Log audit
-    await db.execute(
-      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES (?, 'DELETE_CUSTOMER', 'customers', ?, NOW())`,
+    await db.query(
+      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'DELETE_CUSTOMER', 'customers', $2, CURRENT_TIMESTAMP)`,
       [user.id, id],
     );
 

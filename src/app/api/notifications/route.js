@@ -18,7 +18,7 @@ export async function GET(request) {
     const db = getDb();
 
     // Fetch recent audit logs that are not marked as read by this user
-    const [logs] = await db.execute(
+    const { rows: logs } = await db.query(
       `
       SELECT 
         a.*,
@@ -26,7 +26,7 @@ export async function GET(request) {
         u.img_url as user_img_url
       FROM audit_logs a
       LEFT JOIN users u ON a.user_id = u.id
-      LEFT JOIN notification_reads nr ON a.id = nr.notification_id AND nr.user_id = ?
+      LEFT JOIN notification_reads nr ON a.id = nr.notification_id AND nr.user_id = $1
       WHERE nr.id IS NULL
       ORDER BY a.timestamp DESC
       LIMIT 50
@@ -74,11 +74,11 @@ export async function POST(request) {
     const db = getDb();
 
     // Insert into notification_reads table
-    await db.execute(
+    await db.query(
       `
       INSERT INTO notification_reads (user_id, notification_id, read_at)
-      VALUES (?, ?, NOW())
-      ON DUPLICATE KEY UPDATE read_at = NOW()
+      VALUES ($1, $2, CURRENT_TIMESTAMP)
+      ON CONFLICT (user_id, notification_id) DO UPDATE SET read_at = CURRENT_TIMESTAMP
     `,
       [userId, notificationId],
     );
