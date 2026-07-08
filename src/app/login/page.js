@@ -1,60 +1,216 @@
-import AuthContainer from "@/components/layout/AuthContainer";
+"use client";
 
-export const metadata = {
-  title: "Login - Bashitha Ceramics",
-  description: "Sign in to your account",
-};
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
+import login_bg from "../../../public/wallpapers/login-bg.jpg";
 
-export default function LoginPage() {
+export default function Login() {
+  const [isLogin, setIsLogin] = useState(true);
+  const [showPassword, setShowPassword] = useState(false);
+
   return (
-    <main className="min-h-screen max-h-screen flex items-center justify-center bg-gray-50 px-4 py-8 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('/wallpapers/login-bg.jpg')" }}>
-        <div className="absolute inset-0 bg-linear-to-r from-black/30 to-transparent"></div>
-      </div>
+    <div className="min-h-screen w-full flex items-center justify-center bg-black  p-4 font-sans overflow-hidden">
+      <img src={login_bg.src} alt="Handcrafted ceramics" className="absolute inset-0 w-full h-full object-fill blur-xl " />
 
-      {/* Logo */}
-      <div
-        className="hidden md:block absolute w-13 mt-auto ml-auto h-13 bottom-4 right-4 inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url('/logo.png')" }}
-      ></div>
+      <div className="relative w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 bg-white rounded-3xl overflow-hidden shadow-2xl border border-white/10">
+        {/* Image / Brand Side */}
+        <div
+          className={`relative hidden md:flex flex-col justify-between p-10 h-[600px] transition-all mx-[2px] my-1 rounded-[22px] overflow-hidden duration-700 ${isLogin ? "order-1" : "order-2"}`}
+        >
+          <img src={login_bg.src} alt="Handcrafted ceramics" className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/50" />
 
-      {/* Content */}
-      <div className="relative z-10 w-full lg:max-w-23/24  mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-6 items-center">
-          {/* Left Content - Hidden on Mobile */}
-          <div className="hidden md:block w-full space-y-6">
-            <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-roboto-condensed font-semibold tracking-tight text-white">
-              BASHITHA CERAMIC
-            </h1>
-            <h1 className="text-3xl sm:text-5xl md:text-5xl lg:text-7xl font-roboto-condensed font-bold tracking-tight text-white leading-tight">
-              EXPLORE <br />
-              ELEGANCE
-            </h1>
-            <p className="mt-2 font-roboto-condensed font-semibold text-sm sm:text-base md:text-md lg:text-lg text-white">
-              Where Your Dream Designs Come to Life
-            </p>
-            <p className="mt-2 font-roboto-condensed font-normal text-sm sm:text-base md:text-md lg:text-lg text-white">
-              Discover a wide selection of premium tiles and<br className="sm:hidden lg:block "></br> accessories, crafted to transform your space.
-            </p>
+          <div className="relative z-10 flex items-center gap-3">
+            <span className="text-[11px] tracking-[0.4em] text-teal-200/90 uppercase" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+              A Wise Quote
+            </span>
+            <span className="flex-1 h-px bg-teal-200/40" />
           </div>
 
-          {/* Mobile Header - Show on Mobile Only */}
-          <div className="md:hidden w-full space-y-4 text-center mb-6">
-            <h1 className="text-xl font-roboto-condensed font-semibold tracking-tight text-white">BASHITHA CERAMIC</h1>
-            <h2 className="text-5xl sm:text-3xl font-roboto-condensed font-bold tracking-tight text-white">EXPLORE ELEGANCE</h2>
-
-            <p className="mt-2 font-roboto-condensed font-normal text-sm sm:text-base md:text-lg text-white">
-              Discover a wide selection of premium tiles and accessories, crafted to transform your space.
+          <div className="relative z-10">
+            <h2
+              className="text-4xl md:text-[42px] text-white leading-[1.15] mb-5 italic"
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}
+            >
+              Shape Your
+              <br />
+              Everyday
+              <br />
+              Rituals
+            </h2>
+            <p className="text-white/60 text-[13px] max-w-xs tracking-wide leading-relaxed">
+              Discover handmade ceramic pieces that bring warmth, texture, and story to your home.
             </p>
           </div>
+        </div>
 
-          {/* Auth Form */}
-          <div className="w-full md:ml-auto">
-            <AuthContainer />
+        {/* Form Side */}
+        <div className={`relative flex flex-col px-8 py-10 md:px-12 h-[600px] overflow-hidden ${isLogin ? "order-2" : "order-1"}`}>
+          <div className="flex items-center gap-2.5 mb-4 justify-center md:justify-start shrink-0">
+            <div className="w-8 h-8 rounded-full bg-teal-700 flex items-center justify-center shadow-sm shadow-teal-900/20">
+              <span className="text-white text-xs font-bold">B</span>
+            </div>
+            <span className="text-xl text-neutral-900 tracking-tight" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
+              Bashitha Ceramic
+            </span>
+          </div>
+
+          <div className="flex-1 flex items-center justify-center overflow-hidden">
+            <AnimatePresence mode="wait" initial={false}>
+              {isLogin ? (
+                <motion.div
+                  key="login"
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.35, ease: "easeInOut" }}
+                  className="w-full"
+                >
+                  <div className="text-center md:text-left mb-7">
+                    <h1
+                      className="text-3xl md:text-[34px] text-neutral-900 mb-1.5"
+                      style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}
+                    >
+                      Welcome Back
+                    </h1>
+                    <p className="text-neutral-500 text-[13px]">Enter your email and password to access your account</p>
+                  </div>
+
+                  <form className="space-y-4 px-1">
+                    <div>
+                      <label className="block text-xs font-medium text-neutral-700 mb-1.5 tracking-wide">Email</label>
+                      <input
+                        type="email"
+                        placeholder="Enter your email"
+                        className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none  focus:border-teal-600/60 transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-neutral-700 mb-1.5 tracking-wide">Password</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Enter your password"
+                          className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none  focus:border-teal-600/60 transition-all pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-teal-700 transition-colors"
+                        >
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between text-[12px] pt-1 px-1">
+                      <label className="flex items-center gap-2 text-neutral-600 cursor-pointer">
+                        <input type="checkbox" className="w-3.5 h-3.5 rounded border-neutral-300 text-teal-700 focus:ring-teal-600/40" />
+                        Remember me
+                      </label>
+                      <button type="button" className="text-teal-700 hover:text-teal-800 font-medium">
+                        Forgot Password
+                      </button>
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-2.5 rounded-lg bg-teal-800 hover:bg-teal-900 text-white font-medium text-[13px] tracking-wide transition-colors shadow-sm shadow-teal-900/20 mt-2"
+                    >
+                      Sign In
+                    </button>
+                  </form>
+
+                  <p className="text-center text-[13px] text-neutral-500 mt-7">
+                    Don't have an account?{" "}
+                    <button onClick={() => setIsLogin(false)} className="text-teal-700 font-semibold hover:text-teal-800">
+                      Sign Up
+                    </button>
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="register"
+                  initial={{ opacity: 0, x: 24 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -24 }}
+                  transition={{ duration: 0.35, ease: "easeInOut" }}
+                  className="w-full"
+                >
+                  <div className="text-center md:text-left mb-6">
+                    <h1
+                      className="text-3xl md:text-[34px] text-neutral-900 mb-1.5"
+                      style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}
+                    >
+                      Create Account
+                    </h1>
+                    <p className="text-neutral-500 text-[13px]">Join us to explore handcrafted ceramics made for your home</p>
+                  </div>
+
+                  <form className="space-y-3.5">
+                    <div>
+                      <label className="block text-xs font-medium text-neutral-700 mb-1.5 tracking-wide">Full Name</label>
+                      <input
+                        type="text"
+                        placeholder="Enter your full name"
+                        className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-teal-600/40 focus:border-teal-600/60 transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-neutral-700 mb-1.5 tracking-wide">Email</label>
+                      <input
+                        type="email"
+                        placeholder="Enter your email"
+                        className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-teal-600/40 focus:border-teal-600/60 transition-all"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-neutral-700 mb-1.5 tracking-wide">Password</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="Create a password"
+                          className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-teal-600/40 focus:border-teal-600/60 transition-all pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-teal-700 transition-colors"
+                        >
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <label className="flex items-start gap-2 text-[12px] text-neutral-600 cursor-pointer pt-1">
+                      <input type="checkbox" className="w-3.5 h-3.5 mt-0.5 rounded border-neutral-300 text-teal-700 focus:ring-teal-600/40" />I agree
+                      to the Terms of Service and Privacy Policy
+                    </label>
+
+                    <button
+                      type="submit"
+                      className="w-full py-2.5 rounded-lg bg-teal-800 hover:bg-teal-900 text-white font-medium text-[13px] tracking-wide transition-colors shadow-sm shadow-teal-900/20 mt-2"
+                    >
+                      Create Account
+                    </button>
+                  </form>
+
+                  <p className="text-center text-[13px] text-neutral-500 mt-5">
+                    Already have an account?{" "}
+                    <button onClick={() => setIsLogin(true)} className="text-teal-700 font-semibold hover:text-teal-800">
+                      Sign In
+                    </button>
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
