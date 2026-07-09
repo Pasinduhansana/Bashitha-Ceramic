@@ -66,94 +66,153 @@ export async function GET(request) {
 
     const logs = auditResult.rows;
 
-    const logsWithDetails = await Promise.all(
-      logs.map(async (log) => {
-        let productDetails = null;
-        let enhancedDetails = log.details;
+    // ---- Performance fix: remove N+1 queries by batching lookups ----
+    // Collect product ids we need.
+    const productIdsToFetch = Array.from(
+      new Set(
+        logs
+          .filter(
+            (log) =>
+              (log.action === "CREATE_PRODUCT" ||
+                log.action === "UPDATE_PRODUCT" ||
+                log.action === "DELETE_PRODUCT" ||
+                log.action === "UPDATE_INVENTORY") &&
+              log.table_name === "products" &&
+              log.record_id,
+          )
+          .map((log) => Number(log.record_id)),
+      ),
+    );
 
-        if (
-          (log.action === "CREATE_PRODUCT" ||
-            log.action === "UPDATE_PRODUCT" ||
-            log.action === "DELETE_PRODUCT" ||
-            log.action === "UPDATE_INVENTORY") &&
-          log.table_name === "products" &&
-          log.record_id
-        ) {
-          // Handle delete product using old data
-          if (log.action === "DELETE_PRODUCT" && log.old_data) {
-            try {
-              productDetails = JSON.parse(log.old_data);
+    // Batch fetch products + category once.
+    const productById = new Map();
+    if (productIdsToFetch.length > 0) {
+      const placeholders = productIdsToFetch.map(() => "?").join(",");
+      const productResult = await db.execute({
+        sql: `
+          SELECT 
+            p.*,
+            c.name AS category_name
+          FROM products p
+          LEFT JOIN categories c
+            ON p.category_id = c.id
+          WHERE p.id IN (${placeholders})
+        `,
+        args: productIdsToFetch,
+      });
 
-              enhancedDetails = `Deleted product: ${productDetails.name}`;
-            } catch (err) {
-              console.error("Error parsing old_data:", err);
-            }
-          }
+      for (const p of productResult.rows) {
+        productById.set(Number(p.id), p);
+      }
+    }
 
-          // Fetch product details
-          if (!productDetails) {
-            try {
-              const productResult = await db.execute({
-                sql: `
-                    SELECT 
-                      p.*,
-                      c.name AS category_name
-                    FROM products p
-                    LEFT JOIN categories c
-                      ON p.category_id = c.id
-                    WHERE p.id = ?
-                  `,
+    // For UPDATE_INVENTORY we also need the latest stock_logs per (product_id, user_id).
+    // Since SQLite/Turso doesn’t provide a simple DISTINCT ON, do a batched query on all pairs,
+    // then pick the newest in memory.
+    const inventoryPairs = Array.from(
+      new Set(
+        logs
+          .filter(
+            (log) =>
+              log.action === "UPDATE_INVENTORY" &&
+              log.table_name === "products" &&
+              log.record_id &&
+              log.user_id,
+          )
+          .map((log) => `${Number(log.record_id)}::${Number(log.user_id)}`),
+      ),
+    );
 
-                args: [log.record_id],
-              });
+    const stockBestByPair = new Map();
+    if (inventoryPairs.length > 0) {
+      const pairConditions = inventoryPairs.map((p) => {
+        const [productId, userId] = p.split("::").map(Number);
+        return `(product_id = ? AND user_id = ?)`;
+      });
 
-              if (productResult.rows.length > 0) {
-                productDetails = productResult.rows[0];
+      const stockArgs = inventoryPairs.flatMap((p) => {
+        const [productId, userId] = p.split("::").map(Number);
+        return [productId, userId];
+      });
 
-                if (log.action === "CREATE_PRODUCT") {
-                  enhancedDetails = `Created product: ${productDetails.name}`;
-                } else if (log.action === "UPDATE_PRODUCT") {
-                  enhancedDetails = `Updated product: ${productDetails.name}`;
-                } else if (log.action === "UPDATE_INVENTORY") {
-                  const stockResult = await db.execute({
-                    sql: `
-                        SELECT 
-                          qty,
-                          action
-                        FROM stock_logs
-                        WHERE product_id = ?
-                          AND user_id = ?
-                        ORDER BY created_at DESC
-                        LIMIT 1
-                      `,
+      const stockResult = await db.execute({
+        sql: `
+          SELECT 
+            product_id,
+            user_id,
+            qty,
+            action,
+            created_at
+          FROM stock_logs
+          WHERE ${pairConditions.join(" OR ")}
+          ORDER BY created_at DESC
+        `,
+        args: stockArgs,
+      });
 
-                    args: [log.record_id, log.user_id],
-                  });
+      // Pick first row per pair (because sorted by created_at DESC)
+      for (const row of stockResult.rows) {
+        const key = `${Number(row.product_id)}::${Number(row.user_id)}`;
+        if (!stockBestByPair.has(key)) {
+          stockBestByPair.set(key, row);
+        }
+      }
+    }
 
-                  if (stockResult.rows.length > 0) {
-                    const qtyChange = Number(stockResult.rows[0].qty);
+    const logsWithDetails = logs.map((log) => {
+      let productDetails = null;
+      let enhancedDetails = log.details;
 
-                    const changeText = qtyChange > 0 ? `Added ${qtyChange}` : `Removed ${Math.abs(qtyChange)}`;
-
-                    enhancedDetails = `Updated inventory: ${productDetails.name} (${changeText} ${productDetails.unit || "units"})`;
-                  } else {
-                    enhancedDetails = `Updated inventory: ${productDetails.name}`;
-                  }
-                }
-              }
-            } catch (err) {
-              console.error(`Error fetching product details for record ${log.record_id}:`, err);
-            }
+      if (
+        (log.action === "CREATE_PRODUCT" ||
+          log.action === "UPDATE_PRODUCT" ||
+          log.action === "DELETE_PRODUCT" ||
+          log.action === "UPDATE_INVENTORY") &&
+        log.table_name === "products" &&
+        log.record_id
+      ) {
+        // Handle delete product using old data
+        if (log.action === "DELETE_PRODUCT" && log.old_data) {
+          try {
+            productDetails = JSON.parse(log.old_data);
+            enhancedDetails = `Deleted product: ${productDetails.name}`;
+          } catch (err) {
+            console.error("Error parsing old_data:", err);
           }
         }
 
-        return {
-          ...log,
-          details: enhancedDetails,
-          productDetails,
-        };
-      }),
-    );
+        // Use batched product map for the remaining cases
+        if (!productDetails) {
+          productDetails = productById.get(Number(log.record_id)) || null;
+        }
+
+        if (productDetails) {
+          if (log.action === "CREATE_PRODUCT") {
+            enhancedDetails = `Created product: ${productDetails.name}`;
+          } else if (log.action === "UPDATE_PRODUCT") {
+            enhancedDetails = `Updated product: ${productDetails.name}`;
+          } else if (log.action === "UPDATE_INVENTORY") {
+            const pairKey = `${Number(log.record_id)}::${Number(log.user_id)}`;
+            const stockRow = stockBestByPair.get(pairKey);
+
+            if (stockRow) {
+              const qtyChange = Number(stockRow.qty);
+              const changeText = qtyChange > 0 ? `Added ${qtyChange}` : `Removed ${Math.abs(qtyChange)}`;
+              enhancedDetails = `Updated inventory: ${productDetails.name} (${changeText} ${productDetails.unit || "units"})`;
+            } else {
+              enhancedDetails = `Updated inventory: ${productDetails.name}`;
+            }
+          }
+        }
+      }
+
+      return {
+        ...log,
+        details: enhancedDetails,
+        productDetails,
+      };
+    });
+
 
     return NextResponse.json({
       logs: logsWithDetails,
