@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
+
 import { AnimatePresence, motion } from "framer-motion";
 import InventoryHeader from "./InventoryHeader";
 import InventoryNavigation from "./InventoryNavigation";
@@ -47,10 +48,14 @@ export default function InventoryPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 20;
 
-  // Fetch categories on mount
+  const didFetchCategories = useRef(false);
+  // Fetch categories on mount (avoid double fetch in dev/StrictMode)
   useEffect(() => {
+    if (didFetchCategories.current) return;
+    didFetchCategories.current = true;
     fetchCategories();
   }, []);
+
 
   // Fetch products from API
   useEffect(() => {
@@ -86,23 +91,36 @@ export default function InventoryPage() {
     }
   };
 
-  const fetchProducts = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/products`);
-      const data = await response.json();
+  // Prevent duplicate concurrent fetches that can cause double API calls.
+  const fetchProductsOnce = (() => {
+    let inFlight = null;
+    return async () => {
+      if (inFlight) return inFlight;
+      inFlight = (async () => {
+        setLoading(true);
+        try {
+          const response = await fetch(`/api/products`);
+          const data = await response.json();
 
-      if (response.ok) {
-        setProducts(data.products || []);
-      } else {
-        toast.error(data.error || "Failed to fetch products");
-      }
-    } catch (error) {
-      console.error("Error fetching products:", error);
-      toast.error("Failed to fetch products");
-    } finally {
-      setLoading(false);
-    }
+          if (response.ok) {
+            setProducts(data.products || []);
+          } else {
+            toast.error(data.error || "Failed to fetch products");
+          }
+        } catch (error) {
+          console.error("Error fetching products:", error);
+          toast.error("Failed to fetch products");
+        } finally {
+          setLoading(false);
+          inFlight = null;
+        }
+      })();
+      return inFlight;
+    };
+  })();
+
+  const fetchProducts = async () => {
+    return fetchProductsOnce();
   };
 
   // Fetch products once when Products tab is active

@@ -84,6 +84,7 @@ export async function GET(request) {
 
     if (status === "out_of_stock") {
 
+
       query += `
         AND p.qty = 0
       `;

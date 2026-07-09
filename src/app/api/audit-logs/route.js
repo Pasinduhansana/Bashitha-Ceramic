@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { PERMISSIONS, PermissionError, requirePermission } from "@/lib/permissions";
+import { getCached, setCached, makeCacheKey } from "@/lib/apiCache";
 
 // GET - Fetch audit logs
 export async function GET(request) {
@@ -19,7 +20,9 @@ export async function GET(request) {
 
     const action = searchParams.get("action");
     const search = searchParams.get("search");
-    const limit = Number(searchParams.get("limit") || 100);
+    const rawLimit = Number(searchParams.get("limit") || 50);
+    const limit = Math.min(Math.max(rawLimit, 1), 50);
+
 
     const db = getDb();
 
