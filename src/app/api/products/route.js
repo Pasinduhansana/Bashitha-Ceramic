@@ -45,6 +45,9 @@ export async function GET(request) {
 
 
     if (search) {
+      // Performance: prefer prefix search so SQLite can use indexes (instead of leading-wildcard scans).
+      // If you need contains-search, keep `%${search}%` but it will be slower on large tables.
+      const q = search.trim();
       query += `
         AND (
           p.name LIKE ?
@@ -54,11 +57,12 @@ export async function GET(request) {
       `;
 
       params.push(
-        `%${search}%`,
-        `%${search}%`,
-        `%${search}%`
+        `${q}%`,
+        `${q}%`,
+        `${q}%`
       );
     }
+
 
 
     if (category) {
