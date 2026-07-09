@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search, Sun, Moon, Bell, Settings, LogOut, ChevronDown, UserCircle2, CheckCircle } from "lucide-react";
+import { Search, Sun, Moon, Bell, Settings, LogOut, ChevronDown, UserCircle2, CheckCircle2 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import toast from "react-hot-toast";
+import Button from "@/ui/Button";
 
 export default function InventoryHeader({
   onSettingsClick,
@@ -22,7 +23,6 @@ export default function InventoryHeader({
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
 
-  // Filter products based on search term (local filtering)
   const filteredProducts = searchTerm.trim()
     ? products
         .filter(
@@ -31,7 +31,7 @@ export default function InventoryHeader({
             product.code?.toLowerCase().includes(searchTerm.toLowerCase()) ||
             product.brand?.toLowerCase().includes(searchTerm.toLowerCase()),
         )
-        .slice(0, 5) // Show max 5 suggestions
+        .slice(0, 5)
     : [];
 
   useEffect(() => {
@@ -47,11 +47,7 @@ export default function InventoryHeader({
       if (response.ok) {
         const data = await response.json();
         setNotifications(data.notifications || []);
-      } else if (response.status === 401) {
-        // User not authenticated, silently ignore
-        setNotifications([]);
       } else {
-        console.error("Failed to fetch notifications:", response.status);
         setNotifications([]);
       }
     } catch (error) {
@@ -70,9 +66,7 @@ export default function InventoryHeader({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ notificationId }),
       });
-
       if (response.ok) {
-        // Remove the notification from the list
         setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
       }
     } catch (error) {
@@ -87,23 +81,20 @@ export default function InventoryHeader({
 
   const getInitials = (name) => {
     if (!name) return "?";
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
   };
 
-  const getNotificationColor = (action) => {
-    if (action.includes("CREATE") || action.includes("ADD")) {
-      return "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400";
-    } else if (action.includes("UPDATE") || action.includes("EDIT")) {
-      return "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400";
-    } else if (action.includes("DELETE") || action.includes("REMOVE")) {
-      return "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400";
-    }
-    return "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400";
+  const NOTIF_COLORS = {
+    CREATE: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
+    ADD: "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400",
+    UPDATE: "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400",
+    EDIT: "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400",
+    DELETE: "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400",
+    REMOVE: "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400",
+  };
+  const getNotificationColor = (action = "") => {
+    const key = Object.keys(NOTIF_COLORS).find((k) => action.includes(k));
+    return NOTIF_COLORS[key] || "bg-violet-50 text-violet-600 dark:bg-violet-500/10 dark:text-violet-400";
   };
 
   const applyTheme = (mode) => {
@@ -117,9 +108,12 @@ export default function InventoryHeader({
     toast(
       (t) => (
         <div className="flex flex-col gap-3">
-          <p className="font-medium text-gray-900">Are you sure you want to log out?</p>
+          <p className="text-[13px] font-semibold text-neutral-900">Log out of your account?</p>
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="danger"
+              size="sm"
+              fullWidth
               onClick={async () => {
                 toast.dismiss(t.id);
                 try {
@@ -130,75 +124,78 @@ export default function InventoryHeader({
                   window.location.href = "/login";
                 }
               }}
-              className="flex-1 rounded bg-[#1fb8a2] px-3 py-1.5 text-sm font-medium text-white hover:bg-[#189d8b]"
             >
-              Yes, Log out
-            </button>
-            <button
-              onClick={() => toast.dismiss(t.id)}
-              className="flex-1 rounded bg-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-300"
-            >
+              Log out
+            </Button>
+            <Button variant="secondary" size="sm" fullWidth onClick={() => toast.dismiss(t.id)}>
               Cancel
-            </button>
+            </Button>
           </div>
         </div>
       ),
-      {
-        duration: 5000,
-        position: "top-center",
-      },
+      { duration: 5000, position: "top-center" },
     );
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-3 sm:px-4 md:px-6 py-3 sm:py-3.5 transition-colors">
-      {/* Desktop Layout */}
-      <div className="hidden md:flex items-center justify-between gap-3 sm:gap-6">
-        {/* Logo */}
-        <h1 className="text-xs sm:text-sm md:text-base font-bold tracking-wide flex flex-row gap-10">
-          <span className="text-sm sm:text-base md:text-lg font-roboto-condensed">
-            <span className="text-[#1fb8a2]">BASHITHA</span> <span className="text-gray-900 dark:text-white">CERAMICS</span>
-          </span>
+    <header className="bg-white dark:bg-gray-900 border-b border-neutral-200 dark:border-gray-800 px-4 sm:px-6 py-3 transition-colors">
+      {/* Desktop */}
+      <div className="hidden md:flex items-center justify-between gap-6">
+        <div className="flex items-center gap-5 shrink-0">
+          {/* Brand mark */}
+          <div className="flex items-baseline gap-1.5">
+            <span
+              className="text-lg text-teal-800 dark:text-teal-400 italic"
+              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}
+            >
+              Bashitha
+            </span>
+            <span className="text-[11px] font-semibold tracking-[0.18em] text-neutral-500 dark:text-gray-400 uppercase">Ceramics</span>
+          </div>
 
-          {/* Theme Dropdown */}
+          <span className="h-5 w-px bg-neutral-200 dark:bg-gray-700" />
+
+          {/* Theme */}
           <div className="relative">
             <button
               onClick={() => setThemeOpen((s) => !s)}
-              className="flex items-center gap-2 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 sm:px-3 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex items-center gap-1.5 rounded-lg border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1.5 text-xs font-medium text-neutral-600 dark:text-gray-300 hover:bg-neutral-50 dark:hover:bg-gray-700 transition-colors"
             >
-              {theme === "dark" ? <Moon className="h-3 w-3 sm:h-3.5 sm:w-3.5" /> : <Sun className="h-3 w-3 sm:h-3.5 sm:w-3.5" />}
-              <span className="hidden md:inline text-xs">{theme === "dark" ? "Dark" : "Light"}</span>
-              <ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+              {theme === "dark" ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
+              <ChevronDown className="h-3 w-3 text-neutral-400" />
             </button>
             {themeOpen && (
-              <div className="absolute z-20 mt-2 w-32 sm:w-36 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl p-1">
-                <button
-                  className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors ${
-                    theme === "light" ? "bg-[#1fb8a2]/10 text-[#1fb8a2]" : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  }`}
-                  onClick={() => applyTheme("light")}
-                >
-                  <Sun className="h-3 w-3" /> Light
-                </button>
-                <button
-                  className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-xs font-medium transition-colors ${
-                    theme === "dark" ? "bg-[#1fb8a2]/10 text-[#1fb8a2]" : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                  }`}
-                  onClick={() => applyTheme("dark")}
-                >
-                  <Moon className="h-3 w-3" /> Dark
-                </button>
-              </div>
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setThemeOpen(false)} />
+                <div className="absolute z-20 mt-2 w-36 rounded-xl border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg shadow-neutral-900/10 p-1">
+                  {[
+                    { mode: "light", icon: Sun, label: "Light" },
+                    { mode: "dark", icon: Moon, label: "Dark" },
+                  ].map(({ mode, icon: Icon, label }) => (
+                    <button
+                      key={mode}
+                      className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[13px] font-medium transition-colors ${
+                        theme === mode
+                          ? "bg-teal-50 text-teal-800 dark:bg-teal-400/10 dark:text-teal-400"
+                          : "text-neutral-600 dark:text-gray-300 hover:bg-neutral-50 dark:hover:bg-gray-700"
+                      }`}
+                      onClick={() => applyTheme(mode)}
+                    >
+                      <Icon className="h-3.5 w-3.5" /> {label}
+                    </button>
+                  ))}
+                </div>
+              </>
             )}
           </div>
-        </h1>
+        </div>
 
-        {/* Search - Desktop */}
-        <div className="flex-1 max-w-xs lg:max-w-sm relative">
-          <Search className="absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+        {/* Search */}
+        <div className="flex-1 max-w-md relative">
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
           <input
             type="text"
-            placeholder="Search products..."
+            placeholder="Search products, codes, brands…"
             value={searchTerm}
             onChange={(e) => {
               onSearchChange?.(e.target.value);
@@ -209,12 +206,11 @@ export default function InventoryHeader({
               setSearchOpen(true);
             }}
             onBlur={() => setTimeout(() => setSearchOpen(false), 200)}
-            className="w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-2 pl-10 pr-4 text-xs outline-none focus:border-[#1fb8a2] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-all"
+            className="w-full rounded-lg border border-neutral-200 dark:border-gray-700 bg-neutral-50/70 dark:bg-gray-800 py-2.5 pl-10 pr-4 text-[13px] outline-none focus:bg-white focus:border-teal-600/50 focus:ring-4 focus:ring-teal-600/10 text-neutral-900 dark:text-white placeholder-neutral-400 transition-all"
           />
 
-          {/* Autocomplete Dropdown - Desktop */}
           {searchOpen && filteredProducts.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-50 max-h-80 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-2 rounded-xl border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg shadow-neutral-900/10 z-50 max-h-80 overflow-y-auto">
               {filteredProducts.map((product) => (
                 <button
                   key={product.id}
@@ -222,23 +218,21 @@ export default function InventoryHeader({
                     onProductSelect?.(product);
                     setSearchOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-b-0 transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-4 py-3 hover:bg-neutral-50 dark:hover:bg-gray-700 border-b border-neutral-100 dark:border-gray-700 last:border-b-0 transition-colors text-left first:rounded-t-xl last:rounded-b-xl"
                 >
-                  <div className="flex-shrink-0 w-10 h-10 rounded-md bg-gradient-to-br from-[#1fb8a2]/10 to-[#1fb8a2]/5 flex items-center justify-center">
-                    <span className="text-[#1fb8a2] font-bold text-xs">{product.code || product.name?.charAt(0)}</span>
+                  <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-teal-50 dark:bg-teal-400/10 flex items-center justify-center">
+                    <span className="text-teal-800 dark:text-teal-400 font-bold text-[11px]">{product.code || product.name?.charAt(0)}</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{product.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                      {product.brand && product.shade ? `${product.brand} - ${product.shade}` : product.brand || product.shade || "No details"}
-                      {product.code && ` • ${product.code}`}
+                    <p className="text-[13px] font-semibold text-neutral-900 dark:text-white truncate">{product.name}</p>
+                    <p className="text-xs text-neutral-500 dark:text-gray-400 truncate">
+                      {product.brand && product.shade ? `${product.brand} · ${product.shade}` : product.brand || product.shade || "No details"}
+                      {product.code && ` · ${product.code}`}
                     </p>
                   </div>
                   <div className="flex-shrink-0 text-right">
-                    <p className="text-xs font-semibold text-[#1fb8a2]">${product.selling_price || 0}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {product.qty || 0} {product.unit || "Pcs"}
-                    </p>
+                    <p className="text-xs font-bold text-neutral-900 dark:text-white">${product.selling_price || 0}</p>
+                    <p className="text-[11px] text-neutral-400">{product.qty || 0} {product.unit || "Pcs"}</p>
                   </div>
                 </button>
               ))}
@@ -246,85 +240,83 @@ export default function InventoryHeader({
           )}
         </div>
 
-        {/* Right Actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Notification */}
+        {/* Right actions */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {/* Notifications */}
           <div className="relative">
-            <button
-              className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => {
                 setNotificationOpen(!notificationOpen);
                 if (!notificationOpen) fetchNotifications();
               }}
               title="Notifications"
+              className="relative"
             >
               <Bell className="h-4 w-4" />
               {notifications.length > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 h-3 w-3 sm:h-3.5 sm:w-3.5 rounded-full bg-red-500 text-[8px] sm:text-[9px] font-bold text-white flex items-center justify-center">
-                  {notifications.length}
-                </span>
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-gray-900" />
               )}
-            </button>
+            </Button>
             {notificationOpen && (
               <>
                 <div className="fixed inset-0 z-10" onClick={() => setNotificationOpen(false)} />
-                <div className="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-md max-h-96 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl z-20">
-                  <div className="border-b border-gray-200 dark:border-gray-700 px-4 py-3">
-                    <h3 className="text-sm font-bold text-gray-900 dark:text-white">Notifications</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                <div className="absolute right-0 top-full mt-2 w-96 max-w-[calc(100vw-2rem)] max-h-96 rounded-2xl border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl shadow-neutral-900/10 z-20 overflow-hidden">
+                  <div className="border-b border-neutral-100 dark:border-gray-700 px-4 py-3.5">
+                    <h3 className="text-[13.5px] font-semibold text-neutral-900 dark:text-white">Notifications</h3>
+                    <p className="text-xs text-neutral-500 dark:text-gray-400 mt-0.5">
                       {loadingNotifications
-                        ? "Loading..."
+                        ? "Loading…"
                         : notifications.length > 0
-                          ? `You have ${notifications.length} new notification${notifications.length !== 1 ? "s" : ""}`
-                          : "No new notifications"}
+                          ? `${notifications.length} new notification${notifications.length !== 1 ? "s" : ""}`
+                          : "You're all caught up"}
                     </p>
                   </div>
                   <div className="max-h-80 overflow-y-auto">
                     {loadingNotifications ? (
-                      <div className="px-4 py-8 text-center">
-                        <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-[#1fb8a2] border-r-transparent"></div>
+                      <div className="px-4 py-10 text-center">
+                        <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-teal-700 border-r-transparent" />
                       </div>
                     ) : notifications.length > 0 ? (
-                      <div className="divide-y divide-gray-100 dark:divide-gray-700">
+                      <div className="divide-y divide-neutral-100 dark:divide-gray-700">
                         {notifications.map((notification) => (
-                          <div key={notification.id} className="px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group">
-                            <div className="flex gap-2.5 items-start">
-                              <div
-                                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${getNotificationColor(notification.action)} font-bold text-xs`}
-                              >
+                          <div key={notification.id} className="px-4 py-3 hover:bg-neutral-50 dark:hover:bg-gray-700/40 transition-colors group">
+                            <div className="flex gap-3 items-start">
+                              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold text-[11px] ${getNotificationColor(notification.action)}`}>
                                 {getInitials(notification.user_name)}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-semibold text-gray-900 dark:text-white leading-snug">{notification.description}</p>
-                                <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
-                                  {formatNotificationTime(notification.timestamp)} by {notification.user_name || "Unknown"}
+                                <p className="text-[13px] font-medium text-neutral-900 dark:text-white leading-snug">{notification.description}</p>
+                                <p className="text-[11px] text-neutral-400 mt-0.5">
+                                  {formatNotificationTime(notification.timestamp)} · {notification.user_name || "Unknown"}
                                 </p>
                               </div>
                               <button
                                 onClick={(e) => markAsRead(notification.id, e)}
-                                className="flex-shrink-0 p-1 text-[#1fb8a2] hover:bg-[#1fb8a2]/10 rounded-md transition-colors"
+                                className="flex-shrink-0 p-1 text-neutral-300 hover:text-teal-700 rounded-md transition-colors opacity-0 group-hover:opacity-100"
                                 title="Mark as read"
                               >
-                                <CheckCircle className="h-4 w-4" />
+                                <CheckCircle2 className="h-4 w-4" />
                               </button>
                             </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      <div className="px-4 py-8 text-center">
-                        <p className="text-xs text-gray-500 dark:text-gray-400">No notifications to display</p>
+                      <div className="px-4 py-10 text-center">
+                        <p className="text-xs text-neutral-400">No notifications to display</p>
                       </div>
                     )}
                   </div>
                   {notifications.length > 0 && (
-                    <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-2">
+                    <div className="border-t border-neutral-100 dark:border-gray-700 px-4 py-2.5">
                       <button
                         onClick={() => {
                           setNotificationOpen(false);
                           onNotificationsClick?.();
                         }}
-                        className="text-xs font-semibold text-[#1fb8a2] hover:underline w-full text-center py-1"
+                        className="text-xs font-semibold text-teal-800 dark:text-teal-400 hover:underline w-full text-center"
                       >
                         View all notifications
                       </button>
@@ -335,145 +327,112 @@ export default function InventoryHeader({
             )}
           </div>
 
-          {/* Settings */}
-          <button
-            className="p-1.5 sm:p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
-            onClick={() => onSettingsClick?.()}
-            title="Settings"
-          >
+          <Button variant="ghost" size="icon" onClick={() => onSettingsClick?.()} title="Settings">
             <Settings className="h-4 w-4" />
-          </button>
+          </Button>
 
-          {/* User Profile */}
+          <span className="h-5 w-px bg-neutral-200 dark:bg-gray-700 mx-1" />
+
           <button
             onClick={() => onProfileClick?.()}
-            className="hidden sm:flex items-center gap-2 border-l-2 border-gray-200 dark:border-gray-700 pl-2 sm:pl-3 text-gray-600 dark:text-gray-400 hover:text-[#1fb8a2] dark:hover:text-[#1fb8a2] transition-colors"
+            className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-neutral-600 dark:text-gray-300 hover:bg-neutral-50 dark:hover:bg-gray-700 transition-colors"
             title="Profile"
           >
-            <UserCircle2 className="h-4 w-4" />
-            <span className="text-xs font-semibold hidden md:inline">Profile</span>
+            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-teal-800 text-white">
+              <UserCircle2 className="h-4 w-4" />
+            </span>
+            <span className="text-[13px] font-medium hidden lg:inline">Profile</span>
           </button>
 
-          {/* Logout Button */}
-          <button
-            onClick={onLogout}
-            className="flex items-center gap-1 sm:gap-2 rounded-md border-2 border-gray-300 bg-transparent hover:border-[#DC143C] hover:bg-[#DC143C] px-2 sm:px-4 py-1.5 sm:py-2 text-xs font-bold text-gray-700 hover:text-white shadow-md hover:shadow-lg transition-all whitespace-nowrap"
-            title="Logout"
-          >
-            <LogOut className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-            <span className="hidden sm:inline">LOG OUT</span>
-          </button>
+          <Button variant="danger" size="sm" icon={LogOut} onClick={onLogout} className="ml-1">
+            Log out
+          </Button>
         </div>
       </div>
 
-      {/* Mobile Layout */}
-      <div className="md:hidden">
-        {/* Top Row: Logo and Actions */}
-        <div className="flex items-center justify-between gap-2 mb-3">
-          {/* Logo */}
-          <h1 className="text-xs font-bold tracking-wide">
-            <span className="font-roboto-condensed">
-              <span className="text-[#1fb8a2]">BASHITHA</span> <span className="text-gray-900 dark:text-white">CERAMICS</span>
-            </span>
-          </h1>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-1.5">
-            {/* Notification */}
-            <div className="relative">
-              <button
-                className="relative p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
-                onClick={() => {
-                  setNotificationOpen(!notificationOpen);
-                  if (!notificationOpen) fetchNotifications();
-                }}
-                title="Notifications"
-              >
-                <Bell className="h-4 w-4" />
-                {notifications.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-red-500 text-[8px] font-bold text-white flex items-center justify-center">
-                    {notifications.length}
-                  </span>
-                )}
-              </button>
-              {notificationOpen && (
-                <>
-                  <div className="fixed inset-0 z-10" onClick={() => setNotificationOpen(false)} />
-                  <div className="fixed left-4 right-4 top-20 sm:absolute sm:left-auto sm:right-0 sm:top-full mt-2 sm:w-96 max-w-md max-h-96 rounded-md border-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-2xl z-20">
-                    <div className="border-b border-gray-200 dark:border-gray-700 px-4 py-3">
-                      <h3 className="text-sm font-bold text-gray-900 dark:text-white">Notifications</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                        {loadingNotifications
-                          ? "Loading..."
-                          : notifications.length > 0
-                            ? `You have ${notifications.length} new notification${notifications.length !== 1 ? "s" : ""}`
-                            : "No new notifications"}
-                      </p>
-                    </div>
-                    <div className="max-h-80 overflow-y-auto">
-                      {loadingNotifications ? (
-                        <div className="px-4 py-8 text-center">
-                          <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-solid border-[#1fb8a2] border-r-transparent"></div>
-                        </div>
-                      ) : notifications.length > 0 ? (
-                        <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                          {notifications.map((notification) => (
-                            <div key={notification.id} className="px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group">
-                              <div className="flex gap-2.5 items-start">
-                                <div
-                                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${getNotificationColor(notification.action)} font-bold text-xs`}
-                                >
-                                  {getInitials(notification.user_name)}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-semibold text-gray-900 dark:text-white leading-snug">{notification.description}</p>
-                                  <p className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
-                                    {formatNotificationTime(notification.timestamp)} by {notification.user_name || "Unknown"}
-                                  </p>
-                                </div>
-                                <button
-                                  onClick={(e) => markAsRead(notification.id, e)}
-                                  className="flex-shrink-0 p-1 text-[#1fb8a2] hover:bg-[#1fb8a2]/10 rounded-md transition-colors"
-                                  title="Mark as read"
-                                >
-                                  <CheckCircle className="h-4 w-4" />
-                                </button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="px-4 py-8 text-center">
-                          <p className="text-sm text-gray-500 dark:text-gray-400">No new notifications</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Settings */}
-            <button
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
-              onClick={() => onSettingsClick?.()}
-              title="Settings"
-            >
-              <Settings className="h-4 w-4" />
-            </button>
-
-            {/* Logout Button */}
-            <button
-              onClick={onLogout}
-              className="flex items-center gap-1 rounded-md border-2 border-gray-300 bg-transparent hover:border-[#DC143C] hover:bg-[#DC143C] px-2 py-1.5 text-xs font-bold text-gray-700 hover:text-white transition-all"
-              title="Logout"
-            >
-              <LogOut className="h-3 w-3" />
-            </button>
-          </div>
+      {/* Mobile */}
+      <div className="md:hidden flex items-center justify-between gap-2">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-base text-teal-800 dark:text-teal-400 italic" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
+            Bashitha
+          </span>
+          <span className="text-[10px] font-semibold tracking-[0.16em] text-neutral-500 dark:text-gray-400 uppercase">Ceramics</span>
         </div>
 
-        {/* Search Bar - Mobile - Removed from here, will be in Navigation */}
+        <div className="flex items-center gap-1">
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                setNotificationOpen(!notificationOpen);
+                if (!notificationOpen) fetchNotifications();
+              }}
+              title="Notifications"
+              className="relative"
+            >
+              <Bell className="h-4 w-4" />
+              {notifications.length > 0 && (
+                <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white dark:ring-gray-900" />
+              )}
+            </Button>
+            {notificationOpen && (
+              <>
+                <div className="fixed inset-0 z-10" onClick={() => setNotificationOpen(false)} />
+                <div className="fixed left-4 right-4 top-16 max-h-96 rounded-2xl border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-xl z-20 overflow-hidden">
+                  <div className="border-b border-neutral-100 dark:border-gray-700 px-4 py-3.5">
+                    <h3 className="text-[13.5px] font-semibold text-neutral-900 dark:text-white">Notifications</h3>
+                    <p className="text-xs text-neutral-500 dark:text-gray-400 mt-0.5">
+                      {loadingNotifications
+                        ? "Loading…"
+                        : notifications.length > 0
+                          ? `${notifications.length} new notification${notifications.length !== 1 ? "s" : ""}`
+                          : "You're all caught up"}
+                    </p>
+                  </div>
+                  <div className="max-h-80 overflow-y-auto">
+                    {loadingNotifications ? (
+                      <div className="px-4 py-10 text-center">
+                        <div className="inline-block h-5 w-5 animate-spin rounded-full border-2 border-teal-700 border-r-transparent" />
+                      </div>
+                    ) : notifications.length > 0 ? (
+                      <div className="divide-y divide-neutral-100 dark:divide-gray-700">
+                        {notifications.map((notification) => (
+                          <div key={notification.id} className="px-4 py-3">
+                            <div className="flex gap-3 items-start">
+                              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold text-[11px] ${getNotificationColor(notification.action)}`}>
+                                {getInitials(notification.user_name)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[13px] font-medium text-neutral-900 dark:text-white leading-snug">{notification.description}</p>
+                                <p className="text-[11px] text-neutral-400 mt-0.5">
+                                  {formatNotificationTime(notification.timestamp)} · {notification.user_name || "Unknown"}
+                                </p>
+                              </div>
+                              <button onClick={(e) => markAsRead(notification.id, e)} className="flex-shrink-0 p-1 text-neutral-300 hover:text-teal-700 rounded-md transition-colors" title="Mark as read">
+                                <CheckCircle2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="px-4 py-10 text-center">
+                        <p className="text-xs text-neutral-400">No new notifications</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+
+          <Button variant="ghost" size="icon" onClick={() => onSettingsClick?.()} title="Settings">
+            <Settings className="h-4 w-4" />
+          </Button>
+
+          <Button variant="danger" size="icon" icon={LogOut} onClick={onLogout} title="Log out" />
+        </div>
       </div>
     </header>
   );
