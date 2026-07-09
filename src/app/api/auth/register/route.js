@@ -10,85 +10,249 @@ export async function POST(request) {
     const { fullName, email, password } = await request.json();
 
     if (!fullName || !email || !password) {
-      return NextResponse.json({ error: "Full name, email and password are required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Full name, email and password are required" },
+        { status: 400 }
+      );
     }
 
-    // Extract first name as username (before the first space)
+
+    // Extract first name as username
     const username = fullName.trim().split(" ")[0];
 
+
     if (username.length < 3) {
-      return NextResponse.json({ error: "First name must be at least 3 characters" }, { status: 400 });
+      return NextResponse.json(
+        { error: "First name must be at least 3 characters" },
+        { status: 400 }
+      );
     }
+
 
     if (password.length < 6) {
-      return NextResponse.json({ error: "Password must be at least 6 characters" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Password must be at least 6 characters" },
+        { status: 400 }
+      );
     }
 
-    const pool = getDb();
+
+    const db = getDb();
+
+
 
     // Ensure roles table exists
-    await pool.query(`
+    await db.execute(`
       CREATE TABLE IF NOT EXISTS roles (
-        id SERIAL PRIMARY KEY,
-        role_name VARCHAR(100) NOT NULL,
-        description VARCHAR(255)
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        role_name TEXT NOT NULL,
+        description TEXT
       )
     `);
 
+
+
     // Ensure default role exists
-    const { rows: existingRole } = await pool.query("SELECT id FROM roles WHERE id = 1 LIMIT 1");
-    if (!existingRole || existingRole.length === 0) {
-      await pool.query("INSERT INTO roles (role_name, description) VALUES ($1, $2)", ["default user", "Default user access"]);
+    const roleResult = await db.execute({
+      sql: `
+        SELECT id 
+        FROM roles
+        WHERE id = ?
+        LIMIT 1
+      `,
+      args: [1],
+    });
+
+
+
+    if (roleResult.rows.length === 0) {
+
+      await db.execute({
+        sql: `
+          INSERT INTO roles
+          (
+            role_name,
+            description
+          )
+          VALUES (?, ?)
+        `,
+        args: [
+          "default user",
+          "Default user access",
+        ],
+      });
+
     }
 
-    // Check if username or email already exists
-    const { rows: existing } = await pool.query("SELECT id FROM users WHERE username = $1 OR email = $2 LIMIT 1", [username, email]);
-    if (existing && existing.length > 0) {
-      return NextResponse.json({ error: "Username or email already in use" }, { status: 409 });
+
+
+
+    // Check existing username/email
+    const existingResult = await db.execute({
+      sql: `
+        SELECT id
+        FROM users
+        WHERE username = ?
+           OR email = ?
+        LIMIT 1
+      `,
+      args: [
+        username.toLowerCase(),
+        email.trim(),
+      ],
+    });
+
+
+
+    if (existingResult.rows.length > 0) {
+
+      return NextResponse.json(
+        {
+          error: "Username or email already in use",
+        },
+        {
+          status: 409,
+        }
+      );
+
     }
 
-    const hash = await bcrypt.hash(password, 10);
+
+
+
+    const hash = await bcrypt.hash(
+      password,
+      10
+    );
+
+
     const displayName = fullName.trim();
 
-    // Insert user with defaults: role_id=1, is_active=0 (pending admin approval)
-    const { rows } = await pool.query(
-      "INSERT INTO users (name, username, email, password_hash, role_id, is_active) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
-      [
+
+
+    // Insert user
+    const insertResult = await db.execute({
+
+      sql: `
+        INSERT INTO users
+        (
+          name,
+          username,
+          email,
+          password_hash,
+          role_id,
+          is_active
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+      `,
+
+      args: [
         displayName,
         username.toLowerCase(),
         email.trim(),
         hash,
         1,
-        0, // Not active until admin approves
+        0, // Waiting for admin approval
       ],
-    );
 
-    const userId = rows[0]?.id;
-
-    const user = {
-      id: userId,
-      username: username.toLowerCase(),
-      email: email.trim(),
-      name: displayName,
-      roleId: 1,
-    };
-
-    const token = signToken({ id: user.id, roleId: user.roleId, username: user.username, email: user.email, name: user.name });
-
-    const response = NextResponse.json({ success: true, user });
-    response.cookies.set({
-      name: "auth_token",
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
     });
 
+
+
+    const userId = Number(
+      insertResult.lastInsertRowid
+    );
+
+
+
+    const user = {
+
+      id: userId,
+
+      username:
+        username.toLowerCase(),
+
+      email:
+        email.trim(),
+
+      name:
+        displayName,
+
+      roleId: 1,
+
+    };
+
+
+
+
+    const token = signToken({
+
+      id: user.id,
+
+      roleId: user.roleId,
+
+      username: user.username,
+
+      email: user.email,
+
+      name: user.name,
+
+    });
+
+
+
+
+    const response = NextResponse.json({
+
+      success: true,
+
+      user,
+
+    });
+
+
+
+    response.cookies.set({
+
+      name: "auth_token",
+
+      value: token,
+
+      httpOnly: true,
+
+      secure:
+        process.env.NODE_ENV === "production",
+
+      sameSite: "strict",
+
+      path: "/",
+
+      maxAge: 60 * 60 * 24 * 7,
+
+    });
+
+
+
     return response;
+
+
+
   } catch (error) {
-    console.error("Register error", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+
+    console.error(
+      "Register error:",
+      error
+    );
+
+
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+      },
+      {
+        status: 500,
+      }
+    );
+
   }
 }

@@ -10,105 +10,262 @@ export const authOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     }),
   ],
+
   callbacks: {
+
     async signIn({ user, account, profile }) {
+
       if (account?.provider === "google") {
+
         try {
-          const pool = getDb();
+
+          const db = getDb();
+
 
           // Ensure roles table exists
-          await pool.query(`
+          await db.execute(`
             CREATE TABLE IF NOT EXISTS roles (
-              id SERIAL PRIMARY KEY,
-              role_name VARCHAR(100) NOT NULL,
-              description VARCHAR(255)
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              role_name TEXT NOT NULL,
+              description TEXT
             )
           `);
 
+
+
           // Ensure default role exists
-          const { rows: existingRole } = await pool.query("SELECT id FROM roles WHERE id = 1 LIMIT 1");
-          if (!existingRole || existingRole.length === 0) {
-            await pool.query("INSERT INTO roles (id, role_name, description) VALUES ($1, $2, $3)", [1, "default user", "Default user access"]);
+          const roleResult = await db.execute({
+            sql: `
+              SELECT id 
+              FROM roles 
+              WHERE id = ?
+              LIMIT 1
+            `,
+            args: [1],
+          });
+
+
+
+          if (roleResult.rows.length === 0) {
+
+            await db.execute({
+              sql: `
+                INSERT INTO roles
+                (
+                  id,
+                  role_name,
+                  description
+                )
+                VALUES (?, ?, ?)
+              `,
+              args: [
+                1,
+                "default user",
+                "Default user access",
+              ],
+            });
+
           }
 
-          // Check if user exists by email
-          const { rows: existingUser } = await pool.query("SELECT id, username FROM users WHERE email = $1 LIMIT 1", [user.email]);
 
-          if (existingUser && existingUser.length > 0) {
-            // User exists, return true to sign in
+
+          // Check existing user by email
+          const userResult = await db.execute({
+            sql: `
+              SELECT 
+                id,
+                username
+              FROM users
+              WHERE email = ?
+              LIMIT 1
+            `,
+            args: [
+              user.email,
+            ],
+          });
+
+
+
+          if (userResult.rows.length > 0) {
             return true;
           }
 
-          // User doesn't exist, create new user
-          // Extract first name from Google profile name
-          const firstName = profile?.name ? profile.name.split(" ")[0] : user.name?.split(" ")[0] || "User";
+
+
+          // Create new Google user
+
+          const firstName =
+            profile?.name
+              ? profile.name.split(" ")[0]
+              : user.name?.split(" ")[0] || "User";
+
+
           const username = firstName.toLowerCase();
 
-          // Generate a dummy password hash for OAuth users (won't be used for login)
-          const dummyPassword = Math.random().toString(36).slice(-8);
-          const hash = await bcrypt.hash(dummyPassword, 10);
 
-          await pool.query("INSERT INTO users (name, username, email, password_hash, role_id, is_active) VALUES ($1, $2, $3, $4, $5, $6)", [
-            profile?.name || user.name || "User",
-            username,
-            user.email,
-            hash,
-            1,
-            true,
-          ]);
+
+          // Dummy password hash for OAuth accounts
+          const dummyPassword =
+            Math.random()
+              .toString(36)
+              .slice(-8);
+
+
+          const hash = await bcrypt.hash(
+            dummyPassword,
+            10
+          );
+
+
+
+          await db.execute({
+            sql: `
+              INSERT INTO users
+              (
+                name,
+                username,
+                email,
+                password_hash,
+                role_id,
+                is_active
+              )
+              VALUES (?, ?, ?, ?, ?, ?)
+            `,
+            args: [
+              profile?.name || user.name || "User",
+              username,
+              user.email,
+              hash,
+              1,
+              1, // Active Google users immediately
+            ],
+          });
+
+
 
           return true;
+
+
         } catch (error) {
-          console.error("Google sign-in error:", error);
+
+          console.error(
+            "Google sign-in error:",
+            error
+          );
+
           return false;
+
         }
+
       }
+
+
       return false;
     },
+
+
+
     async jwt({ token, account, user, profile }) {
+
       if (account) {
         token.provider = account.provider;
         token.accessToken = account.access_token;
       }
+
+
       if (user) {
         token.email = user.email;
         token.name = user.name;
       }
+
+
       if (profile) {
-        token.picture = profile.picture || user.image;
+        token.picture =
+          profile.picture ||
+          user.image;
       }
+
+
       return token;
     },
+
+
+
     async session({ session, token }) {
+
       if (session.user) {
-        session.user.provider = token.provider;
-        session.user.picture = token.picture;
+
+        session.user.provider =
+          token.provider;
+
+        session.user.picture =
+          token.picture;
+
       }
+
+
       return session;
     },
+
+
+
     async redirect({ url, baseUrl }) {
-      // Redirect to dashboard after successful sign-in
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      else if (new URL(url).origin === baseUrl) return url;
+
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`;
+      }
+
+      else if (
+        new URL(url).origin === baseUrl
+      ) {
+        return url;
+      }
+
       return `${baseUrl}/dashboard`;
+
     },
+
   },
+
+
+
   pages: {
     signIn: "/login",
   },
+
+
+
   session: {
     strategy: "jwt",
-    maxAge: 7 * 24 * 60 * 60, // 7 days
+    maxAge: 7 * 24 * 60 * 60,
   },
+
+
+
   jwt: {
-    maxAge: 7 * 24 * 60 * 60, // 7 days
+    maxAge: 7 * 24 * 60 * 60,
   },
+
+
+
   events: {
+
     async signIn({ user, account }) {
-      console.log(`User ${user.email} signed in via ${account?.provider}`);
+
+      console.log(
+        `User ${user.email} signed in via ${account?.provider}`
+      );
+
     },
+
   },
 };
 
+
+
 const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+
+export {
+  handler as GET,
+  handler as POST,
+};

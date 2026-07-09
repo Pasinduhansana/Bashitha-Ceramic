@@ -4,14 +4,36 @@ import { getDb } from "@/lib/db";
 // GET - Fetch all categories
 export async function GET(request) {
   try {
-    const db = await getDb();
+    const db = getDb();
 
-    // Fetch all categories
-    const { rows: categories } = await db.query(`SELECT id, name FROM categories ORDER BY name ASC`);
+    const result = await db.execute({
+      sql: `
+        SELECT 
+          id,
+          name
+        FROM categories
+        ORDER BY name ASC
+      `,
+      args: [],
+    });
 
-    return NextResponse.json({ categories });
+    return NextResponse.json({
+      categories: result.rows,
+    });
+
   } catch (error) {
-    console.error("Error fetching categories:", error);
-    return NextResponse.json({ error: "Failed to fetch categories" }, { status: 500 });
+    console.error(
+      "Error fetching categories:",
+      error
+    );
+
+    return NextResponse.json(
+      {
+        error: "Failed to fetch categories",
+      },
+      {
+        status: 500,
+      }
+    );
   }
 }

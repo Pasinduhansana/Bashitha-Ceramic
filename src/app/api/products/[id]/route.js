@@ -1,88 +1,116 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { verifyToken } from "@/lib/auth";
-import { cookies } from "next/headers";
 import { PERMISSIONS, PermissionError, requirePermission } from "@/lib/permissions";
+
 
 // GET - Fetch single product with stock history
 export async function GET(request, { params }) {
   try {
-    // Viewing product details / stock history requires VIEW_STOCK_LOGS
+
     try {
       await requirePermission(PERMISSIONS.VIEW_STOCK_LOGS);
     } catch (err) {
       if (err instanceof PermissionError) {
-        return NextResponse.json({ error: err.message }, { status: err.status });
+        return NextResponse.json(
+          { error: err.message },
+          { status: err.status }
+        );
       }
       throw err;
     }
 
+
     const { id } = await params;
     const db = getDb();
 
-    // Get product details
-    const { rows: products } = await db.query(
-      `SELECT 
-        p.*,
-        c.name as category_name
-      FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
-      WHERE p.id = $1`,
-      [id],
-    );
 
-    if (products.length === 0) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    const productResult = await db.execute({
+      sql: `
+        SELECT 
+          p.*,
+          c.name AS category_name
+        FROM products p
+        LEFT JOIN categories c 
+          ON p.category_id = c.id
+        WHERE p.id = ?
+      `,
+      args: [id],
+    });
+
+
+    if (productResult.rows.length === 0) {
+      return NextResponse.json(
+        { error: "Product not found" },
+        { status: 404 }
+      );
     }
 
-    // Get stock history
-    const { rows: stockHistory } = await db.query(
-      `SELECT 
-        sl.*,
-        u.name as user_name,
-        i.invoice_no,
-        p.id as purchase_no
-      FROM stock_logs sl
-      LEFT JOIN users u ON sl.user_id = u.id
-      LEFT JOIN invoices i ON sl.invoice_id = i.id
-      LEFT JOIN purchases p ON sl.purchase_id = p.id
-      WHERE sl.product_id = $1
-      ORDER BY sl.created_at DESC
-      LIMIT 50`,
-      [id],
-    );
+
+    const stockResult = await db.execute({
+      sql: `
+        SELECT 
+          sl.*,
+          u.name AS user_name,
+          i.invoice_no,
+          p.id AS purchase_no
+        FROM stock_logs sl
+        LEFT JOIN users u 
+          ON sl.user_id = u.id
+        LEFT JOIN invoices i 
+          ON sl.invoice_id = i.id
+        LEFT JOIN purchases p 
+          ON sl.purchase_id = p.id
+        WHERE sl.product_id = ?
+        ORDER BY sl.created_at DESC
+        LIMIT 50
+      `,
+      args: [id],
+    });
+
 
     return NextResponse.json({
-      product: products[0],
-      stockHistory,
+      product: productResult.rows[0],
+      stockHistory: stockResult.rows,
     });
+
+
   } catch (error) {
+
     console.error("Error fetching product:", error);
-    return NextResponse.json({ error: "Failed to fetch product" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch product" },
+      { status: 500 }
+    );
   }
 }
+
+
 
 // PUT - Update product
 export async function PUT(request, { params }) {
   try {
-    // Editing product details requires EDIT_PRODUCTS
+
     let user = null;
+
     try {
       user = await requirePermission(PERMISSIONS.EDIT_PRODUCTS);
     } catch (err) {
       if (err instanceof PermissionError) {
-        return NextResponse.json({ error: err.message }, { status: err.status });
+        return NextResponse.json(
+          { error: err.message },
+          { status: err.status }
+        );
       }
       throw err;
     }
 
+
     const { id } = await params;
     const body = await request.json();
+
     const db = getDb();
 
-    // Build update query dynamically based on provided fields
-    const updateFields = [];
-    const updateValues = [];
 
     const allowedFields = [
       "product_type",
@@ -102,163 +130,424 @@ export async function PUT(request, { params }) {
       "description",
     ];
 
+
+    const updateFields = [];
+    const updateValues = [];
+
+
     allowedFields.forEach((field) => {
+
       if (body[field] !== undefined) {
-        updateFields.push(`${field} = $${updateValues.length + 1}`);
+        updateFields.push(`${field} = ?`);
         updateValues.push(body[field]);
       }
+
     });
 
+
     if (updateFields.length === 0) {
-      return NextResponse.json({ error: "No fields to update" }, { status: 400 });
-    }
-
-    updateValues.push(id);
-
-    await db.query(`UPDATE products SET ${updateFields.join(", ")}, updated_at = CURRENT_TIMESTAMP WHERE id = $${updateValues.length}`, updateValues);
-
-    // Log audit
-    if (user) {
-      await db.query(
-        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'UPDATE_PRODUCT', 'products', $2, CURRENT_TIMESTAMP)`,
-        [user.id, id],
+      return NextResponse.json(
+        { error: "No fields to update" },
+        { status: 400 }
       );
     }
 
-    return NextResponse.json({ success: true });
+
+    updateValues.push(id);
+
+
+    await db.execute({
+      sql: `
+        UPDATE products
+        SET 
+          ${updateFields.join(", ")},
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `,
+      args: updateValues,
+    });
+
+
+
+    if (user) {
+
+      await db.execute({
+        sql: `
+          INSERT INTO audit_logs
+          (
+            user_id,
+            action,
+            table_name,
+            record_id,
+            timestamp
+          )
+          VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `,
+        args: [
+          user.id,
+          "UPDATE_PRODUCT",
+          "products",
+          id
+        ],
+      });
+
+    }
+
+
+    return NextResponse.json({
+      success: true
+    });
+
+
   } catch (error) {
+
     console.error("Error updating product:", error);
-    return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to update product" },
+      { status: 500 }
+    );
   }
 }
+
+
 
 // DELETE - Delete product
 export async function DELETE(request, { params }) {
   try {
-    // Deleting products requires DELETE_PRODUCTS
+
     let user = null;
+
     try {
       user = await requirePermission(PERMISSIONS.DELETE_PRODUCTS);
     } catch (err) {
       if (err instanceof PermissionError) {
-        return NextResponse.json({ error: err.message }, { status: err.status });
+        return NextResponse.json(
+          { error: err.message },
+          { status: err.status }
+        );
       }
       throw err;
     }
 
+
     const { id } = await params;
     const db = getDb();
 
-    // Check if product is used in any transactions
-    const { rows: invoiceItems } = await db.query(`SELECT COUNT(*) as count FROM invoice_items WHERE product_id = $1`, [id]);
 
-    const { rows: purchaseItems } = await db.query(`SELECT COUNT(*) as count FROM purchase_items WHERE product_id = $1`, [id]);
 
-    if (invoiceItems[0].count > 0 || purchaseItems[0].count > 0) {
-      return NextResponse.json({ error: "Cannot delete product with existing transactions" }, { status: 400 });
-    }
+    const invoiceCheck = await db.execute({
+      sql: `
+        SELECT COUNT(*) AS count
+        FROM invoice_items
+        WHERE product_id = ?
+      `,
+      args: [id],
+    });
 
-    // Get product details before deletion for audit log
-    const { rows: productDetails } = await db.query(
-      `SELECT p.*, c.name as category_name FROM products p LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = $1`,
-      [id],
-    );
-    const productData = productDetails[0] ? JSON.stringify(productDetails[0]) : null;
 
-    // Delete stock logs
-    await db.query(`DELETE FROM stock_logs WHERE product_id = $1`, [id]);
 
-    // Delete product
-    await db.query(`DELETE FROM products WHERE id = $1`, [id]);
+    const purchaseCheck = await db.execute({
+      sql: `
+        SELECT COUNT(*) AS count
+        FROM purchase_items
+        WHERE product_id = ?
+      `,
+      args: [id],
+    });
 
-    // Log audit with product data
-    if (user) {
-      await db.query(
-        `INSERT INTO audit_logs (user_id, action, table_name, record_id, old_data, timestamp) VALUES ($1, 'DELETE_PRODUCT', 'products', $2, $3, CURRENT_TIMESTAMP)`,
-        [user.id, id, productData],
+
+
+    if (
+      Number(invoiceCheck.rows[0].count) > 0 ||
+      Number(purchaseCheck.rows[0].count) > 0
+    ) {
+
+      return NextResponse.json(
+        {
+          error: "Cannot delete product with existing transactions"
+        },
+        {
+          status: 400
+        }
       );
+
     }
 
-    return NextResponse.json({ success: true });
+
+
+    const productResult = await db.execute({
+      sql: `
+        SELECT 
+          p.*,
+          c.name AS category_name
+        FROM products p
+        LEFT JOIN categories c 
+          ON p.category_id = c.id
+        WHERE p.id = ?
+      `,
+      args: [id],
+    });
+
+
+    const productData = productResult.rows[0]
+      ? JSON.stringify(productResult.rows[0])
+      : null;
+
+
+
+    await db.execute({
+      sql: `
+        DELETE FROM stock_logs
+        WHERE product_id = ?
+      `,
+      args: [id],
+    });
+
+
+
+    await db.execute({
+      sql: `
+        DELETE FROM products
+        WHERE id = ?
+      `,
+      args: [id],
+    });
+
+
+
+    if (user) {
+
+      await db.execute({
+        sql: `
+          INSERT INTO audit_logs
+          (
+            user_id,
+            action,
+            table_name,
+            record_id,
+            old_data,
+            timestamp
+          )
+          VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `,
+        args: [
+          user.id,
+          "DELETE_PRODUCT",
+          "products",
+          id,
+          productData
+        ],
+      });
+
+    }
+
+
+
+    return NextResponse.json({
+      success: true
+    });
+
+
+
   } catch (error) {
+
     console.error("Error deleting product:", error);
-    return NextResponse.json({ error: "Failed to delete product" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to delete product" },
+      { status: 500 }
+    );
   }
 }
+
+
 
 // PATCH - Update inventory quantity
 export async function PATCH(request, { params }) {
   try {
-    // Manual inventory adjustments require UPDATE_STOCK
+
     let user = null;
+
     try {
       user = await requirePermission(PERMISSIONS.UPDATE_STOCK);
     } catch (err) {
       if (err instanceof PermissionError) {
-        return NextResponse.json({ error: err.message }, { status: err.status });
+        return NextResponse.json(
+          { error: err.message },
+          { status: err.status }
+        );
       }
       throw err;
     }
 
+
     const { id } = await params;
+
     const body = await request.json();
-    const { action, qty, reason } = body; // action: 'add' or 'remove'
+
+    const {
+      action,
+      qty,
+      reason
+    } = body;
+
 
     if (!action || !qty || qty <= 0) {
-      return NextResponse.json({ error: "Invalid data" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid data" },
+        { status: 400 }
+      );
     }
+
 
     const db = getDb();
 
-    // Get current stock
-    const { rows: products } = await db.query(`SELECT qty FROM products WHERE id = $1`, [id]);
 
-    if (products.length === 0) {
-      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+
+    const productResult = await db.execute({
+      sql: `
+        SELECT qty
+        FROM products
+        WHERE id = ?
+      `,
+      args: [id],
+    });
+
+
+
+    if (productResult.rows.length === 0) {
+      return NextResponse.json(
+        { error: "Product not found" },
+        { status: 404 }
+      );
     }
 
-    const currentQty = products[0].qty;
+
+
+    const currentQty = Number(productResult.rows[0].qty);
+
     let newQty;
     let stockAction;
     let logQty;
 
+
+
     if (action === "add") {
+
       newQty = currentQty + qty;
       stockAction = reason || "MANUAL_ADD";
       logQty = qty;
+
+
     } else if (action === "remove") {
+
+
       if (currentQty < qty) {
-        return NextResponse.json({ error: "Insufficient stock" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Insufficient stock" },
+          { status: 400 }
+        );
       }
+
+
       newQty = currentQty - qty;
       stockAction = reason || "MANUAL_REMOVE";
       logQty = -qty;
+
+
     } else {
-      return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-    }
 
-    // Update product quantity
-    await db.query(`UPDATE products SET qty = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2`, [newQty, id]);
-
-    // Log stock change
-    await db.query(`INSERT INTO stock_logs (product_id, action, qty, user_id, created_at) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)`, [
-      id,
-      stockAction,
-      logQty,
-      user?.id || null,
-    ]);
-
-    // Log audit
-    if (user) {
-      await db.query(
-        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'UPDATE_INVENTORY', 'products', $2, CURRENT_TIMESTAMP)`,
-        [user.id, id],
+      return NextResponse.json(
+        { error: "Invalid action" },
+        { status: 400 }
       );
+
     }
 
-    return NextResponse.json({ success: true, newQty });
+
+
+
+    await db.execute({
+      sql: `
+        UPDATE products
+        SET 
+          qty = ?,
+          updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+      `,
+      args: [
+        newQty,
+        id
+      ],
+    });
+
+
+
+
+    await db.execute({
+      sql: `
+        INSERT INTO stock_logs
+        (
+          product_id,
+          action,
+          qty,
+          user_id,
+          created_at
+        )
+        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `,
+      args: [
+        id,
+        stockAction,
+        logQty,
+        user?.id || null
+      ],
+    });
+
+
+
+
+    if (user) {
+
+      await db.execute({
+        sql: `
+          INSERT INTO audit_logs
+          (
+            user_id,
+            action,
+            table_name,
+            record_id,
+            timestamp
+          )
+          VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `,
+        args: [
+          user.id,
+          "UPDATE_INVENTORY",
+          "products",
+          id
+        ],
+      });
+
+    }
+
+
+
+    return NextResponse.json({
+      success: true,
+      newQty
+    });
+
+
+
   } catch (error) {
+
     console.error("Error updating inventory:", error);
-    return NextResponse.json({ error: "Failed to update inventory" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to update inventory" },
+      { status: 500 }
+    );
   }
 }

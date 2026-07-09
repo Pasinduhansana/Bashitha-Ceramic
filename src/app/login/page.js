@@ -3,11 +3,107 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
+import { signIn } from "next-auth/react";
+import toast from "react-hot-toast";
+import useAuth from "@/hooks/useAuth";
 import login_bg from "../../../public/wallpapers/login-bg.jpg";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const { login, loading, error } = useAuth();
+  const [submitting, setSubmitting] = useState(false);
+  const [loginFormData, setLoginFormData] = useState({
+    identifier: "",
+    password: "",
+  });
+  const [registerFormData, setRegisterFormData] = useState({
+    fullName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const handleLoginChange = (e) => {
+    const { name, value } = e.target;
+    setLoginFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRegisterChange = (e) => {
+    const { name, value } = e.target;
+    setRegisterFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmitLogin = async (e) => {
+    e.preventDefault();
+
+    // Validation
+    if (!loginFormData.identifier || !loginFormData.password) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+
+    try {
+      await login({ identifier: loginFormData.identifier, password: loginFormData.password });
+      toast.success("Login successful! Redirecting...");
+      setTimeout(() => {
+        router.push("/inventory");
+      }, 1000);
+    } catch (err) {
+      console.error("Login failed:", err);
+      toast.error(err.message || "Invalid email or password");
+    }
+  };
+
+  const handleSubmitRegister = async (e) => {
+    e.preventDefault();
+
+    // Validation
+    const firstName = registerFormData.fullName.trim().split(" ")[0];
+    if (firstName.length < 3) {
+      toast.error("First name must be at least 3 characters");
+      return;
+    }
+
+    if (registerFormData.password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
+    }
+
+    if (registerFormData.password !== registerFormData.confirmPassword) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: registerFormData.fullName.trim(),
+          email: registerFormData.email.trim(),
+          password: registerFormData.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
+
+      toast.success("Account created successfully! Please login.");
+      setIsLogin(true);
+    } catch (err) {
+      console.error("Registration failed:", err);
+      toast.error(err.message || "Registration failed. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-black  p-4 font-sans overflow-hidden">
@@ -22,8 +118,11 @@ export default function Login() {
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/50" />
 
           <div className="relative z-10 flex items-center gap-3">
-            <span className="text-[11px] tracking-[0.4em] text-teal-200/90 uppercase" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-              A Wise Quote
+            <span
+              className="text-[14px] font-semibold tracking-[0.4em] text-teal-200/70 uppercase"
+              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+            >
+              Bashitha Ceramics
             </span>
             <span className="flex-1 h-px bg-teal-200/40" />
           </div>
@@ -46,16 +145,7 @@ export default function Login() {
         </div>
 
         {/* Form Side */}
-        <div className={`relative flex flex-col px-8 py-10 md:px-12 h-[600px] overflow-hidden ${isLogin ? "order-2" : "order-1"}`}>
-          <div className="flex items-center gap-2.5 mb-4 justify-center md:justify-start shrink-0">
-            <div className="w-8 h-8 rounded-full bg-teal-700 flex items-center justify-center shadow-sm shadow-teal-900/20">
-              <span className="text-white text-xs font-bold">B</span>
-            </div>
-            <span className="text-xl text-neutral-900 tracking-tight" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
-              Bashitha Ceramic
-            </span>
-          </div>
-
+        <div className={`relative flex flex-col px-8 py-0 md:px-12 h-[600px] overflow-hidden ${isLogin ? "order-2" : "order-1"}`}>
           <div className="flex-1 flex items-center justify-center overflow-hidden">
             <AnimatePresence mode="wait" initial={false}>
               {isLogin ? (
@@ -77,11 +167,14 @@ export default function Login() {
                     <p className="text-neutral-500 text-[13px]">Enter your email and password to access your account</p>
                   </div>
 
-                  <form className="space-y-4 px-1">
+                  <form onSubmit={handleSubmitLogin} className="space-y-4 px-1">
                     <div>
                       <label className="block text-xs font-medium text-neutral-700 mb-1.5 tracking-wide">Email</label>
                       <input
-                        type="email"
+                        type="text"
+                        name="identifier"
+                        value={loginFormData.identifier}
+                        onChange={handleLoginChange}
                         placeholder="Enter your email"
                         className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none  focus:border-teal-600/60 transition-all"
                       />
@@ -92,6 +185,9 @@ export default function Login() {
                       <div className="relative">
                         <input
                           type={showPassword ? "text" : "password"}
+                          name="password"
+                          value={loginFormData.password}
+                          onChange={handleLoginChange}
                           placeholder="Enter your password"
                           className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none  focus:border-teal-600/60 transition-all pr-10"
                         />
@@ -149,13 +245,16 @@ export default function Login() {
                     <p className="text-neutral-500 text-[13px]">Join us to explore handcrafted ceramics made for your home</p>
                   </div>
 
-                  <form className="space-y-3.5">
+                  <form onSubmit={handleSubmitRegister} className="space-y-3.5 mx-1">
                     <div>
                       <label className="block text-xs font-medium text-neutral-700 mb-1.5 tracking-wide">Full Name</label>
                       <input
                         type="text"
+                        name="fullName"
+                        value={registerFormData.fullName}
+                        onChange={handleRegisterChange}
                         placeholder="Enter your full name"
-                        className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-teal-600/40 focus:border-teal-600/60 transition-all"
+                        className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none  focus:border-teal-600/60 transition-all"
                       />
                     </div>
 
@@ -163,8 +262,11 @@ export default function Login() {
                       <label className="block text-xs font-medium text-neutral-700 mb-1.5 tracking-wide">Email</label>
                       <input
                         type="email"
+                        name="email"
+                        value={registerFormData.email}
+                        onChange={handleRegisterChange}
                         placeholder="Enter your email"
-                        className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-teal-600/40 focus:border-teal-600/60 transition-all"
+                        className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none  focus:border-teal-600/60 transition-all"
                       />
                     </div>
 
@@ -173,8 +275,32 @@ export default function Login() {
                       <div className="relative">
                         <input
                           type={showPassword ? "text" : "password"}
+                          name="password"
+                          value={registerFormData.password}
+                          onChange={handleRegisterChange}
                           placeholder="Create a password"
-                          className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-teal-600/40 focus:border-teal-600/60 transition-all pr-10"
+                          className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none  focus:border-teal-600/60 transition-all pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-teal-700 transition-colors"
+                        >
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-neutral-700 mb-1.5 tracking-wide">Confirm Password</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword ? "text" : "password"}
+                          name="confirmPassword"
+                          value={registerFormData.confirmPassword}
+                          onChange={handleRegisterChange}
+                          placeholder="Confirm your password"
+                          className="w-full px-4 py-2.5 rounded-lg bg-neutral-50/80 border border-neutral-200 text-[13px] text-neutral-900 placeholder-neutral-400 focus:outline-none  focus:border-teal-600/60 transition-all pr-10"
                         />
                         <button
                           type="button"

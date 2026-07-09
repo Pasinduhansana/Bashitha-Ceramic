@@ -1,4 +1,4 @@
-export const runtime = "nodejs"; // Ensure Node runtime for PostgreSQL
+export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
@@ -13,29 +13,50 @@ export async function POST(request) {
       return NextResponse.json({ error: "Username or email and password are required" }, { status: 400 });
     }
 
-    if (!process.env.POSTGRES_HOST || !process.env.POSTGRES_DATABASE || !process.env.POSTGRES_USER) {
-      console.error("Login error: missing PostgreSQL environment variables");
+    // Check Turso environment variables
+    if (!process.env.TURSO_DATABASE_URL || !process.env.TURSO_AUTH_TOKEN) {
+      console.error("Login error: missing Turso environment variables");
+
       return NextResponse.json({ error: "Server configuration error" }, { status: 500 });
     }
 
-    const pool = getDb();
+    const db = getDb();
 
-    const { rows } = await pool.query(
-      "SELECT id, username, email, password_hash, role_id, name, is_active FROM users WHERE LOWER(username) = LOWER($1) OR LOWER(email) = LOWER($2) LIMIT 1",
-      [identifier, identifier],
-    );
+    const result = await db.execute({
+      sql: `
+        SELECT 
+          id,
+          username,
+          email,
+          password_hash,
+          role_id,
+          name,
+          is_active
+        FROM users
+        WHERE LOWER(username) = LOWER(?)
+           OR LOWER(email) = LOWER(?)
+        LIMIT 1
+      `,
+      args: [identifier, identifier],
+    });
 
-    const row = rows?.[0];
+    const row = result.rows?.[0];
 
     if (!row) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
-    if (row.is_active === 0) {
-      return NextResponse.json({ error: "Your login is not approved by Admin yet. Please wait for approval." }, { status: 403 });
+    if (Number(row.is_active) === 0) {
+      return NextResponse.json(
+        {
+          error: "Your login is not approved by Admin yet. Please wait for approval.",
+        },
+        { status: 403 },
+      );
     }
 
     const storedHash = row.password_hash || row.passwordHash || row.PasswordHash || "";
+
     const isValid = storedHash ? await bcrypt.compare(password, storedHash) : false;
 
     if (!isValid) {
@@ -50,9 +71,19 @@ export async function POST(request) {
       roleId: row.role_id ?? row.roleId ?? row.role,
     };
 
-    const token = signToken({ id: user.id, roleId: user.roleId, username: user.username, email: user.email, name: user.name });
+    const token = signToken({
+      id: user.id,
+      roleId: user.roleId,
+      username: user.username,
+      email: user.email,
+      name: user.name,
+    });
 
-    const response = NextResponse.json({ success: true, user });
+    const response = NextResponse.json({
+      success: true,
+      user,
+    });
+
     response.cookies.set({
       name: "auth_token",
       value: token,
@@ -65,7 +96,8 @@ export async function POST(request) {
 
     return response;
   } catch (error) {
-    console.error("Login error", error?.message || error, error?.stack);
+    console.error("Login error:", error?.message || error, error?.stack);
+
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

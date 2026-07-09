@@ -1,16 +1,13 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { verifyToken } from "@/lib/auth";
-import { cookies } from "next/headers";
 import { PERMISSIONS, PermissionError, requirePermission } from "@/lib/permissions";
 
 // GET - Fetch audit logs
 export async function GET(request) {
   try {
     // Only roles with VIEW_AUDIT_LOGS can access audit logs
-    let user = null;
     try {
-      user = await requirePermission(PERMISSIONS.VIEW_AUDIT_LOGS);
+      await requirePermission(PERMISSIONS.VIEW_AUDIT_LOGS);
     } catch (err) {
       if (err instanceof PermissionError) {
         return NextResponse.json({ error: err.message }, { status: err.status });
@@ -19,44 +16,61 @@ export async function GET(request) {
     }
 
     const { searchParams } = new URL(request.url);
+
     const action = searchParams.get("action");
     const search = searchParams.get("search");
-    const limit = searchParams.get("limit") || 100;
+    const limit = Number(searchParams.get("limit") || 100);
 
     const db = getDb();
+
     let query = `
       SELECT 
         a.*,
-        u.name as user_name,
-        u.img_url as user_img_url
+        u.name AS user_name,
+        u.img_url AS user_img_url
       FROM audit_logs a
-      LEFT JOIN users u ON a.user_id = u.id
+      LEFT JOIN users u 
+        ON a.user_id = u.id
       WHERE 1=1
     `;
-    const params = [];
+
+    const args = [];
 
     if (action && action !== "all") {
-      query += ` AND a.action LIKE $${params.length + 1}`;
-      params.push(`${action}%`);
+      query += ` AND a.action LIKE ?`;
+      args.push(`${action}%`);
     }
 
     if (search) {
-      const paramIndex = params.length + 1;
-      query += ` AND (u.name LIKE $${paramIndex} OR a.action LIKE $${paramIndex + 1})`;
-      params.push(`%${search}%`, `%${search}%`);
+      query += `
+        AND (
+          u.name LIKE ?
+          OR a.action LIKE ?
+        )
+      `;
+
+      args.push(`%${search}%`, `%${search}%`);
     }
 
-    query += ` ORDER BY a.timestamp DESC LIMIT ${parseInt(limit)}`;
+    query += `
+      ORDER BY a.timestamp DESC
+      LIMIT ?
+    `;
 
-    const { rows: logs } = await db.query(query, params);
+    args.push(limit);
 
-    // Fetch product details for CREATE_PRODUCT, UPDATE_PRODUCT, UPDATE_INVENTORY, and DELETE_PRODUCT actions
+    const auditResult = await db.execute({
+      sql: query,
+      args,
+    });
+
+    const logs = auditResult.rows;
+
     const logsWithDetails = await Promise.all(
       logs.map(async (log) => {
         let productDetails = null;
         let enhancedDetails = log.details;
 
-        // If it's a product-related action
         if (
           (log.action === "CREATE_PRODUCT" ||
             log.action === "UPDATE_PRODUCT" ||
@@ -65,43 +79,62 @@ export async function GET(request) {
           log.table_name === "products" &&
           log.record_id
         ) {
-          // For DELETE_PRODUCT, try to get data from old_data field first
+          // Handle delete product using old data
           if (log.action === "DELETE_PRODUCT" && log.old_data) {
             try {
               productDetails = JSON.parse(log.old_data);
+
               enhancedDetails = `Deleted product: ${productDetails.name}`;
             } catch (err) {
               console.error("Error parsing old_data:", err);
             }
           }
 
-          // If no old_data or not a delete, fetch from products table
+          // Fetch product details
           if (!productDetails) {
             try {
-              const { rows: productRows } = await db.query(
-                `SELECT p.*, c.name as category_name 
-                 FROM products p 
-                 LEFT JOIN categories c ON p.category_id = c.id 
-                 WHERE p.id = $1`,
-                [log.record_id],
-              );
-              if (productRows.length > 0) {
-                productDetails = productRows[0];
+              const productResult = await db.execute({
+                sql: `
+                    SELECT 
+                      p.*,
+                      c.name AS category_name
+                    FROM products p
+                    LEFT JOIN categories c
+                      ON p.category_id = c.id
+                    WHERE p.id = ?
+                  `,
 
-                // Enhance details text based on action
+                args: [log.record_id],
+              });
+
+              if (productResult.rows.length > 0) {
+                productDetails = productResult.rows[0];
+
                 if (log.action === "CREATE_PRODUCT") {
                   enhancedDetails = `Created product: ${productDetails.name}`;
                 } else if (log.action === "UPDATE_PRODUCT") {
                   enhancedDetails = `Updated product: ${productDetails.name}`;
                 } else if (log.action === "UPDATE_INVENTORY") {
-                  // Try to get quantity change from stock_logs
-                  const { rows: stockLogs } = await db.query(
-                    `SELECT qty, action FROM stock_logs WHERE product_id = $1 AND user_id = $2 ORDER BY created_at DESC LIMIT 1`,
-                    [log.record_id, log.user_id],
-                  );
-                  if (stockLogs.length > 0) {
-                    const qtyChange = stockLogs[0].qty;
+                  const stockResult = await db.execute({
+                    sql: `
+                        SELECT 
+                          qty,
+                          action
+                        FROM stock_logs
+                        WHERE product_id = ?
+                          AND user_id = ?
+                        ORDER BY created_at DESC
+                        LIMIT 1
+                      `,
+
+                    args: [log.record_id, log.user_id],
+                  });
+
+                  if (stockResult.rows.length > 0) {
+                    const qtyChange = Number(stockResult.rows[0].qty);
+
                     const changeText = qtyChange > 0 ? `Added ${qtyChange}` : `Removed ${Math.abs(qtyChange)}`;
+
                     enhancedDetails = `Updated inventory: ${productDetails.name} (${changeText} ${productDetails.unit || "units"})`;
                   } else {
                     enhancedDetails = `Updated inventory: ${productDetails.name}`;
@@ -122,9 +155,19 @@ export async function GET(request) {
       }),
     );
 
-    return NextResponse.json({ logs: logsWithDetails });
+    return NextResponse.json({
+      logs: logsWithDetails,
+    });
   } catch (error) {
     console.error("Error fetching audit logs:", error);
-    return NextResponse.json({ error: "Failed to fetch audit logs" }, { status: 500 });
+
+    return NextResponse.json(
+      {
+        error: "Failed to fetch audit logs",
+      },
+      {
+        status: 500,
+      },
+    );
   }
 }

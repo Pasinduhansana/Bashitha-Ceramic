@@ -19,7 +19,7 @@ A comprehensive inventory and billing management system built with Next.js, Post
 ## 📋 Tech Stack
 
 - **Frontend**: Next.js 16.1.0, React 19.2.3
-- **Database**: PostgreSQL (hosted on Supabase)
+- **Database**: Turso
 - **Authentication**: NextAuth.js 4.24.13
 - **Styling**: Tailwind CSS 4
 - **Image Upload**: Cloudinary
@@ -29,23 +29,11 @@ A comprehensive inventory and billing management system built with Next.js, Post
 
 ---
 
-## 🗄️ Database Migration
-
-**This project has been migrated from MySQL to PostgreSQL (Supabase).**
-
-For detailed migration information, see:
-
-- [MIGRATION_SUMMARY.md](MIGRATION_SUMMARY.md) - What changed during migration
-- [SUPABASE_SETUP.md](SUPABASE_SETUP.md) - Complete Supabase setup guide
-
----
-
 ## 🛠️ Installation
 
 ### Prerequisites
 
 - Node.js 18+ installed
-- A Supabase account ([sign up here](https://supabase.com))
 - Cloudinary account (optional, for image uploads)
 
 ### Step 1: Clone the Repository
@@ -61,16 +49,6 @@ cd bashitha-ceramics
 npm install
 ```
 
-### Step 3: Set Up Supabase
-
-Follow the complete guide in **[SUPABASE_SETUP.md](SUPABASE_SETUP.md)**
-
-Quick steps:
-
-1. Create a Supabase project
-2. Get your database credentials
-3. Run the SQL schema files in Supabase SQL Editor
-
 ### Step 4: Configure Environment Variables
 
 Create a `.env.local` file in the root directory:
@@ -81,14 +59,6 @@ cp .env.example .env.local
 
 Update the file with your credentials:
 
-```env
-# PostgreSQL (Supabase)
-POSTGRES_HOST=db.xxxxxxxxxxxxx.supabase.co
-POSTGRES_PORT=5432
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=your_password
-POSTGRES_DATABASE=postgres
-POSTGRES_SSL=true
 
 # NextAuth
 NEXTAUTH_URL=http://localhost:3000
@@ -99,14 +69,6 @@ CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 ```
-
-### Step 5: Initialize Database
-
-Run the SQL files in your Supabase SQL Editor:
-
-1. `public/DB_Schema.sql`
-2. `public/notification_reads_table.sql`
-3. `public/user_preferences_table.sql`
 
 ### Step 6: Initialize Permissions
 
@@ -210,20 +172,10 @@ node -e "const bcrypt = require('bcryptjs'); console.log(bcrypt.hashSync('your_p
 
 ## 📚 Additional Documentation
 
-- [SUPABASE_SETUP.md](SUPABASE_SETUP.md) - Supabase connection guide
-- [MIGRATION_SUMMARY.md](MIGRATION_SUMMARY.md) - MySQL to PostgreSQL migration
 - [USER_ACCESS_CONTROL.md](USER_ACCESS_CONTROL.md) - Permission system
-- [BILINGUAL_FEATURE_SUMMARY.md](docs/BILINGUAL_FEATURE_SUMMARY.md) - Language support
-- [NOTIFICATION_SYSTEM.md](docs/NOTIFICATION_SYSTEM.md) - Notification system
-- [CLOUDINARY_SETUP.md](CLOUDINARY_SETUP.md) - Image upload setup
 
 ---
 
-## 🐛 Troubleshooting
-
-### Database Connection Issues
-
-See the troubleshooting section in [SUPABASE_SETUP.md](SUPABASE_SETUP.md)
 
 ### Common Problems
 

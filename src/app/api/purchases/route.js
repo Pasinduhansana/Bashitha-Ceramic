@@ -1,125 +1,324 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { verifyToken } from "@/lib/auth";
-import { cookies } from "next/headers";
 import { PERMISSIONS, PermissionError, requirePermission } from "@/lib/permissions";
+
 
 // GET - Fetch all purchases
 export async function GET(request) {
   try {
-    // Viewing purchases requires MANAGE_PURCHASES
+
     let user = null;
+
     try {
       user = await requirePermission(PERMISSIONS.MANAGE_PURCHASES);
     } catch (err) {
       if (err instanceof PermissionError) {
-        return NextResponse.json({ error: err.message }, { status: err.status });
+        return NextResponse.json(
+          { error: err.message },
+          { status: err.status }
+        );
       }
       throw err;
     }
+
 
     const { searchParams } = new URL(request.url);
     const search = searchParams.get("search");
 
+
     const db = getDb();
+
+
     let query = `
       SELECT 
         p.*,
-        s.name as supplier_name,
-        s.contact as supplier_contact,
-        u.name as user_name,
-        COUNT(pi.id) as items_count
+        s.name AS supplier_name,
+        s.contact AS supplier_contact,
+        u.name AS user_name,
+        COUNT(pi.id) AS items_count
       FROM purchases p
-      LEFT JOIN suppliers s ON p.supplier_id = s.id
-      LEFT JOIN users u ON p.user_id = u.id
-      LEFT JOIN purchase_items pi ON p.id = pi.purchase_id
+      LEFT JOIN suppliers s 
+        ON p.supplier_id = s.id
+      LEFT JOIN users u 
+        ON p.user_id = u.id
+      LEFT JOIN purchase_items pi 
+        ON p.id = pi.purchase_id
       WHERE 1=1
     `;
+
+
     const params = [];
 
+
     if (search) {
-      const paramIndex = params.length + 1;
-      query += ` AND (s.name LIKE $${paramIndex} OR u.name LIKE $${paramIndex + 1})`;
-      params.push(`%${search}%`, `%${search}%`);
+
+      query += `
+        AND (
+          s.name LIKE ?
+          OR u.name LIKE ?
+        )
+      `;
+
+      params.push(
+        `%${search}%`,
+        `%${search}%`
+      );
     }
 
-    query += ` GROUP BY p.id ORDER BY p.purchase_date DESC`;
 
-    const { rows: purchases } = await db.query(query, params);
+    query += `
+      GROUP BY p.id
+      ORDER BY p.purchase_date DESC
+    `;
 
-    return NextResponse.json({ purchases });
+
+
+    const result = await db.execute({
+      sql: query,
+      args: params,
+    });
+
+
+
+    return NextResponse.json({
+      purchases: result.rows,
+    });
+
+
   } catch (error) {
+
     console.error("Error fetching purchases:", error);
-    return NextResponse.json({ error: "Failed to fetch purchases" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch purchases" },
+      { status: 500 }
+    );
   }
 }
 
+
+
 // POST - Create new purchase
 export async function POST(request) {
+
   try {
-    // Creating purchases requires MANAGE_PURCHASES
+
     let user = null;
+
+
     try {
-      user = await requirePermission(PERMISSIONS.MANAGE_PURCHASES);
+
+      user = await requirePermission(
+        PERMISSIONS.MANAGE_PURCHASES
+      );
+
     } catch (err) {
+
       if (err instanceof PermissionError) {
-        return NextResponse.json({ error: err.message }, { status: err.status });
+        return NextResponse.json(
+          { error: err.message },
+          { status: err.status }
+        );
       }
+
       throw err;
     }
 
+
+
     const body = await request.json();
-    const { supplier_id, items } = body;
+
+    const {
+      supplier_id,
+      items
+    } = body;
+
+
 
     if (!supplier_id || !items || items.length === 0) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+
     }
+
+
 
     const db = getDb();
 
+
+
     // Calculate total
     let total_amount = 0;
+
     for (const item of items) {
       total_amount += item.qty * item.cost_price;
     }
 
+
+
+
     // Insert purchase
-    const { rows } = await db.query(
-      `INSERT INTO purchases (supplier_id, user_id, total_amount, purchase_date) VALUES ($1, $2, $3, CURRENT_TIMESTAMP) RETURNING id`,
-      [supplier_id, user.id, total_amount],
+    const purchaseResult = await db.execute({
+
+      sql: `
+        INSERT INTO purchases
+        (
+          supplier_id,
+          user_id,
+          total_amount,
+          purchase_date
+        )
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+      `,
+
+      args: [
+        supplier_id,
+        user.id,
+        total_amount
+      ],
+
+    });
+
+
+
+    const purchase_id = Number(
+      purchaseResult.lastInsertRowid
     );
 
-    const purchase_id = rows[0].id;
+
+
+
 
     // Insert purchase items and update stock
     for (const item of items) {
+
+
       // Insert purchase item
-      await db.query(`INSERT INTO purchase_items (purchase_id, product_id, qty, cost_price) VALUES ($1, $2, $3, $4)`, [
-        purchase_id,
-        item.product_id,
-        item.qty,
-        item.cost_price,
-      ]);
+      await db.execute({
 
-      // Update product stock and cost price
-      await db.query(`UPDATE products SET qty = qty + $1, cost_price = $2 WHERE id = $3`, [item.qty, item.cost_price, item.product_id]);
+        sql: `
+          INSERT INTO purchase_items
+          (
+            purchase_id,
+            product_id,
+            qty,
+            cost_price
+          )
+          VALUES (?, ?, ?, ?)
+        `,
 
-      // Log stock change
-      await db.query(
-        `INSERT INTO stock_logs (product_id, action, qty, purchase_id, user_id, created_at) VALUES ($1, 'PURCHASE', $2, $3, $4, CURRENT_TIMESTAMP)`,
-        [item.product_id, item.qty, purchase_id, user.id],
-      );
+        args: [
+          purchase_id,
+          item.product_id,
+          item.qty,
+          item.cost_price
+        ],
+
+      });
+
+
+
+
+      // Update stock and cost price
+      await db.execute({
+
+        sql: `
+          UPDATE products
+          SET 
+            qty = qty + ?,
+            cost_price = ?
+          WHERE id = ?
+        `,
+
+        args: [
+          item.qty,
+          item.cost_price,
+          item.product_id
+        ],
+
+      });
+
+
+
+
+
+      // Stock log
+      await db.execute({
+
+        sql: `
+          INSERT INTO stock_logs
+          (
+            product_id,
+            action,
+            qty,
+            purchase_id,
+            user_id,
+            created_at
+          )
+          VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `,
+
+        args: [
+          item.product_id,
+          "PURCHASE",
+          item.qty,
+          purchase_id,
+          user.id
+        ],
+
+      });
+
+
     }
 
-    // Log audit
-    await db.query(
-      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'CREATE_PURCHASE', 'purchases', $2, CURRENT_TIMESTAMP)`,
-      [user.id, purchase_id],
-    );
 
-    return NextResponse.json({ success: true, purchase_id });
+
+
+
+    // Audit log
+    await db.execute({
+
+      sql: `
+        INSERT INTO audit_logs
+        (
+          user_id,
+          action,
+          table_name,
+          record_id,
+          timestamp
+        )
+        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `,
+
+      args: [
+        user.id,
+        "CREATE_PURCHASE",
+        "purchases",
+        purchase_id
+      ],
+
+    });
+
+
+
+
+    return NextResponse.json({
+      success: true,
+      purchase_id
+    });
+
+
+
   } catch (error) {
+
     console.error("Error creating purchase:", error);
-    return NextResponse.json({ error: "Failed to create purchase" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to create purchase" },
+      { status: 500 }
+    );
   }
 }

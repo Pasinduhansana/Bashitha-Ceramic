@@ -1,85 +1,158 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { verifyToken } from "@/lib/auth";
-import { cookies } from "next/headers";
 import { PERMISSIONS, PermissionError, requirePermission } from "@/lib/permissions";
+
 
 // GET - Fetch all products with category info
 export async function GET(request) {
   try {
-    // Viewing products requires VIEW_PRODUCTS permission
+
     try {
       await requirePermission(PERMISSIONS.VIEW_PRODUCTS);
     } catch (err) {
       if (err instanceof PermissionError) {
-        return NextResponse.json({ error: err.message }, { status: err.status });
+        return NextResponse.json(
+          { error: err.message },
+          { status: err.status }
+        );
       }
       throw err;
     }
 
+
     const { searchParams } = new URL(request.url);
+
     const search = searchParams.get("search") || "";
     const category = searchParams.get("category") || "";
     const status = searchParams.get("status") || "";
 
+
     const db = getDb();
+
 
     let query = `
       SELECT 
         p.*,
-        c.name as category_name
+        c.name AS category_name
       FROM products p
-      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN categories c 
+        ON p.category_id = c.id
       WHERE 1=1
     `;
+
+
     const params = [];
 
+
     if (search) {
-      const paramIndex = params.length + 1;
-      query += ` AND (p.name LIKE $${paramIndex} OR p.code LIKE $${paramIndex + 1} OR p.brand LIKE $${paramIndex + 2})`;
-      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+      query += `
+        AND (
+          p.name LIKE ?
+          OR p.code LIKE ?
+          OR p.brand LIKE ?
+        )
+      `;
+
+      params.push(
+        `%${search}%`,
+        `%${search}%`,
+        `%${search}%`
+      );
     }
 
+
     if (category) {
-      query += ` AND c.name = $${params.length + 1}`;
+      query += `
+        AND c.name = ?
+      `;
+
       params.push(category);
     }
 
-    // Status filtering based on stock levels
+
     if (status === "out_of_stock") {
-      query += ` AND p.qty = 0`;
+
+      query += `
+        AND p.qty = 0
+      `;
+
     } else if (status === "low_stock") {
-      query += ` AND p.qty > 0 AND p.qty <= p.reorder_level`;
+
+      query += `
+        AND p.qty > 0 
+        AND p.qty <= p.reorder_level
+      `;
+
     } else if (status === "in_stock") {
-      query += ` AND p.qty > p.reorder_level`;
+
+      query += `
+        AND p.qty > p.reorder_level
+      `;
     }
 
-    query += ` ORDER BY p.updated_at DESC`;
 
-    const { rows: products } = await db.query(query, params);
+    query += `
+      ORDER BY p.updated_at DESC
+    `;
 
-    return NextResponse.json({ products });
+
+
+    const result = await db.execute({
+      sql: query,
+      args: params,
+    });
+
+
+
+    return NextResponse.json({
+      products: result.rows,
+    });
+
+
   } catch (error) {
+
     console.error("Error fetching products:", error);
-    return NextResponse.json({ error: "Failed to fetch products" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to fetch products" },
+      { status: 500 }
+    );
   }
 }
 
+
+
 // POST - Create new product
 export async function POST(request) {
+
   try {
-    // Adding / editing products requires EDIT_PRODUCTS permission
+
     let user = null;
+
+
     try {
-      user = await requirePermission(PERMISSIONS.EDIT_PRODUCTS);
+
+      user = await requirePermission(
+        PERMISSIONS.EDIT_PRODUCTS
+      );
+
     } catch (err) {
+
       if (err instanceof PermissionError) {
-        return NextResponse.json({ error: err.message }, { status: err.status });
+        return NextResponse.json(
+          { error: err.message },
+          { status: err.status }
+        );
       }
+
       throw err;
     }
 
+
+
     const body = await request.json();
+
+
     const {
       product_type,
       name,
@@ -99,14 +172,45 @@ export async function POST(request) {
       description,
     } = body;
 
+
+
     const db = getDb();
 
-    // Insert product
-    const { rows } = await db.query(
-      `INSERT INTO products 
-       (product_type, name, brand, code, new_code, shade, new_shade, size, photo_url, qty, unit, cost_price, selling_price, reorder_level, category_id, description, created_at, updated_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP) RETURNING id`,
-      [
+
+
+    const result = await db.execute({
+
+      sql: `
+        INSERT INTO products
+        (
+          product_type,
+          name,
+          brand,
+          code,
+          new_code,
+          shade,
+          new_shade,
+          size,
+          photo_url,
+          qty,
+          unit,
+          cost_price,
+          selling_price,
+          reorder_level,
+          category_id,
+          description,
+          created_at,
+          updated_at
+        )
+        VALUES
+        (
+          ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+          CURRENT_TIMESTAMP,
+          CURRENT_TIMESTAMP
+        )
+      `,
+
+      args: [
         product_type || null,
         name,
         brand || null,
@@ -124,29 +228,89 @@ export async function POST(request) {
         category_id || null,
         description || null,
       ],
+    });
+
+
+
+    const product_id = Number(
+      result.lastInsertRowid
     );
 
-    const product_id = rows[0].id;
 
-    // Log initial stock if qty > 0
+
+    // Log initial stock
     if (qty > 0) {
-      await db.query(
-        `INSERT INTO stock_logs (product_id, action, qty, user_id, created_at) VALUES ($1, 'INITIAL_STOCK', $2, $3, CURRENT_TIMESTAMP)`,
-        [product_id, qty, user?.id || null],
-      );
+
+      await db.execute({
+
+        sql: `
+          INSERT INTO stock_logs
+          (
+            product_id,
+            action,
+            qty,
+            user_id,
+            created_at
+          )
+          VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `,
+
+        args: [
+          product_id,
+          "INITIAL_STOCK",
+          qty,
+          user?.id || null
+        ],
+      });
+
     }
 
-    // Log audit
+
+
+    // Audit log
     if (user) {
-      await db.query(
-        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'CREATE_PRODUCT', 'products', $2, CURRENT_TIMESTAMP)`,
-        [user.id, product_id],
-      );
+
+      await db.execute({
+
+        sql: `
+          INSERT INTO audit_logs
+          (
+            user_id,
+            action,
+            table_name,
+            record_id,
+            timestamp
+          )
+          VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `,
+
+        args: [
+          user.id,
+          "CREATE_PRODUCT",
+          "products",
+          product_id
+        ],
+
+      });
+
     }
 
-    return NextResponse.json({ success: true, product_id });
+
+
+    return NextResponse.json({
+      success: true,
+      product_id,
+    });
+
+
+
   } catch (error) {
+
     console.error("Error creating product:", error);
-    return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to create product" },
+      { status: 500 }
+    );
   }
 }

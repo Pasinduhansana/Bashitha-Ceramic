@@ -8,66 +8,236 @@ import nodemailer from "nodemailer";
 export async function POST(request) {
   try {
     const { username } = await request.json();
+
     if (!username) {
-      return NextResponse.json({ error: "Username is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Username is required" },
+        { status: 400 }
+      );
     }
 
-    const pool = getDb();
+
+    const db = getDb();
+
 
     // Find user
-    const { rows: users } = await pool.query("SELECT id, username FROM users WHERE username = $1 LIMIT 1", [username]);
-    const user = users?.[0];
-
-    // Respond with success regardless, to avoid user enumeration
-    if (!user) {
-      return NextResponse.json({ success: true });
-    }
-
-    // Generate secure token and expiry (30 minutes)
-    const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 30 * 60 * 1000);
-
-    // Ensure table exists (best effort for dev environments)
-    await pool.query(
-      "CREATE TABLE IF NOT EXISTS password_reset_tokens (\n        id SERIAL PRIMARY KEY,\n        userId INT NOT NULL,\n        token VARCHAR(128) NOT NULL,\n        expiresAt TIMESTAMP NOT NULL,\n        createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP\n      )",
-    );
-    await pool.query("CREATE INDEX IF NOT EXISTS idx_password_reset_token ON password_reset_tokens(token)");
-    await pool.query("CREATE INDEX IF NOT EXISTS idx_password_reset_userId ON password_reset_tokens(userId)");
-
-    // Upsert: delete old tokens for user, then insert new
-    await pool.query("DELETE FROM password_reset_tokens WHERE userId = $1", [user.id]);
-    await pool.query("INSERT INTO password_reset_tokens (userId, token, expiresAt) VALUES ($1, $2, $3)", [user.id, token, expiresAt]);
-
-    // Send email to fixed recipient with reset link
-    const appUrl = process.env.APP_URL || "http://localhost:3000";
-    const resetLink = `${appUrl}/forgot-password?token=${token}`;
-
-    if (!process.env.SMTP_HOST || !process.env.SMTP_PORT || !process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.SMTP_FROM) {
-      console.error("Forgot-password error: missing SMTP envs");
-      return NextResponse.json({ error: "Email service not configured" }, { status: 500 });
-    }
-
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: Number(process.env.SMTP_PORT) === 465,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
+    const userResult = await db.execute({
+      sql: `
+        SELECT 
+          id,
+          username
+        FROM users
+        WHERE username = ?
+        LIMIT 1
+      `,
+      args: [username],
     });
+
+
+    const user = userResult.rows?.[0];
+
+
+    // Avoid user enumeration
+    if (!user) {
+      return NextResponse.json({
+        success: true,
+      });
+    }
+
+
+
+    // Generate secure reset token
+    const token = crypto
+      .randomBytes(32)
+      .toString("hex");
+
+
+    const expiresAt = new Date(
+      Date.now() + 30 * 60 * 1000
+    ).toISOString();
+
+
+
+    // Create reset token table
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        userId INTEGER NOT NULL,
+        token TEXT NOT NULL,
+        expiresAt DATETIME NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+
+
+    // Create indexes
+    await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_password_reset_token
+      ON password_reset_tokens(token)
+    `);
+
+
+    await db.execute(`
+      CREATE INDEX IF NOT EXISTS idx_password_reset_userId
+      ON password_reset_tokens(userId)
+    `);
+
+
+
+    // Remove old tokens
+    await db.execute({
+      sql: `
+        DELETE FROM password_reset_tokens
+        WHERE userId = ?
+      `,
+      args: [
+        user.id,
+      ],
+    });
+
+
+
+    // Insert new token
+    await db.execute({
+      sql: `
+        INSERT INTO password_reset_tokens
+        (
+          userId,
+          token,
+          expiresAt
+        )
+        VALUES (?, ?, ?)
+      `,
+      args: [
+        user.id,
+        token,
+        expiresAt,
+      ],
+    });
+
+
+
+    // Generate reset link
+    const appUrl =
+      process.env.APP_URL ||
+      "http://localhost:3000";
+
+
+    const resetLink =
+      `${appUrl}/forgot-password?token=${token}`;
+
+
+
+    // Validate SMTP config
+    if (
+      !process.env.SMTP_HOST ||
+      !process.env.SMTP_PORT ||
+      !process.env.SMTP_USER ||
+      !process.env.SMTP_PASS ||
+      !process.env.SMTP_FROM
+    ) {
+
+      console.error(
+        "Forgot-password error: missing SMTP envs"
+      );
+
+      return NextResponse.json(
+        {
+          error: "Email service not configured",
+        },
+        {
+          status: 500,
+        }
+      );
+
+    }
+
+
+
+    const transporter =
+      nodemailer.createTransport({
+
+        host: process.env.SMTP_HOST,
+
+        port: Number(
+          process.env.SMTP_PORT
+        ),
+
+        secure:
+          Number(process.env.SMTP_PORT) === 465,
+
+        auth: {
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASS,
+        },
+
+      });
+
+
 
     await transporter.sendMail({
+
       from: process.env.SMTP_FROM,
+
       to: "gallagepasinduhansana@gmail.com",
+
       subject: "Reset your password",
-      text: `Hello ${user.username},\n\nUse the link below to reset your password:\n${resetLink}\n\nThis link expires in 30 minutes.`,
-      html: `<p>Hello ${user.username},</p><p>Use the link below to reset your password:</p><p><a href="${resetLink}">${resetLink}</a></p><p>This link expires in 30 minutes.</p>`,
+
+      text:
+`Hello ${user.username},
+
+Use the link below to reset your password:
+
+${resetLink}
+
+This link expires in 30 minutes.`,
+
+
+      html:
+`
+<p>Hello ${user.username},</p>
+
+<p>
+Use the link below to reset your password:
+</p>
+
+<p>
+<a href="${resetLink}">
+${resetLink}
+</a>
+</p>
+
+<p>
+This link expires in 30 minutes.
+</p>
+`,
+
     });
 
-    return NextResponse.json({ success: true });
+
+
+    return NextResponse.json({
+      success: true,
+    });
+
+
   } catch (error) {
-    console.error("Forgot-password error", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+
+    console.error(
+      "Forgot-password error:",
+      error
+    );
+
+
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+      },
+      {
+        status: 500,
+      }
+    );
+
   }
 }

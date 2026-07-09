@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
-import { verifyToken } from "@/lib/auth";
-import { cookies } from "next/headers";
 import { PERMISSIONS, PermissionError, requirePermission } from "@/lib/permissions";
 
 // GET - Fetch all invoices with customer info
 export async function GET(request) {
   try {
-    // Viewing invoices is part of CREATE_INVOICES permission set
     let user = null;
+
     try {
       user = await requirePermission(PERMISSIONS.CREATE_INVOICES);
     } catch (err) {
@@ -23,46 +21,57 @@ export async function GET(request) {
     const search = searchParams.get("search");
 
     const db = getDb();
+
     let query = `
       SELECT 
         i.*,
-        c.name as customer_name,
-        c.contact as customer_contact,
-        u.name as user_name
+        c.name AS customer_name,
+        c.contact AS customer_contact,
+        u.name AS user_name
       FROM invoices i
       LEFT JOIN customers c ON i.customer_id = c.id
       LEFT JOIN users u ON i.user_id = u.id
       WHERE 1=1
     `;
+
     const params = [];
 
     if (status && status !== "all") {
-      query += ` AND i.status = $${params.length + 1}`;
+      query += ` AND i.status = ?`;
       params.push(status);
     }
 
     if (search) {
-      const paramIndex = params.length + 1;
-      query += ` AND (i.invoice_no LIKE $${paramIndex} OR c.name LIKE $${paramIndex + 1})`;
+      query += ` AND (i.invoice_no LIKE ? OR c.name LIKE ?)`;
       params.push(`%${search}%`, `%${search}%`);
     }
 
     query += ` ORDER BY i.created_at DESC`;
 
-    const { rows: invoices } = await db.query(query, params);
+    const result = await db.execute({
+      sql: query,
+      args: params,
+    });
 
-    return NextResponse.json({ invoices });
+    return NextResponse.json({
+      invoices: result.rows,
+    });
+
   } catch (error) {
     console.error("Error fetching invoices:", error);
-    return NextResponse.json({ error: "Failed to fetch invoices" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Failed to fetch invoices" },
+      { status: 500 }
+    );
   }
 }
+
 
 // POST - Create new invoice
 export async function POST(request) {
   try {
-    // Creating invoices requires CREATE_INVOICES
     let user = null;
+
     try {
       user = await requirePermission(PERMISSIONS.CREATE_INVOICES);
     } catch (err) {
@@ -73,85 +82,238 @@ export async function POST(request) {
     }
 
     const body = await request.json();
-    const { customer, items, discount, payment_method } = body;
+
+    const {
+      customer,
+      items,
+      discount,
+      payment_method
+    } = body;
+
 
     if (!customer || !customer.contact || !customer.name || !items || items.length === 0) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
     }
+
 
     const db = getDb();
 
     let customer_id;
 
-    // Check if using existing customer or creating new one
+
+    // Existing customer
     if (customer.existing_id) {
       customer_id = customer.existing_id;
-    } else {
-      // Create new customer
-      const { rows } = await db.query(
-        `INSERT INTO customers (name, contact, remark, created_at) VALUES ($1, $2, $3, CURRENT_TIMESTAMP) RETURNING id`,
-        [customer.name, customer.contact, customer.remark || null],
-      );
-      customer_id = rows[0].id;
 
-      // Log customer creation
-      await db.query(
-        `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'CREATE_CUSTOMER', 'customers', $2, CURRENT_TIMESTAMP)`,
-        [user.id, customer_id],
-      );
+    } else {
+
+      // Create customer
+      const customerResult = await db.execute({
+        sql: `
+          INSERT INTO customers 
+          (name, contact, remark, created_at)
+          VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        `,
+        args: [
+          customer.name,
+          customer.contact,
+          customer.remark || null
+        ]
+      });
+
+
+      customer_id = Number(customerResult.lastInsertRowid);
+
+
+      // Audit log
+      await db.execute({
+        sql: `
+          INSERT INTO audit_logs
+          (user_id, action, table_name, record_id, timestamp)
+          VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `,
+        args: [
+          user.id,
+          "CREATE_CUSTOMER",
+          "customers",
+          customer_id
+        ]
+      });
     }
+
+
 
     // Calculate totals
     let total_amount = 0;
+
     for (const item of items) {
       total_amount += item.qty * item.selling_price;
     }
+
     const net_amount = total_amount - (discount || 0);
 
+
+
     // Generate invoice number
-    const { rows: maxRows } = await db.query("SELECT MAX(id) as max_id FROM invoices");
-    const invoice_no = `INV-${new Date().getFullYear()}-${String((maxRows[0].max_id || 0) + 1).padStart(3, "0")}`;
+    const maxResult = await db.execute({
+      sql: `
+        SELECT MAX(id) AS max_id 
+        FROM invoices
+      `,
+      args: []
+    });
+
+
+    const maxId = maxResult.rows[0]?.max_id || 0;
+
+    const invoice_no =
+      `INV-${new Date().getFullYear()}-${String(Number(maxId) + 1).padStart(3, "0")}`;
+
+
 
     // Insert invoice
-    const { rows } = await db.query(
-      `INSERT INTO invoices (invoice_no, customer_id, user_id, total_amount, discount, net_amount, payment_method, created_at) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP) RETURNING id`,
-      [invoice_no, customer_id, user.id, total_amount, discount || 0, net_amount, payment_method],
-    );
+    const invoiceResult = await db.execute({
+      sql: `
+        INSERT INTO invoices
+        (
+          invoice_no,
+          customer_id,
+          user_id,
+          total_amount,
+          discount,
+          net_amount,
+          payment_method,
+          created_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `,
+      args: [
+        invoice_no,
+        customer_id,
+        user.id,
+        total_amount,
+        discount || 0,
+        net_amount,
+        payment_method
+      ]
+    });
 
-    const invoice_id = rows[0].id;
 
-    // Insert invoice items and update stock
+    const invoice_id = Number(invoiceResult.lastInsertRowid);
+
+
+
+    // Insert invoice items + stock updates
     for (const item of items) {
-      // Insert invoice item
+
       const line_total = item.qty * item.selling_price;
-      await db.query(`INSERT INTO invoice_items (invoice_id, product_id, qty, selling_price, line_total) VALUES ($1, $2, $3, $4, $5)`, [
-        invoice_id,
-        item.product_id,
-        item.qty,
-        item.selling_price,
-        line_total,
-      ]);
 
-      // Update product stock
-      await db.query(`UPDATE products SET qty = qty - $1 WHERE id = $2`, [item.qty, item.product_id]);
 
-      // Log stock change
-      await db.query(
-        `INSERT INTO stock_logs (product_id, action, qty, invoice_id, user_id, created_at) VALUES ($1, 'SALE', $2, $3, $4, CURRENT_TIMESTAMP)`,
-        [item.product_id, -item.qty, invoice_id, user.id],
-      );
+      // Invoice item
+      await db.execute({
+        sql: `
+          INSERT INTO invoice_items
+          (
+            invoice_id,
+            product_id,
+            qty,
+            selling_price,
+            line_total
+          )
+          VALUES (?, ?, ?, ?, ?)
+        `,
+        args: [
+          invoice_id,
+          item.product_id,
+          item.qty,
+          item.selling_price,
+          line_total
+        ]
+      });
+
+
+
+      // Update stock
+      await db.execute({
+        sql: `
+          UPDATE products
+          SET qty = qty - ?
+          WHERE id = ?
+        `,
+        args: [
+          item.qty,
+          item.product_id
+        ]
+      });
+
+
+
+      // Stock log
+      await db.execute({
+        sql: `
+          INSERT INTO stock_logs
+          (
+            product_id,
+            action,
+            qty,
+            invoice_id,
+            user_id,
+            created_at
+          )
+          VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        `,
+        args: [
+          item.product_id,
+          "SALE",
+          -item.qty,
+          invoice_id,
+          user.id
+        ]
+      });
+
     }
 
-    // Log audit
-    await db.query(
-      `INSERT INTO audit_logs (user_id, action, table_name, record_id, timestamp) VALUES ($1, 'CREATE_INVOICE', 'invoices', $2, CURRENT_TIMESTAMP)`,
-      [user.id, invoice_id],
-    );
 
-    return NextResponse.json({ success: true, invoice_id, invoice_no });
+
+    // Invoice audit log
+    await db.execute({
+      sql: `
+        INSERT INTO audit_logs
+        (
+          user_id,
+          action,
+          table_name,
+          record_id,
+          timestamp
+        )
+        VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+      `,
+      args: [
+        user.id,
+        "CREATE_INVOICE",
+        "invoices",
+        invoice_id
+      ]
+    });
+
+
+
+    return NextResponse.json({
+      success: true,
+      invoice_id,
+      invoice_no
+    });
+
+
   } catch (error) {
     console.error("Error creating invoice:", error);
-    return NextResponse.json({ error: "Failed to create invoice" }, { status: 500 });
+
+    return NextResponse.json(
+      { error: "Failed to create invoice" },
+      { status: 500 }
+    );
   }
 }
