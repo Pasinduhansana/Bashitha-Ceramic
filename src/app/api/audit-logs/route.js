@@ -159,6 +159,8 @@ export async function GET(request) {
       }
     }
 
+    // NOTE: no Promise.all + no per-log awaits here.
+    // All DB queries were already batched above; remaining work is pure in-memory mapping.
     const logsWithDetails = logs.map((log) => {
       let productDetails = null;
       let enhancedDetails = log.details;
@@ -171,6 +173,7 @@ export async function GET(request) {
         log.table_name === "products" &&
         log.record_id
       ) {
+
         // Handle delete product using old data
         if (log.action === "DELETE_PRODUCT" && log.old_data) {
           try {
