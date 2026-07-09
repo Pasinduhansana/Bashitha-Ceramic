@@ -23,6 +23,15 @@ export async function GET(request) {
 
     const db = getDb();
 
+    // Optional small cache to reduce repeated polling hits.
+    // (Don’t cache highly dynamic data for long.)
+    const cacheKey = makeCacheKey("audit-logs", request);
+    const cached = getCached(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
+
+
     let query = `
       SELECT 
         a.*,
@@ -217,9 +226,11 @@ export async function GET(request) {
     });
 
 
-    return NextResponse.json({
-      logs: logsWithDetails,
-    });
+    const payload = { logs: logsWithDetails };
+    setCached(cacheKey, payload, 15 * 1000); // 15s
+
+    return NextResponse.json(payload);
+
   } catch (error) {
     console.error("Error fetching audit logs:", error);
 

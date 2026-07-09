@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
+import { getCached, setCached, makeCacheKey } from "@/lib/apiCache";
 
 // GET - Fetch all categories
 export async function GET(request) {
   try {
+    const cacheKey = makeCacheKey("categories", request);
+    const cached = getCached(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
+
     const db = getDb();
+
 
     const result = await db.execute({
       sql: `
@@ -17,9 +25,15 @@ export async function GET(request) {
       args: [],
     });
 
-    return NextResponse.json({
+    const payload = {
       categories: result.rows,
-    });
+    };
+
+    // Cache categories briefly; categories change rarely.
+    setCached(cacheKey, payload, 60 * 1000); // 60s
+
+    return NextResponse.json(payload);
+
 
   } catch (error) {
     console.error(

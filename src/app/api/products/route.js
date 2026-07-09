@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getDb } from "@/lib/db";
 import { PERMISSIONS, PermissionError, requirePermission } from "@/lib/permissions";
+import { getCached, setCached, makeCacheKey } from "@/lib/apiCache";
+
 
 
 // GET - Fetch all products with category info
@@ -27,10 +29,16 @@ export async function GET(request) {
     const status = searchParams.get("status") || "";
 
 
+    const cacheKey = makeCacheKey("products", request, `${search}|${category}|${status}`);
+    const cached = getCached(cacheKey);
+    if (cached) {
+      return NextResponse.json(cached);
+    }
+
     const db = getDb();
 
-
     let query = `
+
       SELECT 
         p.*,
         c.name AS category_name
@@ -108,9 +116,12 @@ export async function GET(request) {
 
 
 
-    return NextResponse.json({
-      products: result.rows,
-    });
+    const payload = { products: result.rows };
+    // Cache for short period to reduce repeated DB reads during fast UI refreshes.
+    setCached(cacheKey, payload, 30 * 1000); // 30s
+
+    return NextResponse.json(payload);
+
 
 
   } catch (error) {
