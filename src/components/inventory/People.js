@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+
 import {
   Search,
   ChevronDown,
@@ -37,11 +38,26 @@ export default function People() {
   const [roles, setRoles] = useState([]);
   const [viewMode, setViewMode] = useState("list"); // 'list' or 'tile'
 
+  const didInitFetchRef = useRef(false);
+
   useEffect(() => {
+    // Keep filter-driven refetches, but avoid the StrictMode “initial double-run” only.
+    if (!didInitFetchRef.current) {
+      didInitFetchRef.current = true;
+
+      fetchStats();
+      fetchUsers();
+      fetchRoles();
+      return;
+    }
+
+    // On subsequent renders caused by filter/search changes, refetch normally.
     fetchStats();
     fetchUsers();
     fetchRoles();
   }, [statusFilter, roleFilter, searchTerm]);
+
+
 
   const fetchRoles = async () => {
     try {

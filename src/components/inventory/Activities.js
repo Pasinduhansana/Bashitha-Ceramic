@@ -1,6 +1,8 @@
+
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
+
 import { Search, ChevronDown, Package, Check, X, User } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -130,10 +132,15 @@ export default function Activities() {
   const [error, setError] = useState(null);
   const [users, setUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(true);
+  // Fetch users on mount (guard against StrictMode double-mount)
+  const didFetchUsersRef = useRef(false);
 
-  // Fetch users on mount
   useEffect(() => {
+    if (didFetchUsersRef.current) return;
+    didFetchUsersRef.current = true;
+
     async function fetchUsers() {
+
       try {
         const res = await fetch("/api/users?limit=999");
         const data = await res.json();
