@@ -99,7 +99,7 @@ export default function InventoryPage() {
       inFlight = (async () => {
         setLoading(true);
         try {
-          const response = await fetch(`/api/products`);
+          const response = await fetch("/api/products?page=1&limit=50");
           const data = await response.json();
 
           if (response.ok) {

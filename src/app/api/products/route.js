@@ -3,7 +3,7 @@ import { getDb } from "@/lib/db";
 import { PERMISSIONS, PermissionError, requirePermission } from "@/lib/permissions";
 import { getCached, setCached, makeCacheKey } from "@/lib/apiCache";
 
-// GET - Fetch all products with category info
+// GET - Fetch products
 export async function GET(request) {
   const start = Date.now();
 
@@ -16,8 +16,8 @@ export async function GET(request) {
     const category = searchParams.get("category") || "";
     const status = searchParams.get("status") || "";
 
-    const page = Number(searchParams.get("page") || 1);
-    const limit = Number(searchParams.get("limit") || 50);
+    const page = Math.max(Number(searchParams.get("page") || 1), 1);
+    const limit = Math.min(Number(searchParams.get("limit") || 50), 100);
 
     const offset = (page - 1) * limit;
 
@@ -35,7 +35,6 @@ export async function GET(request) {
 
     console.log("2. Cache miss:", Date.now() - start, "ms");
 
-    // Permission check
     const permissionStart = Date.now();
 
     try {
@@ -55,16 +54,12 @@ export async function GET(request) {
       throw err;
     }
 
-    console.log("3. Permission completed:", Date.now() - permissionStart, "ms");
+    console.log("3. Permission:", Date.now() - permissionStart, "ms");
 
     const db = getDb();
 
-    const queryStart = Date.now();
-
     let query = `
-
       SELECT
-
         p.id,
         p.product_type,
         p.name,
@@ -87,38 +82,33 @@ export async function GET(request) {
       FROM products p
 
       LEFT JOIN categories c
-        ON p.category_id = c.id
+        ON c.id = p.category_id
 
       WHERE 1=1
-
     `;
 
-    const params = [];
+    const args = [];
 
     if (search) {
       query += `
-
         AND (
-
           p.name LIKE ?
           OR p.code LIKE ?
           OR p.brand LIKE ?
-
         )
-
       `;
 
-      const value = `${search}%`;
+      const searchValue = `${search}%`;
 
-      params.push(value, value, value);
+      args.push(searchValue, searchValue, searchValue);
     }
 
     if (category) {
       query += `
-        AND c.name = ?
+        AND p.category_id = ?
       `;
 
-      params.push(category);
+      args.push(category);
     }
 
     if (status === "out_of_stock") {
@@ -137,24 +127,22 @@ export async function GET(request) {
     }
 
     query += `
-
       ORDER BY p.updated_at DESC
 
       LIMIT ?
-
       OFFSET ?
-
     `;
 
-    params.push(limit, offset);
+    args.push(limit, offset);
+
+    const queryStart = Date.now();
 
     const result = await db.execute({
       sql: query,
-
-      args: params,
+      args,
     });
 
-    console.log("4. Database query:", Date.now() - queryStart, "ms");
+    console.log("4. Database:", Date.now() - queryStart, "ms", "Rows:", result.rows.length);
 
     const payload = {
       products: result.rows,
@@ -162,7 +150,7 @@ export async function GET(request) {
       pagination: {
         page,
         limit,
-        count: result.rows.length,
+        returned: result.rows.length,
       },
     };
 
@@ -180,7 +168,6 @@ export async function GET(request) {
       {
         error: "Failed to fetch products",
       },
-
       {
         status: 500,
       },
@@ -188,7 +175,7 @@ export async function GET(request) {
   }
 }
 
-// POST - Create new product
+// POST - Create product
 export async function POST(request) {
   try {
     let user = null;
@@ -197,7 +184,14 @@ export async function POST(request) {
       user = await requirePermission(PERMISSIONS.EDIT_PRODUCTS);
     } catch (err) {
       if (err instanceof PermissionError) {
-        return NextResponse.json({ error: err.message }, { status: err.status });
+        return NextResponse.json(
+          {
+            error: err.message,
+          },
+          {
+            status: err.status,
+          },
+        );
       }
 
       throw err;
@@ -249,9 +243,25 @@ export async function POST(request) {
           created_at,
           updated_at
         )
+
         VALUES
         (
-          ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
+          ?,
           CURRENT_TIMESTAMP,
           CURRENT_TIMESTAMP
         )
@@ -277,9 +287,8 @@ export async function POST(request) {
       ],
     });
 
-    const product_id = Number(result.lastInsertRowid);
+    const productId = Number(result.lastInsertRowid);
 
-    // Log initial stock
     if (qty > 0) {
       await db.execute({
         sql: `
@@ -291,14 +300,21 @@ export async function POST(request) {
             user_id,
             created_at
           )
-          VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+
+          VALUES
+          (
+            ?,
+            ?,
+            ?,
+            ?,
+            CURRENT_TIMESTAMP
+          )
         `,
 
-        args: [product_id, "INITIAL_STOCK", qty, user?.id || null],
+        args: [productId, "INITIAL_STOCK", qty, user?.id || null],
       });
     }
 
-    // Audit log
     if (user) {
       await db.execute({
         sql: `
@@ -310,20 +326,36 @@ export async function POST(request) {
             record_id,
             timestamp
           )
-          VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)
+
+          VALUES
+          (
+            ?,
+            ?,
+            ?,
+            ?,
+            CURRENT_TIMESTAMP
+          )
         `,
 
-        args: [user.id, "CREATE_PRODUCT", "products", product_id],
+        args: [user.id, "CREATE_PRODUCT", "products", productId],
       });
     }
 
     return NextResponse.json({
       success: true,
-      product_id,
+
+      product_id: productId,
     });
   } catch (error) {
-    console.error("Error creating product:", error);
+    console.error("Create product error:", error);
 
-    return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "Failed to create product",
+      },
+      {
+        status: 500,
+      },
+    );
   }
 }
