@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { Package, Edit, PackagePlus, Trash2, MoreVertical, ImageOff } from "lucide-react";
 import { getOptimizedImageUrl } from "@/lib/imageUtils";
-import Button from "@/ui/Button";
+import  Button  from "@/components/ui/button";
 
 /* ————————————————————————————————————————————————
    Helpers

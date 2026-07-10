@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Search, Sun, Moon, Bell, Settings, LogOut, ChevronDown, UserCircle2, CheckCircle2 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import toast from "react-hot-toast";
-import Button from "@/ui/Button";
+import  Button  from "@/components/ui/button";
 
 export default function InventoryHeader({
   onSettingsClick,

@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { ensurePermissionsSeed } from "@/lib/permissions";
 
 /**
  * Initialize permissions and roles
@@ -8,7 +7,6 @@ import { ensurePermissionsSeed } from "@/lib/permissions";
  */
 export async function GET() {
   try {
-    await ensurePermissionsSeed();
 
     return NextResponse.json({
       success: true,

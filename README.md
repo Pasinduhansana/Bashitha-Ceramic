@@ -244,3 +244,40 @@ For issues and questions:
 ---
 
 **Built with ❤️ using Next.js and PostgreSQL**
+
+
+## Permission Seed Setup
+
+The permission seed script initializes the database with default roles, permissions, and role-permission mappings.
+
+### What it creates
+
+- `permissions` table
+  - Stores available system permissions.
+  - Example: `view_products`, `edit_products`, `manage_users`
+
+- `roles` table
+  - Stores default user roles.
+  - Example: `System Admin`, `Owner`, `Staff`
+
+- `role_permissions` table
+  - Maps permissions to roles.
+
+### When to run again
+
+Run the seed script only when:
+
+Adding new permissions
+Adding new roles
+Changing default role-permission mappings
+
+Manual permission changes made directly in the database will apply immediately without running the seed again.
+
+
+
+### Running the Seed
+
+Run this command once after setting up the database:
+
+```bash
+npm run seed:permissions
