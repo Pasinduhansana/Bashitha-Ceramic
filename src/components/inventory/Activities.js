@@ -487,18 +487,15 @@ export default function Activities() {
 
       {/* Activity Timeline */}
       <div className="space-y-6">
-        {loading && (
-          <div className="flex flex-col items-center justify-center py-16">
+        {loading ? (
+          <div className="flex items-center justify-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1fb8a2]"></div>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">Loading activities...</p>
           </div>
-        )}
-        {!loading && groupedSections.length === 0 && (
+        ) : groupedSections.length === 0 ? (
           <div className="text-center py-16">
             <p className="text-sm text-gray-500">No activities found for selected filters.</p>
           </div>
-        )}
-        {!loading &&
+        ) : (
           groupedSections.map((section) => (
             <div key={section.section}>
               {/* Section Header */}
@@ -642,7 +639,8 @@ export default function Activities() {
                 ))}
               </div>
             </div>
-          ))}
+          ))
+        )}
       </div>
     </div>
   );
