@@ -112,15 +112,15 @@ export default function Login() {
       <div className="relative w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 bg-white rounded-3xl overflow-hidden shadow-2xl border border-white/10">
         {/* Image / Brand Side */}
         <div
-          className={`relative hidden md:flex flex-col justify-between p-10 h-[600px] transition-all mx-[2px] my-1 rounded-[22px] overflow-hidden duration-700 ${isLogin ? "order-1" : "order-2"}`}
+          className={`relative hidden md:flex flex-col justify-between p-10 h-150 transition-all mx-0.5 my-1 rounded-[22px] overflow-hidden duration-700 ${isLogin ? "order-1" : "order-2"}`}
         >
           <img src={login_bg.src} alt="Handcrafted ceramics" className="absolute inset-0 w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/50" />
+          <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/25 to-black/50" />
 
           <div className="relative z-10 flex items-center gap-3">
             <span
               className="text-[14px] font-semibold tracking-[0.4em] text-teal-200/70 uppercase"
-              style={{ fontFamily: "'Cormorant Garamond', serif" }}
+              style={{ fontFamily: "'Fraunces', serif" }}
             >
               Bashitha Ceramics
             </span>
@@ -130,7 +130,7 @@ export default function Login() {
           <div className="relative z-10">
             <h2
               className="text-4xl md:text-[42px] text-white leading-[1.15] mb-5 italic"
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 500 }}
+              style={{ fontFamily: "'Fraunces', serif", fontWeight: 500 }}
             >
               Shape Your
               <br />
@@ -160,7 +160,7 @@ export default function Login() {
                   <div className="text-center md:text-left mb-7">
                     <h1
                       className="text-3xl md:text-[34px] text-neutral-900 mb-1.5"
-                      style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}
+                      style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
                     >
                       Welcome Back
                     </h1>
@@ -238,7 +238,7 @@ export default function Login() {
                   <div className="text-center md:text-left mb-6">
                     <h1
                       className="text-3xl md:text-[34px] text-neutral-900 mb-1.5"
-                      style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}
+                      style={{ fontFamily: "'Fraunces', serif", fontWeight: 600 }}
                     >
                       Create Account
                     </h1>

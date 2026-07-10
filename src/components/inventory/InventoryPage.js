@@ -5,7 +5,7 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import InventoryHeader from "./InventoryHeader";
 import InventoryNavigation from "./InventoryNavigation";
-import InventoryFilters from "./InventoryFilters";
+import ProductsComponent from "./Products";
 import ProductsTable from "./ProductsTable";
 import Overview from "./Overview";
 import Activities from "./Activities";
@@ -63,6 +63,7 @@ export default function InventoryPage() {
       fetchProducts();
     }
   }, [activeNav]);
+
 
   // Fetch user permissions
   useEffect(() => {
@@ -275,34 +276,8 @@ export default function InventoryPage() {
             transition={{ duration: 0.25 }}
             className="px-4 sm:px-6 py-4 sm:py-6"
           >
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-3">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">Products</h2>
-                {(searchTerm || categoryFilter) && (
-                  <button
-                    onClick={() => {
-                      setSearchTerm("");
-                      setCategoryFilter("");
-                    }}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
-                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    <span className="hidden sm:inline">Clear Filters</span>
-                  </button>
-                )}
-              </div>
-              <button
-                onClick={() => setShowCreateProduct(true)}
-                className="inline-flex items-center justify-center gap-2 rounded-md bg-[#1fb8a2] px-3 sm:px-4 py-2 sm:py-2 text-xs sm:text-sm font-semibold text-white shadow hover:bg-[#189d8b]"
-              >
-                <Plus className="h-4 w-4" />
-                <span>Add Product</span>
-              </button>
-            </div>
 
-            <InventoryFilters
+            <ProductsComponent
               activeTab={activeTab}
               onTabChange={setActiveTab}
               activeFilter={activeFilter}
