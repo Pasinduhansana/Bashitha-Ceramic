@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { getDb } from "@/lib/db";
 import { signToken } from "@/lib/auth";
+import { getPermissionsForUser } from "@/lib/permissions";
 
 export async function POST(request) {
   try {
@@ -71,12 +72,15 @@ export async function POST(request) {
       roleId: row.role_id ?? row.roleId ?? row.role,
     };
 
+    const permissions = await getPermissionsForUser(user.id, user.roleId);
+
     const token = signToken({
       id: user.id,
       roleId: user.roleId,
       username: user.username,
       email: user.email,
       name: user.name,
+      permissions,
     });
 
     const response = NextResponse.json({

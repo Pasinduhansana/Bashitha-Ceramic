@@ -109,30 +109,55 @@ export async function getUserPermissions(userId, roleId) {
 
   return permissions;
 }
+
 export async function requirePermission(permissionKey) {
   const cookieStore = await cookies();
+
   const token = cookieStore.get("auth_token")?.value || cookieStore.get("token")?.value;
 
   if (!token) {
     throw new PermissionError("Unauthorized", 401);
   }
+
   const payload = verifyToken(token);
 
   if (!payload) {
     throw new PermissionError("Unauthorized", 401);
   }
 
-  const permissions = await getUserPermissions(payload.id, payload.roleId);
+  const allowed = payload.permissions?.includes(permissionKey);
 
-  console.log("Permission check user:", payload.id);
-
-  const cached = getPermissionCache(payload.id);
-
-  console.log("Permission cache:", cached ? "HIT" : "MISS");
-
-  if (!permissions.includes(permissionKey)) {
+  if (!allowed) {
     throw new PermissionError("Forbidden", 403);
   }
 
   return payload;
+}
+
+export async function getPermissionsForUser(userId, roleId) {
+  const db = getDb();
+
+  const result = await db.execute({
+    sql: `
+
+      SELECT p.permission_key
+      FROM role_permissions rp
+      JOIN permissions p
+      ON rp.permission_id = p.id
+      WHERE rp.role_id = ?
+
+      UNION
+
+      SELECT p.permission_key
+      FROM user_permissions up
+      JOIN permissions p
+      ON up.permission_id = p.id
+      WHERE up.user_id = ?
+      AND up.is_allowed = 1
+    `,
+
+    args: [roleId, userId],
+  });
+
+  return result.rows.map((row) => row.permission_key);
 }
