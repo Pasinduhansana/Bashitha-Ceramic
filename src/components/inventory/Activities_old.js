@@ -126,7 +126,31 @@ export default function Activities() {
   const [users, setUsers] = useState([]);
   const [usersLoading, setUsersLoading] = useState(true);
 
-  // Fetch users on mount
+  // Apply date filter client-side
+  const filteredLogs = useMemo(() => {
+    const now = new Date();
+    const tsRange = {
+      Today: { from: new Date(now.getFullYear(), now.getMonth(), now.getDate()), to: now },
+      Yesterday: {
+        from: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1),
+        to: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+      },
+      "Last 7 days": { from: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), to: now },
+      "Last 30 days": { from: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), to: now },
+    };
+
+    const range = tsRange[dateFilter];
+    if (!range) return logs;
+    return logs.filter((l) => {
+      const t = new Date(l.timestamp);
+      return t >= range.from && t <= range.to;
+    });
+  }, [logs, dateFilter]);
+
+  // Group into sections
+  const groupedSections = useMemo(() => groupLogsBySection(filteredLogs), [filteredLogs]);
+
+    // Fetch users on mount
   useEffect(() => {
     async function fetchUsers() {
       try {
@@ -174,30 +198,7 @@ export default function Activities() {
     return () => controller.abort();
   }, [categoryFilter, searchTerm]);
 
-  // Apply date filter client-side
-  const filteredLogs = useMemo(() => {
-    const now = new Date();
-    const tsRange = {
-      Today: { from: new Date(now.getFullYear(), now.getMonth(), now.getDate()), to: now },
-      Yesterday: {
-        from: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1),
-        to: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-      },
-      "Last 7 days": { from: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), to: now },
-      "Last 30 days": { from: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), to: now },
-    };
-
-    const range = tsRange[dateFilter];
-    if (!range) return logs;
-    return logs.filter((l) => {
-      const t = new Date(l.timestamp);
-      return t >= range.from && t <= range.to;
-    });
-  }, [logs, dateFilter]);
-
-  // Group into sections
-  const groupedSections = useMemo(() => groupLogsBySection(filteredLogs), [filteredLogs]);
-
+  
   return (
     <div className="px-6 py-6 min-h-screen bg-white dark:bg-gray-900 transition-colors">
       {/* Header */}

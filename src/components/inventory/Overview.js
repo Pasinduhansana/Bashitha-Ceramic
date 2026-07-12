@@ -14,8 +14,12 @@ import {
   HelpCircle,
   DollarSign,
   CalendarDays,
-  Share2,
-  X,
+  CheckCircle,
+  AlertCircle,
+  XCircle,
+  Package,
+  Users,
+  Wallet,
 } from "lucide-react";
 
 // Helper function to format time difference
@@ -43,10 +47,6 @@ export default function Overview() {
   });
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -138,6 +138,10 @@ export default function Overview() {
       </div>
     );
   }
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-800 transition-colors">

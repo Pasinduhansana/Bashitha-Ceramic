@@ -29,7 +29,7 @@ const categories = [
   { id: 2, name: "Sanitaryware / නල ජල උපකරණ" },
 ];
 
-const formatted = formatBilingualArray(categories, ["name"]);
+
 // Returns: Array with 'name' field split based on preference
 
 // ============================================================================

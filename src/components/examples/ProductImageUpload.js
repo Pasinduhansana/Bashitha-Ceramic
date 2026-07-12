@@ -1,18 +1,10 @@
-/**
- * Example: Image Upload Component for Products
- *
- * This shows how to integrate Cloudinary image upload
- * into your product creation/edit forms
- *
- * Copy and adapt this code for your needs
- */
-
 "use client";
 
 import { useState } from "react";
 import { Camera, X, Upload } from "lucide-react";
 import toast from "react-hot-toast";
 import { uploadImage, getThumbnailUrl, deleteImage } from "@/lib/imageUtils";
+import Image from "next/image";
 
 export default function ProductImageUpload({ value, onChange, onRemove }) {
   const [uploading, setUploading] = useState(false);
@@ -58,7 +50,7 @@ export default function ProductImageUpload({ value, onChange, onRemove }) {
       {preview ? (
         // Show uploaded image
         <div className="relative w-full h-48 rounded-lg border-2 border-gray-200 dark:border-gray-700 overflow-hidden group">
-          <img src={preview} alt="Product" className="w-full h-full object-cover" />
+          <Image src={preview} alt="Product" className="w-full h-full object-cover" fill />
           <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
             <label className="cursor-pointer bg-white dark:bg-gray-800 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
               <input

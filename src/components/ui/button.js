@@ -5,43 +5,40 @@ import { Loader2 } from "lucide-react";
 
 /**
  * Button — premium action component for the Bashitha Ceramics workspace.
+ * All colors/shadows below reference tailwind.config.js tokens
+ * (brand / ink / danger / shadow-glass-*) — no raw hex or arbitrary values.
  *
  * Variants:
- *  - primary    deep teal gradient, glass-edge ring, colored shadow — the one
- *               emphasized action in a view (Add Product, Save, Submit)
- *  - dark       graphite/ink gradient — alternate high-emphasis action when
- *               teal is already used elsewhere on the same screen
- *  - secondary  crisp white, hairline border — standard secondary action
- *  - outline    teal-outlined, transparent fill
- *  - ghost      no border/fill — lowest emphasis, inline with text
- *  - danger     deep rose gradient — destructive actions
- *  - subtle     icon-only, muted — row-level utility icons
+ *  - primary    brand gradient, glass-edge ring, colored shadow
+ *  - dark       ink gradient — alternate high-emphasis action
+ *  - secondary  white, hairline border
+ *  - outline    brand-outlined, transparent fill
+ *  - ghost      no border/fill
+ *  - danger     danger gradient — destructive actions
+ *  - subtle     icon-only, muted
  */
 
 const VARIANTS = {
   primary:
-    "text-white bg-gradient-to-b from-teal-600 to-teal-800 hover:from-teal-600 hover:to-teal-900 " +
-    "shadow-[0_1px_0_0_rgba(255,255,255,0.16)_inset,0_8px_20px_-6px_rgba(11,79,72,0.55)] " +
-    "ring-1 ring-inset ring-white/10 active:from-teal-800 active:to-teal-950 " +
-    "disabled:from-teal-700/50 disabled:to-teal-800/50",
+    "text-white bg-gradient-to-b from-brand-600 to-brand-800 hover:from-brand-600 hover:to-brand-900 " +
+    "shadow-glass-brand ring-1 ring-inset ring-white/10 " +
+    "active:from-brand-800 active:to-brand-950 disabled:from-brand-700/50 disabled:to-brand-800/50",
   dark:
-    "text-white bg-gradient-to-b from-neutral-800 to-neutral-950 hover:from-neutral-800 hover:to-black " +
-    "shadow-[0_1px_0_0_rgba(255,255,255,0.12)_inset,0_8px_20px_-6px_rgba(0,0,0,0.55)] " +
-    "ring-1 ring-inset ring-white/10 active:from-neutral-950 active:to-black " +
-    "disabled:opacity-50",
+    "text-white bg-gradient-to-b from-ink-800 to-ink-950 hover:from-ink-800 hover:to-black " +
+    "shadow-glass-dark ring-1 ring-inset ring-white/10 " +
+    "active:from-ink-950 active:to-black disabled:opacity-50",
   secondary:
-    "text-neutral-700 bg-white border border-neutral-200 shadow-sm hover:bg-neutral-50 hover:border-neutral-300 " +
+    "text-neutral-700 bg-white border border-neutral-200 hover:bg-neutral-50 hover:border-neutral-300 " +
     "active:bg-neutral-100 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 dark:hover:bg-gray-700/60",
   outline:
-    "text-teal-800 bg-transparent border border-teal-700/40 hover:bg-teal-50 hover:border-teal-700 " +
-    "active:bg-teal-100 dark:text-teal-400 dark:border-teal-400/30 dark:hover:bg-teal-400/10",
+    "text-brand-800 bg-transparent border border-brand-700/40 hover:bg-brand-50 hover:border-brand-700 " +
+    "active:bg-brand-100 dark:text-brand-400 dark:border-brand-400/30 dark:hover:bg-brand-400/10",
   ghost:
     "text-neutral-600 bg-transparent hover:bg-neutral-100 hover:text-neutral-900 active:bg-neutral-200 " +
     "dark:text-gray-400 dark:hover:bg-gray-700/60 dark:hover:text-white",
   danger:
-    "text-white bg-gradient-to-b from-rose-600 to-rose-700 hover:from-rose-600 hover:to-rose-800 " +
-    "shadow-[0_1px_0_0_rgba(255,255,255,0.16)_inset,0_8px_20px_-6px_rgba(159,18,57,0.5)] " +
-    "ring-1 ring-inset ring-white/10 active:from-rose-800 active:to-rose-900 disabled:opacity-50",
+    "text-white bg-gradient-to-b from-danger-600 to-danger-700 hover:from-danger-600 hover:to-danger-700 " +
+    "shadow-glass-danger ring-1 ring-inset ring-white/10 active:from-danger-700 active:to-danger-700 disabled:opacity-50",
   subtle:
     "text-neutral-400 bg-transparent hover:bg-neutral-100 hover:text-neutral-700 active:bg-neutral-200 " +
     "dark:text-gray-500 dark:hover:bg-gray-700/60 dark:hover:text-gray-200",
@@ -49,9 +46,9 @@ const VARIANTS = {
 
 const SIZES = {
   sm: "h-8 px-3 text-xs gap-1.5 rounded-lg",
-  md: "h-10 px-4 text-[13px] gap-2 rounded-xl",
-  lg: "h-11 px-5 text-sm gap-2 rounded-xl",
-  icon: "h-9 w-9 rounded-xl",
+  md: "h-9 px-4 text-[13px] gap-2 rounded-xl",
+  lg: "h-10 px-5 text-sm gap-2 rounded-xl",
+  icon: "h-8 w-8 rounded-lg",
 };
 
 const Button = forwardRef(function Button(
@@ -77,8 +74,8 @@ const Button = forwardRef(function Button(
       disabled={disabled || loading}
       className={[
         "relative inline-flex items-center justify-center font-semibold tracking-wide",
-        "transition-all duration-150 select-none",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white",
+        "transition-colors duration-150 select-none",
+        "focus-visible:outline-none focus-visible:border-brand-600",
         "disabled:cursor-not-allowed",
         VARIANTS[variant],
         SIZES[size],

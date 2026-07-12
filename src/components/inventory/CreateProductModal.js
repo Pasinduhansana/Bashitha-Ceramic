@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Loader2, CheckCircle2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 export default function CreateProductModal({ isOpen, categories = [], onClose, onProductCreated }) {
   const [saving, setSaving] = useState(false);
@@ -215,7 +216,7 @@ export default function CreateProductModal({ isOpen, categories = [], onClose, o
                     <div className="mt-1 flex items-center gap-4">
                       {imagePreview && (
                         <div className="relative h-20 w-20 rounded-md border  border-gray-200 overflow-hidden">
-                          <img src={imagePreview} alt="Preview" className="h-full w-full object-cover" />
+                          <Image src={imagePreview} alt="Preview" className="h-full w-full object-cover" fill />
                         </div>
                       )}
                       <input

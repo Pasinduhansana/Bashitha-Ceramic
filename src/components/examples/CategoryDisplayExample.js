@@ -21,27 +21,6 @@ export default function CategoryDisplayExample() {
   const [loading, setLoading] = useState(true);
   const [currentLanguage, setCurrentLanguage] = useState("english");
 
-  useEffect(() => {
-    // Set initial language
-    setCurrentLanguage(getDisplayLanguage());
-
-    // Fetch categories
-    fetchCategories();
-
-    // Listen for language preference changes
-    const handleLanguageChange = () => {
-      setCurrentLanguage(getDisplayLanguage());
-      // Re-fetch to apply new language preference
-      fetchCategories();
-    };
-
-    window.addEventListener("displayLanguageChange", handleLanguageChange);
-
-    return () => {
-      window.removeEventListener("displayLanguageChange", handleLanguageChange);
-    };
-  }, []);
-
   const fetchCategories = async () => {
     setLoading(true);
     try {
@@ -77,6 +56,27 @@ export default function CategoryDisplayExample() {
       </div>
     );
   }
+
+  useEffect(() => {
+    // Set initial language
+    setCurrentLanguage(getDisplayLanguage());
+
+    // Fetch categories
+    fetchCategories();
+
+    // Listen for language preference changes
+    const handleLanguageChange = () => {
+      setCurrentLanguage(getDisplayLanguage());
+      // Re-fetch to apply new language preference
+      fetchCategories();
+    };
+
+    window.addEventListener("displayLanguageChange", handleLanguageChange);
+
+    return () => {
+      window.removeEventListener("displayLanguageChange", handleLanguageChange);
+    };
+  }, []);
 
   return (
     <div className="p-6">
@@ -125,29 +125,3 @@ const displayed = "${categories[0]?.name || "Tiles"}";
   );
 }
 
-/**
- * USAGE IN OTHER COMPONENTS:
- *
- * 1. Simple text splitting:
- * ```
- * import { splitBilingualText } from "@/lib/languageUtils";
- *
- * const categoryName = splitBilingualText("Tiles / ටයිල්");
- * ```
- *
- * 2. Array formatting:
- * ```
- * import { formatBilingualArray } from "@/lib/languageUtils";
- *
- * const formatted = formatBilingualArray(categories, ['name', 'description']);
- * ```
- *
- * 3. React to preference changes:
- * ```
- * useEffect(() => {
- *   const handler = () => fetchData();
- *   window.addEventListener('displayLanguageChange', handler);
- *   return () => window.removeEventListener('displayLanguageChange', handler);
- * }, []);
- * ```
- */

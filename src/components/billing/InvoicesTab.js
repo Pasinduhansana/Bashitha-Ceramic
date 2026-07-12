@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback  } from "react";
 import { Plus, Search, Eye, Printer, Download, Edit, Trash2, CheckCircle, Clock, XCircle, Filter, Calendar } from "lucide-react";
 import CreateInvoiceModal from "./CreateInvoiceModal";
 
@@ -12,12 +12,7 @@ export default function InvoicesTab() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
 
-  // Fetch invoices from API
-  useEffect(() => {
-    fetchInvoices();
-  }, [statusFilter, searchTerm]);
-
-  const fetchInvoices = async () => {
+  const fetchInvoices = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams();
@@ -37,7 +32,7 @@ export default function InvoicesTab() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter, searchTerm]);
 
   const handleDelete = async (invoiceId) => {
     if (!confirm("Are you sure you want to delete this invoice? This will restore the stock.")) return;
@@ -74,6 +69,11 @@ export default function InvoicesTab() {
   };
 
   const filteredInvoices = invoices;
+
+  // Fetch invoices from API
+  useEffect(() => {
+    fetchInvoices();
+  }, [fetchInvoices]);
 
   return (
     <div className="space-y-6">

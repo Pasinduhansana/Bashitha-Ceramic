@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Search, Sun, Moon, Bell, Settings, LogOut, ChevronDown, UserCircle2, CheckCircle2 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import toast from "react-hot-toast";
-import  Button  from "@/components/ui/button";
+import Button from "@/components/ui/button";
 
 export default function InventoryHeader({
   onSettingsClick,
@@ -17,12 +17,11 @@ export default function InventoryHeader({
   onProductSelect,
 }) {
   const [themeOpen, setThemeOpen] = useState(false);
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState(typeof window !== "undefined" && document.documentElement.classList.contains("dark") ? "dark" : "light");
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-
   const filteredProducts = searchTerm.trim()
     ? products
         .filter(
@@ -33,12 +32,6 @@ export default function InventoryHeader({
         )
         .slice(0, 5)
     : [];
-
-  useEffect(() => {
-    const isDark = document.documentElement.classList.contains("dark");
-    setTheme(isDark ? "dark" : "light");
-    fetchNotifications();
-  }, []);
 
   const fetchNotifications = async () => {
     try {
@@ -81,7 +74,12 @@ export default function InventoryHeader({
 
   const getInitials = (name) => {
     if (!name) return "?";
-    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   const NOTIF_COLORS = {
@@ -137,6 +135,10 @@ export default function InventoryHeader({
     );
   };
 
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
   return (
     <header className="bg-white dark:bg-gray-900 border-b border-neutral-200 dark:border-gray-800 px-4 sm:px-6 py-3 transition-colors">
       {/* Desktop */}
@@ -144,10 +146,7 @@ export default function InventoryHeader({
         <div className="flex items-center gap-5 shrink-0">
           {/* Brand mark */}
           <div className="flex items-baseline gap-1.5">
-            <span
-              className="text-lg text-teal-800 dark:text-teal-400 italic"
-              style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}
-            >
+            <span className="text-lg text-teal-800 dark:text-teal-400 italic" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
               Bashitha
             </span>
             <span className="text-[11px] font-semibold tracking-[0.18em] text-neutral-500 dark:text-gray-400 uppercase">Ceramics</span>
@@ -232,7 +231,9 @@ export default function InventoryHeader({
                   </div>
                   <div className="flex-shrink-0 text-right">
                     <p className="text-xs font-bold text-neutral-900 dark:text-white">${product.selling_price || 0}</p>
-                    <p className="text-[11px] text-neutral-400">{product.qty || 0} {product.unit || "Pcs"}</p>
+                    <p className="text-[11px] text-neutral-400">
+                      {product.qty || 0} {product.unit || "Pcs"}
+                    </p>
                   </div>
                 </button>
               ))}
@@ -283,7 +284,9 @@ export default function InventoryHeader({
                         {notifications.map((notification) => (
                           <div key={notification.id} className="px-4 py-3 hover:bg-neutral-50 dark:hover:bg-gray-700/40 transition-colors group">
                             <div className="flex gap-3 items-start">
-                              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold text-[11px] ${getNotificationColor(notification.action)}`}>
+                              <div
+                                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold text-[11px] ${getNotificationColor(notification.action)}`}
+                              >
                                 {getInitials(notification.user_name)}
                               </div>
                               <div className="flex-1 min-w-0">
@@ -400,7 +403,9 @@ export default function InventoryHeader({
                         {notifications.map((notification) => (
                           <div key={notification.id} className="px-4 py-3">
                             <div className="flex gap-3 items-start">
-                              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold text-[11px] ${getNotificationColor(notification.action)}`}>
+                              <div
+                                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold text-[11px] ${getNotificationColor(notification.action)}`}
+                              >
                                 {getInitials(notification.user_name)}
                               </div>
                               <div className="flex-1 min-w-0">
@@ -409,7 +414,11 @@ export default function InventoryHeader({
                                   {formatNotificationTime(notification.timestamp)} · {notification.user_name || "Unknown"}
                                 </p>
                               </div>
-                              <button onClick={(e) => markAsRead(notification.id, e)} className="flex-shrink-0 p-1 text-neutral-300 hover:text-teal-700 rounded-md transition-colors" title="Mark as read">
+                              <button
+                                onClick={(e) => markAsRead(notification.id, e)}
+                                className="flex-shrink-0 p-1 text-neutral-300 hover:text-teal-700 rounded-md transition-colors"
+                                title="Mark as read"
+                              >
                                 <CheckCircle2 className="h-4 w-4" />
                               </button>
                             </div>

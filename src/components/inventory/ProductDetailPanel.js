@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { X, Camera, Loader2, CheckCircle2, AlertTriangle, Package, Tag, Layers, Ruler, DollarSign, CircleDashed, ShieldCheck } from "lucide-react";
+import Image from "next/image";
 import toast from "react-hot-toast";
 import { uploadImage, getOptimizedImageUrl } from "@/lib/imageUtils";
 
@@ -66,13 +67,6 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState(defaultForm);
-
-  useEffect(() => {
-    if (product && isOpen) {
-      setForm({ ...defaultForm, ...product, reorder_level: product.reorder_level ?? "", category_id: product.category_id ?? "" });
-      setEditing(mode === "edit");
-    }
-  }, [product, mode, isOpen]);
 
   const stockStatus = useMemo(() => {
     if (!product) return { text: "", color: "text-gray-700", bg: "bg-gray-50" };
@@ -151,6 +145,13 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
 
   if (!product) return null;
 
+  useEffect(() => {
+    if (product && isOpen) {
+      setForm({ ...defaultForm, ...product, reorder_level: product.reorder_level ?? "", category_id: product.category_id ?? "" });
+      setEditing(mode === "edit");
+    }
+  }, [product, mode, isOpen]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -176,10 +177,12 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     {form.photo_url ? (
-                      <img
+                      <Image
                         src={getOptimizedImageUrl(form.photo_url, { width: 80, height: 80 })}
                         alt={product.name}
                         className="h-11 w-11 rounded-md object-cover border-2 border-white/30"
+                        width={80}
+                        height={80}
                       />
                     ) : (
                       <div className="flex h-11 w-11 items-center justify-center rounded-md bg-white/15">
@@ -215,9 +218,11 @@ export default function ProductDetailPanel({ product, isOpen, mode = "view", cat
                     <div className="rounded-md sm:rounded-md border border-gray-200 bg-white shadow-sm">
                       <div className="relative h-40 sm:h-64 w-full overflow-hidden rounded-t-lg sm:rounded-t-2xl bg-gradient-to-br from-gray-100 to-white">
                         {form.photo_url ? (
-                          <img
-                            src={getOptimizedImageUrl(form.photo_url, { width: 1200, height: 800 })}
+                          <Image
+                            src={getOptimizedImageUrl(form.photo_url)}
                             alt={product.name}
+                            width={1200}
+                            height={800}
                             className="h-full w-full object-contain"
                           />
                         ) : (

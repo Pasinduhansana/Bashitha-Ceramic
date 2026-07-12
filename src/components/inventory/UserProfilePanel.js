@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, User, Mail, Phone, MapPin, Briefcase, Calendar, Save, Camera } from "lucide-react";
+import Image from "next/image";
 import toast from "react-hot-toast";
 
 export default function UserProfilePanel({ isOpen, onClose }) {
@@ -17,12 +18,6 @@ export default function UserProfilePanel({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchProfile();
-    }
-  }, [isOpen]);
 
   const fetchProfile = async () => {
     setLoading(true);
@@ -129,6 +124,12 @@ export default function UserProfilePanel({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
+  useEffect(() => {
+    if (isOpen) {
+      fetchProfile();
+    }
+  }, [isOpen]);
+
   return (
     <>
       {/* Backdrop */}
@@ -157,10 +158,12 @@ export default function UserProfilePanel({ isOpen, onClose }) {
             <div className="flex flex-col items-center gap-4 pb-6 border-b border-gray-200 dark:border-gray-700">
               <div className="relative">
                 {profile.avatar ? (
-                  <img
+                  <Image
                     src={profile.avatar}
                     alt={profile.name}
-                    className="w-24 h-24 rounded-full object-cover shadow-lg border-4 border-white dark:border-gray-800"
+                    width={96}
+                    height={96}
+                    className="rounded-full object-cover shadow-lg border-4 border-white dark:border-gray-800"
                   />
                 ) : (
                   <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#1fb8a2] to-[#17a694] flex items-center justify-center text-white text-3xl font-bold shadow-lg">

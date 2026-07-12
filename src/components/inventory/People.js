@@ -21,6 +21,7 @@ import {
   List,
   Grid3x3,
 } from "lucide-react";
+import Image from "next/image";
 import toast from "react-hot-toast";
 
 export default function People() {
@@ -39,25 +40,6 @@ export default function People() {
   const [viewMode, setViewMode] = useState("list"); // 'list' or 'tile'
 
   const didInitFetchRef = useRef(false);
-
-  useEffect(() => {
-    // Keep filter-driven refetches, but avoid the StrictMode “initial double-run” only.
-    if (!didInitFetchRef.current) {
-      didInitFetchRef.current = true;
-
-      fetchStats();
-      fetchUsers();
-      fetchRoles();
-      return;
-    }
-
-    // On subsequent renders caused by filter/search changes, refetch normally.
-    fetchStats();
-    fetchUsers();
-    fetchRoles();
-  }, [statusFilter, roleFilter, searchTerm]);
-
-
 
   const fetchRoles = async () => {
     try {
@@ -278,6 +260,23 @@ export default function People() {
 
     return <span className={`inline-flex items-center rounded px-2.5 py-1 text-xs font-medium capitalize ${colorClass}`}>{role_name || "user"}</span>;
   };
+
+  useEffect(() => {
+    // Keep filter-driven refetches, but avoid the StrictMode “initial double-run” only.
+    if (!didInitFetchRef.current) {
+      didInitFetchRef.current = true;
+
+      fetchStats();
+      fetchUsers();
+      fetchRoles();
+      return;
+    }
+
+    // On subsequent renders caused by filter/search changes, refetch normally.
+    fetchStats();
+    fetchUsers();
+    fetchRoles();
+  }, [statusFilter, roleFilter, searchTerm]);
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors px-4 sm:px-6 py-4 sm:py-6">
@@ -528,7 +527,7 @@ export default function People() {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             {user.img_url ? (
-                              <img src={user.img_url} alt={user.name} className="h-10 w-10 shrink-0 rounded-full object-cover" />
+                              <Image src={user.img_url} alt={user.name} width={40} height={40} className="shrink-0 rounded-full object-cover" />
                             ) : (
                               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1fb8a2] to-[#189d8b] text-white font-semibold text-sm">
                                 {user.name.charAt(0).toUpperCase()}
@@ -580,7 +579,7 @@ export default function People() {
                     {/* Avatar and Name */}
                     <div className="flex items-start gap-3 mb-3">
                       {user.img_url ? (
-                        <img src={user.img_url} alt={user.name} className="h-12 w-12 shrink-0 rounded-full object-cover" />
+                        <Image src={user.img_url} alt={user.name} width={48} height={48} className="shrink-0 rounded-full object-cover" />
                       ) : (
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#1fb8a2] to-[#189d8b] text-white font-bold text-lg">
                           {user.name.charAt(0).toUpperCase()}
@@ -661,7 +660,7 @@ export default function People() {
                 {/* Avatar and Name */}
                 <div className="flex flex-col items-center mb-6">
                   {selectedUser.img_url ? (
-                    <img src={selectedUser.img_url} alt={selectedUser.name} className="h-20 w-20 rounded-full object-cover mb-3" />
+                    <Image src={selectedUser.img_url} alt={selectedUser.name} width={80} height={80} className="rounded-full object-cover mb-3" />
                   ) : (
                     <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-[#1fb8a2] to-[#189d8b] text-white font-bold text-2xl mb-3">
                       {selectedUser.name.charAt(0).toUpperCase()}

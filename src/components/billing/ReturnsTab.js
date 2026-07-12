@@ -14,10 +14,6 @@ export default function ReturnsTab({ userPermissions = [] }) {
 
   const canApproveReturns = userPermissions.includes("approve_returns");
 
-  useEffect(() => {
-    fetchReturns();
-  }, [statusFilter, searchTerm]);
-
   const fetchReturns = async () => {
     try {
       setLoading(true);
@@ -106,13 +102,6 @@ export default function ReturnsTab({ userPermissions = [] }) {
 
   const filteredReturns = returns;
 
-  // Fetch pending approvals if user can approve
-  useEffect(() => {
-    if (canApproveReturns) {
-      fetchPendingReturnApprovals();
-    }
-  }, [canApproveReturns]);
-
   const fetchPendingReturnApprovals = async () => {
     try {
       const response = await fetch("/api/returns?status=pending");
@@ -157,6 +146,17 @@ export default function ReturnsTab({ userPermissions = [] }) {
       console.error("Error rejecting return:", error);
     }
   };
+
+  // Fetch pending approvals if user can approve
+  useEffect(() => {
+    if (canApproveReturns) {
+      fetchPendingReturnApprovals();
+    }
+  }, [canApproveReturns]);
+
+  useEffect(() => {
+    fetchReturns();
+  }, [statusFilter, searchTerm]);
 
   return (
     <div className={`${canApproveReturns ? "grid grid-cols-1 lg:grid-cols-3 gap-6" : "space-y-6"}`}>

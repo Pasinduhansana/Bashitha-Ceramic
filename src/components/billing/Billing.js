@@ -9,6 +9,7 @@ import ReturnsTab from "./ReturnsTab";
 import CustomersTab from "./CustomersTab";
 import AuditLogTab from "./AuditLogTab";
 
+
 export default function Billing({ userPermissions = [] }) {
   const [activeTab, setActiveTab] = useState("invoices");
 

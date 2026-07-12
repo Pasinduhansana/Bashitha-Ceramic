@@ -6,9 +6,10 @@
 
 import { useState, useEffect } from "react";
 import { X, Package, Plus, Minus, Save, Clock, User, TrendingUp, TrendingDown } from "lucide-react";
+
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
-import  Button  from "@/components/ui/button";
+import Button from "@/components/ui/button";
 
 const STATUS_STYLES = {
   out: { label: "Out of Stock", text: "text-rose-700", bg: "bg-rose-50", dot: "bg-rose-500" },
@@ -37,10 +38,6 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
   const [adjustmentType, setAdjustmentType] = useState("add");
   const [quantity, setQuantity] = useState("");
   const [reason, setReason] = useState("");
-
-  useEffect(() => {
-    if (isOpen && product) fetchStockHistory();
-  }, [isOpen, product]);
 
   const fetchStockHistory = async () => {
     setLoadingHistory(true);
@@ -107,6 +104,10 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
 
   const status = product ? getStockStatus() : null;
 
+  useEffect(() => {
+    if (isOpen && product) fetchStockHistory();
+  }, [isOpen, product]);
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -155,7 +156,9 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                     <h3 className="text-[15px] font-semibold text-neutral-900 leading-snug">{product.name}</h3>
                     <p className="text-xs text-neutral-500 mt-0.5 line-clamp-2">{product.description || "No description provided"}</p>
                     <div className="flex items-center gap-2 mt-2.5">
-                      <span className={`inline-flex items-center gap-1.5 rounded-full ${status.bg} ${status.text} px-2.5 py-1 text-[11px] font-semibold`}>
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full ${status.bg} ${status.text} px-2.5 py-1 text-[11px] font-semibold`}
+                      >
                         <span className={`h-1.5 w-1.5 rounded-full ${status.dot}`} />
                         {status.label}
                       </span>
@@ -177,10 +180,7 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                   </div>
                   <div className="rounded-xl bg-neutral-50 border border-neutral-100 p-3">
                     <p className="text-[10px] uppercase tracking-wide text-neutral-400 mb-1">Price</p>
-                    <p
-                      className="text-lg text-teal-800 italic"
-                      style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}
-                    >
+                    <p className="text-lg text-teal-800 italic" style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600 }}>
                       ${product.selling_price || 0}
                     </p>
                   </div>
@@ -275,8 +275,13 @@ export default function InventoryPanel({ product, isOpen, onClose, onUpdate }) {
                 ) : (
                   <div className="space-y-2.5 max-h-[380px] overflow-y-auto pr-1">
                     {stockHistory.map((log) => (
-                      <div key={log.id} className="flex items-start gap-3 rounded-xl border border-neutral-100 bg-neutral-50/60 p-3 hover:bg-neutral-50 transition-colors">
-                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${log.qty > 0 ? "bg-emerald-50" : "bg-rose-50"}`}>
+                      <div
+                        key={log.id}
+                        className="flex items-start gap-3 rounded-xl border border-neutral-100 bg-neutral-50/60 p-3 hover:bg-neutral-50 transition-colors"
+                      >
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${log.qty > 0 ? "bg-emerald-50" : "bg-rose-50"}`}
+                        >
                           {getActionIcon(log.action)}
                         </div>
                         <div className="flex-1 min-w-0">

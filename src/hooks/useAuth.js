@@ -7,27 +7,6 @@ export default function useAuth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch("/api/auth/me", { credentials: "include" });
-        if (!res.ok) {
-          setUser(null);
-          return;
-        }
-        const data = await res.json();
-        setUser(data.user || null);
-      } catch (err) {
-        console.error("Failed to fetch user", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
-
   const login = async (credentials) => {
     setLoading(true);
     setError(null);
@@ -63,5 +42,26 @@ export default function useAuth() {
     setUser(null);
   };
 
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch("/api/auth/me", { credentials: "include" });
+        if (!res.ok) {
+          setUser(null);
+          return;
+        }
+        const data = await res.json();
+        setUser(data.user || null);
+      } catch (err) {
+        console.error("Failed to fetch user", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+  
   return { user, login, logout, loading, error };
 }

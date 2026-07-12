@@ -14,10 +14,6 @@ export default function PurchasesTab({ userPermissions = [] }) {
 
   const canApprovePurchases = userPermissions.includes("approve_purchases");
 
-  useEffect(() => {
-    fetchPurchases();
-  }, [searchTerm]);
-
   const fetchPurchases = async () => {
     try {
       setLoading(true);
@@ -48,13 +44,6 @@ export default function PurchasesTab({ userPermissions = [] }) {
   };
 
   const filteredPurchases = purchases;
-
-  // Fetch pending approvals if user can approve
-  useEffect(() => {
-    if (canApprovePurchases) {
-      fetchPendingApprovals();
-    }
-  }, [canApprovePurchases]);
 
   const fetchPendingApprovals = async () => {
     try {
@@ -96,6 +85,17 @@ export default function PurchasesTab({ userPermissions = [] }) {
       console.error("Error rejecting purchase:", error);
     }
   };
+
+  // Fetch pending approvals if user can approve
+  useEffect(() => {
+    if (canApprovePurchases) {
+      fetchPendingApprovals();
+    }
+  }, [canApprovePurchases]);
+
+  useEffect(() => {
+    fetchPurchases();
+  }, [searchTerm]);
 
   return (
     <div className={`${canApprovePurchases ? "grid grid-cols-1 lg:grid-cols-3 gap-6" : "space-y-6"}`}>

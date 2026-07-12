@@ -10,10 +10,6 @@ export default function CustomersTab() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState(null);
 
-  useEffect(() => {
-    fetchCustomers();
-  }, [searchTerm]);
-
   const fetchCustomers = async () => {
     try {
       setLoading(true);
@@ -49,6 +45,10 @@ export default function CustomersTab() {
   };
 
   const filteredCustomers = customers;
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [searchTerm]);
 
   return (
     <div className="space-y-6">

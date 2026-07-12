@@ -27,9 +27,6 @@ export default function AuditLogTab() {
   const [actionFilter, setActionFilter] = useState("all");
   const [dateFilter, setDateFilter] = useState("all");
 
-  useEffect(() => {
-    fetchLogs();
-  }, [actionFilter, searchTerm]);
 
   const fetchLogs = async () => {
     try {
@@ -79,6 +76,10 @@ export default function AuditLogTab() {
   };
 
   const filteredLogs = logs;
+
+    useEffect(() => {
+    fetchLogs();
+  }, [actionFilter, searchTerm]);
 
   return (
     <div className="space-y-6">

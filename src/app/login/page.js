@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import useAuth from "@/hooks/useAuth";
 import login_bg from "../../../public/wallpapers/login-bg.jpg";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function Login() {
   const router = useRouter();
@@ -107,14 +108,14 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-black  p-4 font-sans overflow-hidden">
-      <img src={login_bg.src} alt="Handcrafted ceramics" className="absolute inset-0 w-full h-full object-fill blur-xl " />
+      <Image src={login_bg.src} alt="Handcrafted ceramics" className="absolute inset-0 w-full h-full object-fill blur-xl "  fill />
 
       <div className="relative w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 bg-white rounded-3xl overflow-hidden shadow-2xl border border-white/10">
         {/* Image / Brand Side */}
         <div
           className={`relative hidden md:flex flex-col justify-between p-10 h-150 transition-all mx-0.5 my-1 rounded-[22px] overflow-hidden duration-700 ${isLogin ? "order-1" : "order-2"}`}
         >
-          <img src={login_bg.src} alt="Handcrafted ceramics" className="absolute inset-0 w-full h-full object-cover" />
+          <Image src={login_bg.src} alt="Handcrafted ceramics" className="absolute inset-0 w-full h-full object-cover"  fill/>
           <div className="absolute inset-0 bg-linear-to-t from-black/85 via-black/25 to-black/50" />
 
           <div className="relative z-10 flex items-center gap-3">
@@ -220,7 +221,7 @@ export default function Login() {
                   </form>
 
                   <p className="text-center text-[13px] text-neutral-500 mt-7">
-                    Don't have an account?{" "}
+                    Don&apos;t have an account?
                     <button onClick={() => setIsLogin(false)} className="text-teal-700 font-semibold hover:text-teal-800">
                       Sign Up
                     </button>

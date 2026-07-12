@@ -9,7 +9,6 @@ import ProductsComponent from "./Products";
 import ProductsTable from "./ProductsTable";
 import Overview from "./Overview";
 import Activities from "./Activities";
-import Settings from "./Settings";
 import People from "./People";
 import Billing from "../billing/Billing";
 import Report from "./Report";
@@ -17,7 +16,7 @@ import InventoryPanel from "./InventoryPanel";
 import ProductDetailPanel from "./ProductDetailPanel";
 import UserProfilePanel from "./UserProfilePanel";
 import CreateProductModal from "./CreateProductModal";
-import { Plus } from "lucide-react";
+import { Settings, CheckCircle, AlertCircle, XCircle, Package, Users, Wallet } from "lucide-react";
 import toast from "react-hot-toast";
 
 // Configure toast defaults
@@ -49,36 +48,10 @@ export default function InventoryPage() {
   const itemsPerPage = 20;
 
   const didFetchCategories = useRef(false);
-  // Fetch categories on mount (avoid double fetch in dev/StrictMode)
-  useEffect(() => {
-    if (didFetchCategories.current) return;
-    didFetchCategories.current = true;
-    fetchCategories();
-  }, []);
 
-
-  // Fetch products from API
-  useEffect(() => {
-    if (activeNav === "Products") {
-      fetchProducts();
-    }
-  }, [activeNav]);
-
-
-  // Fetch user permissions
-  useEffect(() => {
-    async function fetchPermissions() {
-      try {
-        const res = await fetch("/api/auth/me");
-        const data = await res.json();
-        // Assume API returns { user: { permissions: [...] } }
-        setUserPermissions(data.user?.permissions || []);
-      } catch (err) {
-        setUserPermissions([]);
-      }
-    }
-    fetchPermissions();
-  }, []);
+  const fetchProducts = async () => {
+    return fetchProductsOnce();
+  };
 
   const fetchCategories = async () => {
     try {
@@ -119,17 +92,6 @@ export default function InventoryPage() {
       return inFlight;
     };
   })();
-
-  const fetchProducts = async () => {
-    return fetchProductsOnce();
-  };
-
-  // Fetch products once when Products tab is active
-  useEffect(() => {
-    if (activeNav === "Products") {
-      fetchProducts();
-    }
-  }, [activeNav]);
 
   const filteredProducts = useMemo(() => {
     let list = products;
@@ -233,6 +195,42 @@ export default function InventoryPage() {
     );
   };
 
+  // Fetch categories on mount (avoid double fetch in dev/StrictMode)
+  useEffect(() => {
+    if (didFetchCategories.current) return;
+    didFetchCategories.current = true;
+    fetchCategories();
+  }, []);
+
+  // Fetch products from API
+  useEffect(() => {
+    if (activeNav === "Products") {
+      fetchProducts();
+    }
+  }, [activeNav]);
+
+  // Fetch user permissions
+  useEffect(() => {
+    async function fetchPermissions() {
+      try {
+        const res = await fetch("/api/auth/me");
+        const data = await res.json();
+        // Assume API returns { user: { permissions: [...] } }
+        setUserPermissions(data.user?.permissions || []);
+      } catch (err) {
+        setUserPermissions([]);
+      }
+    }
+    fetchPermissions();
+  }, []);
+
+  // Fetch products once when Products tab is active
+  useEffect(() => {
+    if (activeNav === "Products") {
+      fetchProducts();
+    }
+  }, [activeNav]);
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors" suppressHydrationWarning>
       <InventoryHeader
@@ -276,7 +274,6 @@ export default function InventoryPage() {
             transition={{ duration: 0.25 }}
             className="px-4 sm:px-6 py-4 sm:py-6"
           >
-
             <ProductsComponent
               activeTab={activeTab}
               onTabChange={setActiveTab}

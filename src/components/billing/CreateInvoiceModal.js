@@ -19,20 +19,24 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }) {
     existing_id: null, // Track if using existing customer
   });
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState(() => ({
     invoice_no: `INV-${Date.now()}`,
     items: [],
     discount: 0,
     payment_method: "cash",
-  });
+  }));
 
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchProducts();
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch("/api/products");
+      const data = await res.json();
+      setProducts(data.products || []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
     }
-  }, [isOpen]);
+  };
 
   // Search customers by mobile number
   const searchCustomers = async (contact) => {
@@ -69,16 +73,6 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }) {
       existing_id: customer.id,
     });
     setShowSearchResults(false);
-  };
-
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch("/api/products");
-      const data = await res.json();
-      setProducts(data.products || []);
-    } catch (error) {
-      console.error("Error fetching products:", error);
-    }
   };
 
   const addItem = (product) => {
@@ -198,12 +192,18 @@ export default function CreateInvoiceModal({ isOpen, onClose, onSuccess }) {
   };
 
   const filteredProducts = products.filter(
-    (p) => p.name.toLowerCase().includes(searchProduct.toLowerCase()) || p.code?.toLowerCase().includes(searchProduct.toLowerCase())
+    (p) => p.name.toLowerCase().includes(searchProduct.toLowerCase()) || p.code?.toLowerCase().includes(searchProduct.toLowerCase()),
   );
 
   const { subtotal, discount, total } = calculateTotals();
 
   if (!isOpen) return null;
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchProducts();
+    }
+  }, [isOpen]);
 
   return (
     <AnimatePresence>

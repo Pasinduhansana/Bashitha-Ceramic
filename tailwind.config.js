@@ -1,99 +1,82 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: ["class"],
+  darkMode: "class",
   content: [
-    "./src/pages/**/*.{ts,tsx,js,jsx}",
     "./src/components/**/*.{ts,tsx,js,jsx}",
     "./src/app/**/*.{ts,tsx,js,jsx}",
     "./src/**/*.{ts,tsx,js,jsx}",
   ],
-  prefix: "",
   theme: {
     container: {
       center: true,
       padding: "2rem",
-      screens: {
-        "2xl": "1400px",
-      },
+      screens: { "2xl": "1400px" },
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
-        "roboto-condensed": ["var(--font-roboto-condensed)", "sans-serif"],
+        sans: ["var(--font-inter)", "Inter", "sans-serif"],
+        serif: ["var(--font-fraunces)", "Fraunces", "serif"],
       },
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
-        primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+        // Brand — deep teal. Primary actions, active nav, links, focus borders.
+        brand: {
+          50: "#f0fdfa",
+          100: "#ccfbf1",
+          200: "#99f6e4",
+          400: "#2dd4bf",
+          600: "#0d9488",
+          700: "#0f766e",
+          800: "#115e59",
+          900: "#134e4a",
+          950: "#042f2e",
         },
-        secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+        // Ink — graphite/near-black scale, used for the "dark" button variant
+        // and any high-emphasis neutral surface.
+        ink: {
+          700: "#404040",
+          800: "#262626",
+          900: "#171717",
+          950: "#0a0a0a",
         },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+        // Neutral — extra step not in default Tailwind scale, used for
+        // unfilled stock-tier segments.
+        neutral: {
+          200: "#e5e5e5",
         },
+        // Status — semantic names instead of raw palette colors
         success: {
-          DEFAULT: "hsl(var(--success))",
-          foreground: "hsl(var(--success-foreground))",
+          50: "#ecfdf5",
+          500: "#10b981",
+          600: "#059669",
+          700: "#047857",
         },
         warning: {
-          DEFAULT: "hsl(var(--warning))",
-          foreground: "hsl(var(--warning-foreground))",
+          50: "#fffbeb",
+          500: "#f59e0b",
+          600: "#d97706",
+          700: "#b45309",
         },
-        muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
-        },
-        accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
-        },
-        popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
-        },
-        card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
-        },
-        sidebar: {
-          DEFAULT: "hsl(var(--sidebar-background))",
-          foreground: "hsl(var(--sidebar-foreground))",
-          primary: "hsl(var(--sidebar-primary))",
-          "primary-foreground": "hsl(var(--sidebar-primary-foreground))",
-          accent: "hsl(var(--sidebar-accent))",
-          "accent-foreground": "hsl(var(--sidebar-accent-foreground))",
-          border: "hsl(var(--sidebar-border))",
-          ring: "hsl(var(--sidebar-ring))",
+        danger: {
+          50: "#fff1f2",
+          500: "#f43f5e",
+          600: "#e11d48",
+          700: "#be123c",
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        sm: "0.5rem",
+        md: "0.75rem",
+        lg: "1rem",
+        xl: "1.25rem",
       },
-      keyframes: {
-        "accordion-down": {
-          from: { height: "0" },
-          to: { height: "var(--radix-accordion-content-height)" },
-        },
-        "accordion-up": {
-          from: { height: "var(--radix-accordion-content-height)" },
-          to: { height: "0" },
-        },
-      },
-      animation: {
-        "accordion-down": "accordion-down 0.2s ease-out",
-        "accordion-up": "accordion-up 0.2s ease-out",
+      boxShadow: {
+        // Glass-edge shadows used on gradient buttons — inset highlight
+        // (top edge) + colored drop shadow matched to each variant.
+        "glass-brand": "inset 0 1px 0 0 rgba(255,255,255,0.16), 0 8px 20px -6px rgba(11,79,72,0.55)",
+        "glass-dark": "inset 0 1px 0 0 rgba(255,255,255,0.12), 0 8px 20px -6px rgba(0,0,0,0.55)",
+        "glass-danger": "inset 0 1px 0 0 rgba(255,255,255,0.16), 0 8px 20px -6px rgba(159,18,57,0.5)",
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [],
 };

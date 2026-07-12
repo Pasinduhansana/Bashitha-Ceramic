@@ -18,12 +18,15 @@ export default function CreatePurchaseModal({ isOpen, onClose, onSuccess }) {
 
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchSuppliers();
-      fetchProducts();
+  const fetchProducts = async () => {
+    try {
+      const res = await fetch("/api/products");
+      const data = await res.json();
+      setProducts(data.products || []);
+    } catch (error) {
+      console.error("Error fetching products:", error);
     }
-  }, [isOpen]);
+  };
 
   const fetchSuppliers = async () => {
     try {
@@ -38,16 +41,6 @@ export default function CreatePurchaseModal({ isOpen, onClose, onSuccess }) {
         { id: 1, name: "Supplier A", contact: "+94 71 111 1111" },
         { id: 2, name: "Supplier B", contact: "+94 71 222 2222" },
       ]);
-    }
-  };
-
-  const fetchProducts = async () => {
-    try {
-      const res = await fetch("/api/products");
-      const data = await res.json();
-      setProducts(data.products || []);
-    } catch (error) {
-      console.error("Error fetching products:", error);
     }
   };
 
@@ -152,13 +145,20 @@ export default function CreatePurchaseModal({ isOpen, onClose, onSuccess }) {
   };
 
   const filteredProducts = products.filter(
-    (p) => p.name.toLowerCase().includes(searchProduct.toLowerCase()) || p.code?.toLowerCase().includes(searchProduct.toLowerCase())
+    (p) => p.name.toLowerCase().includes(searchProduct.toLowerCase()) || p.code?.toLowerCase().includes(searchProduct.toLowerCase()),
   );
 
   const total = calculateTotal();
 
   if (!isOpen) return null;
 
+    useEffect(() => {
+    if (isOpen) {
+      fetchSuppliers();
+      fetchProducts();
+    }
+  }, [isOpen]);
+  
   return (
     <AnimatePresence>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">

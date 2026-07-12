@@ -105,23 +105,6 @@ export default function Products() {
 
   const didInit = useRef(false);
 
-  useEffect(() => {
-    if (didInit.current) return;
-    didInit.current = true;
-    fetchCategories();
-    fetchProducts();
-  }, []);
-
-  const fetchCategories = async () => {
-    try {
-      const res = await fetch("/api/categories");
-      const data = await res.json();
-      if (res.ok) setCategories(data.categories || []);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
-
   const fetchProducts = async () => {
     setLoading(true);
     try {
@@ -134,6 +117,16 @@ export default function Products() {
       toast.error("Failed to fetch products");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const res = await fetch("/api/categories");
+      const data = await res.json();
+      if (res.ok) setCategories(data.categories || []);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
     }
   };
 
@@ -169,8 +162,6 @@ export default function Products() {
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE));
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedProducts = filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-  useEffect(() => setCurrentPage(1), [activeTab, categoryFilter, searchTerm]);
 
   const handleProductAction = (action, product) => {
     if (action === "view") {
@@ -225,6 +216,15 @@ export default function Products() {
   };
 
   const hasActiveFilters = searchTerm || categoryFilter || activeTab !== "all";
+
+  useEffect(() => {
+    if (didInit.current) return;
+    didInit.current = true;
+    fetchCategories();
+    fetchProducts();
+  }, []);
+
+  useEffect(() => setCurrentPage(1), [activeTab, categoryFilter, searchTerm]);
 
   return (
     <div className="px-3 sm:px-5 lg:px-6 py-4 sm:py-5 min-h-screen bg-neutral-50/40 dark:bg-gray-900 transition-colors">

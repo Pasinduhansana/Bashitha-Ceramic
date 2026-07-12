@@ -1,8 +1,7 @@
-
 "use client";
 
 import { useEffect, useMemo, useState, useRef } from "react";
-
+import Image from "next/image";
 import { Search, ChevronDown, Package, Check, X, User } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -135,12 +134,35 @@ export default function Activities() {
   // Fetch users on mount (guard against StrictMode double-mount)
   const didFetchUsersRef = useRef(false);
 
+  // Apply date filter client-side
+  const filteredLogs = useMemo(() => {
+    const now = new Date();
+    const tsRange = {
+      Today: { from: new Date(now.getFullYear(), now.getMonth(), now.getDate()), to: now },
+      Yesterday: {
+        from: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1),
+        to: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
+      },
+      "Last 7 days": { from: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), to: now },
+      "Last 30 days": { from: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), to: now },
+    };
+
+    const range = tsRange[dateFilter];
+    if (!range) return logs;
+    return logs.filter((l) => {
+      const t = new Date(l.timestamp);
+      return t >= range.from && t <= range.to;
+    });
+  }, [logs, dateFilter]);
+
+  // Group into sections
+  const groupedSections = useMemo(() => groupLogsBySection(filteredLogs), [filteredLogs]);
+
   useEffect(() => {
     if (didFetchUsersRef.current) return;
     didFetchUsersRef.current = true;
 
     async function fetchUsers() {
-
       try {
         const res = await fetch("/api/users?limit=999");
         const data = await res.json();
@@ -185,30 +207,6 @@ export default function Activities() {
     fetchLogs();
     return () => controller.abort();
   }, [categoryFilter, searchTerm]);
-
-  // Apply date filter client-side
-  const filteredLogs = useMemo(() => {
-    const now = new Date();
-    const tsRange = {
-      Today: { from: new Date(now.getFullYear(), now.getMonth(), now.getDate()), to: now },
-      Yesterday: {
-        from: new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1),
-        to: new Date(now.getFullYear(), now.getMonth(), now.getDate()),
-      },
-      "Last 7 days": { from: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), to: now },
-      "Last 30 days": { from: new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), to: now },
-    };
-
-    const range = tsRange[dateFilter];
-    if (!range) return logs;
-    return logs.filter((l) => {
-      const t = new Date(l.timestamp);
-      return t >= range.from && t <= range.to;
-    });
-  }, [logs, dateFilter]);
-
-  // Group into sections
-  const groupedSections = useMemo(() => groupLogsBySection(filteredLogs), [filteredLogs]);
 
   return (
     <div className="px-4 sm:px-6 py-6 min-h-screen bg-white dark:bg-gray-900 transition-colors">
@@ -289,10 +287,12 @@ export default function Activities() {
                       }}
                     >
                       {user.img_url ? (
-                        <img
+                        <Image
                           src={user.img_url}
                           alt={user.name}
-                          className="h-5 w-5 rounded-full object-cover flex-shrink-0 border border-gray-300 dark:border-gray-600"
+                          width={20}
+                          height={20}
+                          className="rounded-full object-cover flex-shrink-0 border border-gray-300 dark:border-gray-600"
                         />
                       ) : (
                         <div className="flex h-5 w-5 items-center justify-center rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0">
@@ -408,10 +408,12 @@ export default function Activities() {
                         }}
                       >
                         {user.img_url ? (
-                          <img
+                          <Image
                             src={user.img_url}
                             alt={user.name}
-                            className="h-6 w-6 rounded-full object-cover flex-shrink-0 border border-gray-300 dark:border-gray-600"
+                            width={24}
+                            height={24}
+                            className="rounded-full object-cover flex-shrink-0 border border-gray-300 dark:border-gray-600"
                           />
                         ) : (
                           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-300 dark:bg-gray-600 flex-shrink-0">
@@ -519,10 +521,12 @@ export default function Activities() {
                     {/* Avatar - Responsive Size */}
                     <div className="absolute left-0 top-0 z-10">
                       {log.user_img_url ? (
-                        <img
+                        <Image
                           src={log.user_img_url}
                           alt={log.user_name || "User"}
-                          className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover border-4 border-white dark:border-gray-900 shadow-lg"
+                          width={40}
+                          height={40}
+                          className="rounded-full object-cover border-4 border-white dark:border-gray-900 shadow-lg"
                         />
                       ) : (
                         <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-linear-to-br from-[#1fb8a2] to-[#17a694] text-white font-bold text-xs border-4 border-white dark:border-gray-900 shadow-lg">
