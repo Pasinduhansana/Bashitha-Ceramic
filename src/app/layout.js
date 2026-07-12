@@ -1,57 +1,18 @@
-import { Roboto, Roboto_Condensed } from "next/font/google";
-import { Toaster } from "react-hot-toast";
-import { AuthSessionProvider } from "@/components/providers/AuthSessionProvider";
 import "./globals.css";
-
-const roboto = Roboto({
-  weight: ["300", "400", "500", "700"],
-  subsets: ["latin"],
-  variable: "--font-roboto",
-});
-
-const robotoCondensed = Roboto_Condensed({
-  weight: ["300", "400", "700"],
-  subsets: ["latin"],
-  variable: "--font-roboto-condensed",
-});
+import LayoutWrapper from "@/components/layout/LayoutWrapper";
 
 export const metadata = {
-  title: "Bashitha Ceramics - Inventory Management System",
-  description:
-    "Complete business management solution for Bashitha Ceramics - Manage inventory, invoices, purchases, returns, customers, and track sales with comprehensive reporting and analytics.",
+  title: "Bashitha Ceramics",
+  description: "Inventory Management System",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${roboto.className} ${robotoCondensed.variable} antialiased`} suppressHydrationWarning>
-        <AuthSessionProvider>{children}</AuthSessionProvider>
-        <Toaster
-          position="top-center"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: "rgba(255, 255, 255, 0.95)",
-              backdropFilter: "blur(10px)",
-              color: "#1a1a1a",
-              padding: "16px",
-              borderRadius: "8px",
-              boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-            },
-            success: {
-              iconTheme: {
-                primary: "#29B0B9",
-                secondary: "#fff",
-              },
-            },
-            error: {
-              iconTheme: {
-                primary: "#ef4444",
-                secondary: "#fff",
-              },
-            },
-          }}
-        />
+    <html lang="en">
+      <body>
+        <LayoutWrapper>
+          {children}
+        </LayoutWrapper>
       </body>
     </html>
   );

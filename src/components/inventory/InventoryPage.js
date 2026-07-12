@@ -3,7 +3,6 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
-import InventoryHeader from "./InventoryHeader";
 import InventoryNavigation from "./InventoryNavigation";
 import ProductsComponent from "./Products";
 import ProductsTable from "./ProductsTable";
@@ -233,25 +232,7 @@ export default function InventoryPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors" suppressHydrationWarning>
-      <InventoryHeader
-        onSettingsClick={() => setShowSettings(true)}
-        onProfileClick={() => setShowProfile(true)}
-        onNotificationsClick={() => setActiveNav("Activities")}
-        searchTerm={searchTerm}
-        onSearchChange={setSearchTerm}
-        onSearchFocus={() => {
-          if (activeNav !== "Products") {
-            setActiveNav("Products");
-          }
-        }}
-        products={products}
-        onProductSelect={(product) => {
-          setSelectedProduct(product);
-          setProductDetailMode("view");
-          setShowProductDetail(true);
-          setSearchTerm("");
-        }}
-      />
+
       <InventoryNavigation
         active={activeNav}
         onChange={setActiveNav}

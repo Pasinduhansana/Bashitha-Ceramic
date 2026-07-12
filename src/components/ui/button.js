@@ -21,11 +21,11 @@ import { Loader2 } from "lucide-react";
 const VARIANTS = {
   primary:
     "text-white bg-gradient-to-b from-brand-600 to-brand-800 hover:from-brand-600 hover:to-brand-900 " +
-    "shadow-glass-brand ring-1 ring-inset ring-white/10 " +
+    "ring-1 ring-inset ring-white/10 " +
     "active:from-brand-800 active:to-brand-950 disabled:from-brand-700/50 disabled:to-brand-800/50",
   dark:
     "text-white bg-gradient-to-b from-ink-800 to-ink-950 hover:from-ink-800 hover:to-black " +
-    "shadow-glass-dark ring-1 ring-inset ring-white/10 " +
+    "ring-1 ring-inset ring-white/10 " +
     "active:from-ink-950 active:to-black disabled:opacity-50",
   secondary:
     "text-neutral-700 bg-white border border-neutral-200 hover:bg-neutral-50 hover:border-neutral-300 " +
@@ -38,7 +38,7 @@ const VARIANTS = {
     "dark:text-gray-400 dark:hover:bg-gray-700/60 dark:hover:text-white",
   danger:
     "text-white bg-gradient-to-b from-danger-600 to-danger-700 hover:from-danger-600 hover:to-danger-700 " +
-    "shadow-glass-danger ring-1 ring-inset ring-white/10 active:from-danger-700 active:to-danger-700 disabled:opacity-50",
+    " ring-1 ring-inset ring-white/10 active:from-danger-700 active:to-danger-700 disabled:opacity-50",
   subtle:
     "text-neutral-400 bg-transparent hover:bg-neutral-100 hover:text-neutral-700 active:bg-neutral-200 " +
     "dark:text-gray-500 dark:hover:bg-gray-700/60 dark:hover:text-gray-200",
