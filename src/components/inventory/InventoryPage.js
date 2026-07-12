@@ -4,7 +4,6 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import InventoryPanel from "./InventoryPanel";
 import ProductDetailPanel from "./ProductDetailPanel";
-import UserProfilePanel from "./UserProfilePanel";
 import CreateProductModal from "./CreateProductModal";
 import { Settings } from "lucide-react";
 import toast from "react-hot-toast";
@@ -290,8 +289,6 @@ export default function InventoryPage() {
         </>
       )}
 
-      {/* User Profile Panel */}
-      <UserProfilePanel isOpen={showProfile} onClose={() => setShowProfile(false)} />
     </div>
   );
 }

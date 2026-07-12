@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Suspense } from "react";
-import ForgotPasswordForm from "@/components/forms/ForgotPasswordForm";
+import ForgotPasswordForm from "@/components/Auth/ForgotPasswordForm";
 
 export default function ForgotPasswordPage() {
   return (
