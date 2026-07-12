@@ -21,6 +21,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import Loader from "@/components/ui/Loader";
 
 // Helper function to format time difference
 function getTimeAgo(date) {
@@ -132,11 +133,7 @@ export default function Overview() {
   const currentDate = getCurrentDate();
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-20">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1fb8a2]"></div>
-      </div>
-    );
+    return <Loader size="md" label="Loading dashboard data…" className="min-h-screen" />;
   }
 
   useEffect(() => {

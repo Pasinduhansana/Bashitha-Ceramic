@@ -50,11 +50,7 @@ export default function CategoryDisplayExample() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#1fb8a2]"></div>
-      </div>
-    );
+    return <Loader size="md" label={currentLanguage === "english" ? "Loading categories…" : "කාණ්ඩ පූරණය වෙමින්…"} className="min-h-screen" />;
   }
 
   useEffect(() => {
@@ -124,4 +120,3 @@ const displayed = "${categories[0]?.name || "Tiles"}";
     </div>
   );
 }
-

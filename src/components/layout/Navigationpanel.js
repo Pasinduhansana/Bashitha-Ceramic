@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const NAV_ITEMS = [
-  { icon: LayoutGrid, label: "Overview" , link: "/dashboard"},
+  { icon: LayoutGrid, label: "Overview" , link: "/overview"},
   { icon: Activity, label: "Activities", link: "/activities" },
   { icon: Package, label: "Products", link: "/products" },
   { icon: CreditCard, label: "Billing", link: "/billing" },

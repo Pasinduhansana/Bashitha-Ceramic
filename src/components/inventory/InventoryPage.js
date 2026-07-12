@@ -5,7 +5,6 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import ProductsComponent from "./Products";
 import ProductsTable from "./ProductsTable";
-import Overview from "./Overview";
 import Activities from "./Activities";
 import People from "./People";
 import Billing from "../billing/Billing";
