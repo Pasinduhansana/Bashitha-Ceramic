@@ -32,6 +32,11 @@ export class PermissionError extends Error {
 }
 
 export async function getUserPermissions(userId, roleId) {
+
+  if (!userId || !roleId) {
+    console.log("User ID or Role ID is missing. Returning empty permissions.");
+    return [];
+  }
   const start = Date.now();
 
   console.log("---- PERMISSION CHECK START ----");
@@ -49,6 +54,13 @@ export async function getUserPermissions(userId, roleId) {
   }
 
   const dbStart = Date.now();
+
+  console.log("Permission Query Params:", {
+  userId,
+  roleId,
+  userIdType: typeof userId,
+  roleIdType: typeof roleId,
+});
 
   const db = getDb();
 

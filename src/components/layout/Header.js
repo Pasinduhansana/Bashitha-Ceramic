@@ -9,6 +9,7 @@ import SearchBar from "@/components/ui/SearchBar";
 import toast from "react-hot-toast";
 import { signOut } from "next-auth/react";
 
+
 const NAV_LINKS = [
   // { label: "Home", href: "/" },
   // { label: "Shop", href: "/shop" },

@@ -3,7 +3,6 @@
 import { useMemo, useState, useEffect, useRef } from "react";
 
 import { AnimatePresence, motion } from "framer-motion";
-import InventoryNavigation from "./InventoryNavigation";
 import ProductsComponent from "./Products";
 import ProductsTable from "./ProductsTable";
 import Overview from "./Overview";
@@ -233,17 +232,7 @@ export default function InventoryPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors" suppressHydrationWarning>
 
-      <InventoryNavigation
-        active={activeNav}
-        onChange={setActiveNav}
-        userPermissions={userPermissions}
-        products={products}
-        onProductSelect={(product) => {
-          setSelectedProduct(product);
-          setProductDetailMode("view");
-          setShowProductDetail(true);
-        }}
-      />
+
 
       <AnimatePresence mode="wait">
         {activeNav === "Products" ? (
