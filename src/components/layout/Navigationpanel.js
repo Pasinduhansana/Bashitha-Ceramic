@@ -2,17 +2,19 @@
 
 import { LayoutGrid, Activity, Package, CreditCard, Users, FileText, Menu, X, Search } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const NAV_ITEMS = [
-  { icon: LayoutGrid, label: "Overview" },
-  { icon: Activity, label: "Activities" },
-  { icon: Package, label: "Products" },
-  { icon: CreditCard, label: "Billing" },
-  { icon: Users, label: "People", permission: "manage_users" },
-  { icon: FileText, label: "Report", permission: "access_reports" },
+  { icon: LayoutGrid, label: "Overview" , link: "/dashboard"},
+  { icon: Activity, label: "Activities", link: "/activities" },
+  { icon: Package, label: "Products", link: "/products" },
+  { icon: CreditCard, label: "Billing", link: "/billing" },
+  { icon: Users, label: "People", permission: "manage_users", link: "/people" },
+  { icon: FileText, label: "Report", permission: "access_reports", link: "/reports" },
 ];
 
 export default function NavigationPanel({ active, onChange, userPermissions = [], products = [], onProductSelect }) {
+  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileSearchTerm, setMobileSearchTerm] = useState("");
@@ -32,6 +34,7 @@ export default function NavigationPanel({ active, onChange, userPermissions = []
 
   const handleNavClick = (item) => {
     onChange?.(item.label);
+    router.push(item.link);
     setMobileMenuOpen(false);
   };
 

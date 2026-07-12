@@ -31,42 +31,19 @@ export class PermissionError extends Error {
   }
 }
 
+//This function is used to fetch permissions for a user from the database and cache them for future requests. 
 export async function getUserPermissions(userId, roleId) {
-
   if (!userId || !roleId) {
-    console.log("User ID or Role ID is missing. Returning empty permissions.");
     return [];
   }
-  const start = Date.now();
-
-  console.log("---- PERMISSION CHECK START ----");
 
   const cached = getPermissionCache(userId);
 
-  console.log("1. Permission cache check:", Date.now() - start, "ms", cached ? "HIT" : "MISS");
-
   if (cached) {
-    console.log("2. Returning cached permissions:", Date.now() - start, "ms");
-
-    console.log("---- PERMISSION CHECK END ----");
-
     return cached;
   }
 
-  const dbStart = Date.now();
-
-  console.log("Permission Query Params:", {
-  userId,
-  roleId,
-  userIdType: typeof userId,
-  roleIdType: typeof roleId,
-});
-
   const db = getDb();
-
-  console.log("3. DB client created:", Date.now() - dbStart, "ms");
-
-  const queryStart = Date.now();
 
   const result = await db.execute({
     sql: `
@@ -101,23 +78,9 @@ export async function getUserPermissions(userId, roleId) {
     args: [roleId, userId],
   });
 
-  console.log("4. Permission SQL execution:", Date.now() - queryStart, "ms");
-
-  const mapStart = Date.now();
-
   const permissions = result.rows.map((r) => r.permission_key);
 
-  console.log("5. Permission mapping:", Date.now() - mapStart, "ms");
-
-  const cacheStart = Date.now();
-
   setPermissionCache(userId, permissions);
-
-  console.log("6. Permission cache store:", Date.now() - cacheStart, "ms");
-
-  console.log("7. Total permission time:", Date.now() - start, "ms");
-
-  console.log("---- PERMISSION CHECK END ----");
 
   return permissions;
 }
@@ -146,6 +109,7 @@ export async function requirePermission(permissionKey) {
   return payload;
 }
 
+///Following function is used when login time only to fetch fresh permission check
 export async function getPermissionsForUser(userId, roleId) {
   const db = getDb();
 
