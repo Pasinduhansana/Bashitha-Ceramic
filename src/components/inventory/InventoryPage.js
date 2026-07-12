@@ -1,19 +1,12 @@
 "use client";
 
 import { useMemo, useState, useEffect, useRef } from "react";
-
 import { AnimatePresence, motion } from "framer-motion";
-import ProductsComponent from "./Products";
-import ProductsTable from "./ProductsTable";
-import Activities from "./Activities";
-import People from "./People";
-import Billing from "../billing/Billing";
-import Report from "./Report";
 import InventoryPanel from "./InventoryPanel";
 import ProductDetailPanel from "./ProductDetailPanel";
 import UserProfilePanel from "./UserProfilePanel";
 import CreateProductModal from "./CreateProductModal";
-import { Settings, CheckCircle, AlertCircle, XCircle, Package, Users, Wallet } from "lucide-react";
+import { Settings } from "lucide-react";
 import toast from "react-hot-toast";
 
 // Configure toast defaults
@@ -230,109 +223,6 @@ export default function InventoryPage() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors" suppressHydrationWarning>
-
-
-
-      <AnimatePresence mode="wait">
-        {activeNav === "Products" ? (
-          <motion.main
-            key="products"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.25 }}
-            className="px-4 sm:px-6 py-4 sm:py-6"
-          >
-            <ProductsComponent
-              activeTab={activeTab}
-              onTabChange={setActiveTab}
-              activeFilter={activeFilter}
-              onFilterChange={setActiveFilter}
-              viewMode={viewMode}
-              onViewModeChange={setViewMode}
-              categoryFilter={categoryFilter}
-              onCategoryFilterChange={setCategoryFilter}
-              categories={categories}
-              searchTerm={searchTerm}
-              onSearchTermChange={setSearchTerm}
-            />
-
-            {loading ? (
-              <div className="flex items-center justify-center py-20">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1fb8a2]"></div>
-              </div>
-            ) : paginatedProducts.length === 0 ? (
-              <div className="text-center py-20">
-                <p className="text-gray-500">No products found</p>
-              </div>
-            ) : (
-              <>
-                <ProductsTable products={paginatedProducts} viewMode={viewMode} onAction={handleProductAction} />
-
-                {/* Pagination */}
-                <div className="mt-8 rounded-md border border-gray-200 bg-white shadow-sm px-4 sm:px-6 py-3 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-sm text-gray-600 text-center sm:text-left">
-                    Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, filteredProducts.length)} of {filteredProducts.length} products
-                  </span>
-                  <div className="flex gap-2 flex-wrap justify-center sm:justify-end">
-                    <button
-                      onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                      disabled={currentPage === 1}
-                      className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      &lt;
-                    </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                      <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className={`rounded px-3 py-1 text-sm font-medium ${
-                          currentPage === page ? "border-[#1fb8a2] bg-[#1fb8a2] text-white" : "border border-gray-300 text-gray-700 hover:bg-gray-50"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                    <button
-                      onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                      disabled={currentPage === totalPages}
-                      className="rounded border border-gray-300 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      &gt;
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
-          </motion.main>
-        ) : (
-          <motion.div
-            key="other"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.25 }}
-          >
-            {activeNav === "Overview" ? (
-              <Overview />
-            ) : activeNav === "Activities" ? (
-              <Activities />
-            ) : activeNav === "People" ? (
-              <People />
-            ) : activeNav === "Billing" ? (
-              <Billing userPermissions={userPermissions} />
-            ) : activeNav === "Report" ? (
-              <Report />
-            ) : (
-              <div className="px-4 sm:px-6 py-4 sm:py-6">
-                <h2 className="mb-4 text-xl sm:text-2xl font-semibold text-gray-900">{activeNav}</h2>
-                <div className="rounded-md border border-gray-200 bg-white p-6 text-gray-600">{activeNav} content goes here.</div>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
       {/* Inventory Management Panel */}
       <InventoryPanel
         product={selectedProduct}
