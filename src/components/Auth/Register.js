@@ -4,10 +4,8 @@ import { motion } from "framer-motion";
 import { Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
-const Register = ({ setIsLogin }) => {
-  const router = useRouter();
+const RegisterForm = ({ setIsLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [registerFormData, setRegisterFormData] = useState({ fullName: "", email: "", password: "", confirmPassword: "" });
@@ -162,4 +160,4 @@ const Register = ({ setIsLogin }) => {
   );
 };
 
-export default Register;
+export default RegisterForm;

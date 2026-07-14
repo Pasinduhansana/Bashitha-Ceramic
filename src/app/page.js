@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation";
 export default function Home() {
   const router = useRouter();
 
+  console.log("Home page rendered");
+
   useEffect(() => {
-    router.push("/login");
+    router.push("/auth");
   }, [router]);
 
   return null;

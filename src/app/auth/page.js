@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import {  AnimatePresence } from "framer-motion";
-import toast from "react-hot-toast";
-import useAuth from "@/hooks/useAuth";
 import login_bg from "../../../public/wallpapers/login-bg.jpg";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
+import LoginForm from "@/components/Auth/Login";
+import RegisterForm from "@/components/Auth/Register";
+
 
 export default function Login() {
 
@@ -50,9 +50,9 @@ export default function Login() {
           <div className="flex-1 flex items-center justify-center overflow-hidden">
             <AnimatePresence mode="wait" initial={false}>
               {isLogin ? (
-                <Login setIsLogin={setIsLogin} />
+                <LoginForm setIsLogin={setIsLogin} />
               ) : (
-<Register setIsLogin={setIsLogin} />
+                <RegisterForm setIsLogin={setIsLogin} />
               )}
             </AnimatePresence>
           </div>
