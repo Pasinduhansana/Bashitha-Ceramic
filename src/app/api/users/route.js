@@ -60,11 +60,12 @@ export async function GET(request) {
       params.push(status === "active" ? 1 : 0);
     }
 
-    if (role && role !== "all") {
+    // Need to disregard role filter if role is 0 (Admin) to fetch all users regardless of their role
+    if (role && role !== "all" && role !== "0") {
       sql += `
         AND u.role_id = ?
       `;
-
+      console.log("Role filter applied:", role);
       params.push(Number(role));
     }
 

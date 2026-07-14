@@ -25,15 +25,15 @@ import Button from "@/components/ui/button";
 import Loader from "@/components/ui/Loader";
 
 const inputClass =
-  "w-full h-9 rounded-lg border border-neutral-200 bg-white px-3 text-[13px] outline-none focus:border-brand-600 text-neutral-900 placeholder-neutral-400 transition-colors";
+  "w-full h-9 rounded-lg border border-neutral-200 bg-white px-3 text-[14px] outline-none focus:border-brand-600 text-neutral-900 placeholder-neutral-400 transition-colors";
 
 function StatusBadge({ active }) {
   return active ? (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-success-50 text-success-700 px-2 py-0.5 text-[10.5px] font-semibold">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-success-50 text-success-700 px-2 py-0.5 text-[12px] font-medium">
       <span className="h-1.5 w-1.5 rounded-full bg-success-500" /> Active
     </span>
   ) : (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 text-neutral-500 px-2 py-0.5 text-[10.5px] font-semibold">
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 text-neutral-500 px-2 py-0.5 text-[12px] font-medium">
       <span className="h-1.5 w-1.5 rounded-full bg-neutral-400" /> Inactive
     </span>
   );
@@ -43,7 +43,7 @@ function RoleBadge({ roleName }) {
   const isAdmin = roleName?.toLowerCase().includes("admin");
   return (
     <span
-      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10.5px] font-semibold capitalize ${
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-[12px] font-medium capitalize ${
         isAdmin ? "bg-violet-50 text-violet-700" : "bg-blue-50 text-blue-700"
       }`}
     >
@@ -55,7 +55,7 @@ function RoleBadge({ roleName }) {
 /* Plain <img> with initials fallback — sidesteps the next/image
    "hostname not configured" error entirely for external avatar URLs
    (e.g. Cloudinary) without touching next.config.js. */
-function Avatar({ user, size = "h-9 w-9", text = "text-xs" }) {
+function Avatar({ user, size = "h-9 w-9", text = "text-[14px]" }) {
   const [failed, setFailed] = useState(false);
   if (user.img_url && !failed) {
     return <img src={user.img_url} alt={user.name} className={`${size} shrink-0 rounded-full object-cover`} onError={() => setFailed(true)} />;
@@ -72,7 +72,7 @@ function FilterDropdown({ label, value, open, setOpen, children }) {
     <div className="relative w-full sm:w-auto">
       <button
         onClick={() => setOpen(!open)}
-        className="flex h-9 w-full sm:w-auto items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 text-[13px] font-medium text-neutral-700 hover:bg-neutral-50 transition-colors min-w-[130px]"
+        className="flex h-9 w-full sm:w-auto items-center gap-2 rounded-lg border border-neutral-200 bg-white px-3 text-[14px] font-medium text-neutral-700 hover:bg-neutral-50 transition-colors min-w-[130px]"
       >
         <span className="text-neutral-400">{label}:</span> {value}
         <ChevronDown className="h-3.5 w-3.5 ml-auto text-neutral-400" />
@@ -93,7 +93,7 @@ export default function People() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [roleFilter, setRoleFilter] = useState("all");
+  const [roleFilter, setRoleFilter] = useState(0);
   const [statusOpen, setStatusOpen] = useState(false);
   const [roleOpen, setRoleOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -108,11 +108,17 @@ export default function People() {
     try {
       const res = await fetch("/api/roles");
       const data = await res.json();
-      if (data.success) setRoles(data.roles || []);
+      setRoles([{ id: 0, role_name: "All" }]);
+
+      if (data.success) {
+        setRoles((prev) => [...prev, ...data.roles]);
+      }
     } catch (error) {
       console.error("Error fetching roles:", error);
     }
   };
+
+  const selectedRole = roles.find((role) => role.id === roleFilter)?.role_name || "All";
 
   const fetchStats = async () => {
     try {
@@ -195,7 +201,7 @@ export default function People() {
     toast(
       (t) => (
         <div className="flex flex-col gap-3">
-          <p className="text-[13px] font-semibold text-neutral-900">
+          <p className="text-[14px] font-semibold text-neutral-900">
             {user.is_active ? "Deactivate" : "Activate"} {user.name}?
           </p>
           <div className="flex gap-2">
@@ -241,12 +247,12 @@ export default function People() {
     toast(
       (t) => (
         <div className="flex flex-col gap-3">
-          <p className="text-[13px] font-semibold text-neutral-900">Delete {user.name}?</p>
-          <p className="text-xs text-neutral-500">This action cannot be undone.</p>
+          <p className="text-[14px] font-semibold text-neutral-900">Delete {user.name}?</p>
+          <p className="text-[13px] text-neutral-500">This action cannot be undone.</p>
           <div className="flex gap-2">
             <Button
               variant="danger"
-              size="sm"
+              size="md"
               fullWidth
               onClick={async () => {
                 toast.dismiss(t.id);
@@ -268,7 +274,7 @@ export default function People() {
             >
               Yes, delete
             </Button>
-            <Button variant="secondary" size="sm" fullWidth onClick={() => toast.dismiss(t.id)}>
+            <Button variant="secondary" size="md" fullWidth onClick={() => toast.dismiss(t.id)}>
               Cancel
             </Button>
           </div>
@@ -281,7 +287,14 @@ export default function People() {
   const exportUsers = () => {
     const csv = [
       ["Name", "Username", "Email", "Role", "Status", "Last Active"],
-      ...users.map((u) => [u.name, u.username, u.email, u.role_name || "Unknown", u.is_active ? "Active" : "Inactive", u.updated_at ? new Date(u.updated_at).toLocaleDateString() : "N/A"]),
+      ...users.map((u) => [
+        u.name,
+        u.username,
+        u.email,
+        u.role_name || "Unknown",
+        u.is_active ? "Active" : "Inactive",
+        u.updated_at ? new Date(u.updated_at).toLocaleDateString() : "N/A",
+      ]),
     ]
       .map((row) => row.join(","))
       .join("\n");
@@ -298,9 +311,27 @@ export default function People() {
   const KPI_CARDS = stats
     ? [
         { icon: Users, label: "Total users", value: stats.totalUsers, note: `+${stats.growth}% from last month`, tint: "bg-blue-50 text-blue-700" },
-        { icon: UserCheck, label: "Active users", value: stats.activeUsers, note: `${stats.totalUsers > 0 ? Math.round((stats.activeUsers / stats.totalUsers) * 100) : 0}% of total`, tint: "bg-success-50 text-success-700" },
-        { icon: UserX, label: "Inactive users", value: stats.inactiveUsers, note: `${stats.totalUsers > 0 ? Math.round((stats.inactiveUsers / stats.totalUsers) * 100) : 0}% of total`, tint: "bg-neutral-100 text-neutral-600" },
-        { icon: Calendar, label: "New today", value: stats.newToday, note: `${stats.totalUsers > 0 ? Math.round((stats.newToday / stats.totalUsers) * 100) : 0}% joined today`, tint: "bg-violet-50 text-violet-700" },
+        {
+          icon: UserCheck,
+          label: "Active users",
+          value: stats.activeUsers,
+          note: `${stats.totalUsers > 0 ? Math.round((stats.activeUsers / stats.totalUsers) * 100) : 0}% of total`,
+          tint: "bg-success-50 text-success-700",
+        },
+        {
+          icon: UserX,
+          label: "Inactive users",
+          value: stats.inactiveUsers,
+          note: `${stats.totalUsers > 0 ? Math.round((stats.inactiveUsers / stats.totalUsers) * 100) : 0}% of total`,
+          tint: "bg-neutral-100 text-neutral-600",
+        },
+        {
+          icon: Calendar,
+          label: "New today",
+          value: stats.newToday,
+          note: `${stats.totalUsers > 0 ? Math.round((stats.newToday / stats.totalUsers) * 100) : 0}% joined today`,
+          tint: "bg-violet-50 text-violet-700",
+        },
       ]
     : [];
 
@@ -310,7 +341,7 @@ export default function People() {
         <h2 className="text-xl sm:text-2xl font-semibold text-neutral-900" style={{ fontFamily: "'Fraunces', serif" }}>
           User Management
         </h2>
-        <p className="text-[13px] text-neutral-500 mt-0.5">Manage your organization's users, roles, and permissions.</p>
+        <p className="text-[15px] text-neutral-400 mt-0.5">Manage your organization's users, roles, and permissions.</p>
       </div>
 
       {stats && (
@@ -318,13 +349,13 @@ export default function People() {
           {KPI_CARDS.map((card) => (
             <div key={card.label} className="rounded-xl border border-neutral-200 bg-white p-3.5">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium text-neutral-500">{card.label}</span>
+                <span className="text-[14px] font-medium text-neutral-500">{card.label}</span>
                 <div className={`flex h-7 w-7 items-center justify-center rounded-md ${card.tint}`}>
                   <card.icon className="h-3.5 w-3.5" />
                 </div>
               </div>
-              <div className="text-xl font-bold text-neutral-900 tabular-nums">{card.value}</div>
-              <p className="text-[11px] text-neutral-400 mt-0.5">{card.note}</p>
+              <div className="text-2xl font-bold text-neutral-900 tabular-nums">{card.value}</div>
+              <p className="text-[13px] text-neutral-400 mt-0.5">{card.note}</p>
             </div>
           ))}
         </div>
@@ -344,35 +375,60 @@ export default function People() {
             />
           </div>
 
-          <FilterDropdown label="Status" value={statusFilter === "all" ? "All" : statusFilter === "active" ? "Active" : "Inactive"} open={statusOpen} setOpen={setStatusOpen}>
+          <FilterDropdown
+            label="Status"
+            value={statusFilter === "all" ? "All" : statusFilter === "active" ? "Active" : "Inactive"}
+            open={statusOpen}
+            setOpen={setStatusOpen}
+          >
             {["All", "Active", "Inactive"].map((opt) => (
               <button
                 key={opt}
-                className={`flex w-full items-center rounded-md h-8 px-2.5 text-xs font-medium transition-colors ${
+                className={`flex w-full items-center rounded-md h-8 px-2.5 text-[14px] font-medium transition-colors ${
                   statusFilter === opt.toLowerCase() ? "bg-brand-50 text-brand-800" : "text-neutral-600 hover:bg-neutral-50"
                 }`}
-                onClick={() => { setStatusFilter(opt.toLowerCase()); setStatusOpen(false); }}
+                onClick={() => {
+                  setStatusFilter(opt.toLowerCase());
+                  setStatusOpen(false);
+                }}
               >
                 {opt}
               </button>
             ))}
           </FilterDropdown>
 
-          <FilterDropdown label="Role" value={roleFilter === "all" ? "All" : roleFilter === "1" ? "Admin" : "User"} open={roleOpen} setOpen={setRoleOpen}>
-            {[{ label: "All", value: "all" }, { label: "Admin", value: "1" }, { label: "User", value: "2" }].map((opt) => (
+          <FilterDropdown
+            label="Role"
+            value={selectedRole}
+            open={roleOpen}
+            setOpen={setRoleOpen}
+          >
+            {roles.map((opt) => (
               <button
-                key={opt.value}
-                className={`flex w-full items-center rounded-md h-8 px-2.5 text-xs font-medium transition-colors ${
-                  roleFilter === opt.value ? "bg-brand-50 text-brand-800" : "text-neutral-600 hover:bg-neutral-50"
+                key={opt.id}
+                className={`flex w-full items-center rounded-md h-8 px-2.5 text-[14px] font-medium transition-colors ${
+                  roleFilter === opt.id ? "bg-brand-50 text-brand-800" : "text-neutral-600 hover:bg-neutral-50"
                 }`}
-                onClick={() => { setRoleFilter(opt.value); setRoleOpen(false); }}
+                onClick={() => {
+                  setRoleFilter(opt.id);
+                  setRoleOpen(false);
+                }}
               >
-                {opt.label}
+                {opt.role_name}
               </button>
             ))}
           </FilterDropdown>
 
-          <Button variant="secondary" size="sm" icon={RefreshCw} onClick={() => { fetchUsers(); fetchStats(); }} className="w-full sm:w-auto">
+          <Button
+            variant="secondary"
+            size="sm"
+            icon={RefreshCw}
+            onClick={() => {
+              fetchUsers();
+              fetchStats();
+            }}
+            className="w-full sm:w-auto"
+          >
             Refresh
           </Button>
         </div>
@@ -389,7 +445,7 @@ export default function People() {
             </button>
             <button
               onClick={() => setViewMode("tile")}
-              className={`flex flex-1 sm:flex-none items-center justify-center gap-1.5 px-3 text-[13px] font-medium border-l border-neutral-200 transition-colors ${
+              className={`flex flex-1 sm:flex-none items-center justify-center gap-1.5 px-3 text-[14px] font-medium border-l border-neutral-200 transition-colors ${
                 viewMode === "tile" ? "bg-brand-800 text-white" : "text-neutral-600 hover:bg-neutral-50"
               }`}
             >
@@ -417,11 +473,11 @@ export default function People() {
           ) : viewMode === "list" ? (
             <div className="rounded-xl border border-neutral-200 bg-white overflow-hidden">
               <div className="border-b border-neutral-100 bg-neutral-50/70 px-5 py-2.5">
-                <h3 className="text-[13px] font-semibold text-neutral-900">User list</h3>
+                <h3 className="text-[15px] font-semibold text-neutral-900">User list</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="border-b border-neutral-100 text-[10.5px] font-semibold uppercase tracking-wide text-neutral-400">
+                  <thead className="border-b border-neutral-100 text-[12px] font-semibold uppercase tracking-wide text-neutral-400">
                     <tr>
                       <th className="px-5 py-2.5 text-left">User</th>
                       <th className="px-3 py-2.5 text-left">Role</th>
@@ -440,22 +496,30 @@ export default function People() {
                           <div className="flex items-center gap-2.5">
                             <Avatar user={user} />
                             <div>
-                              <p className="text-[13px] font-semibold text-neutral-900">{user.name}</p>
-                              <p className="text-[11px] text-neutral-400">{user.email}</p>
+                              <p className="text-[14px] font-semibold text-neutral-900">{user.name}</p>
+                              <p className="text-[14px] text-neutral-400">{user.email}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-3 py-3"><RoleBadge roleName={user.role_name} /></td>
-                        <td className="px-3 py-3"><StatusBadge active={user.is_active} /></td>
                         <td className="px-3 py-3">
-                          <span className="text-[12.5px] text-neutral-500">{user.updated_at ? new Date(user.updated_at).toLocaleDateString() : "—"}</span>
+                          <RoleBadge roleName={user.role_name} />
+                        </td>
+                        <td className="px-3 py-3">
+                          <StatusBadge active={user.is_active} />
+                        </td>
+                        <td className="px-3 py-3">
+                          <span className="text-[13px] text-neutral-500">
+                            {user.updated_at ? new Date(user.updated_at).toLocaleDateString() : "—"}
+                          </span>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
                 <div className="border-t border-neutral-100 px-5 py-2.5 flex items-center justify-between">
-                  <span className="text-[11.5px] text-neutral-400">Showing 1–{users.length} of {users.length} users</span>
+                  <span className="text-[14px] text-neutral-400">
+                    Showing 1–{users.length} of {users.length} users
+                  </span>
                   <div className="flex gap-1">
                     <button className="h-7 w-7 rounded-md border border-neutral-200 text-xs text-neutral-500 hover:bg-neutral-50">‹</button>
                     <button className="h-7 w-7 rounded-md bg-brand-800 text-xs text-white">1</button>
@@ -476,10 +540,10 @@ export default function People() {
                     }`}
                   >
                     <div className="flex items-start gap-2.5 mb-3">
-                      <Avatar user={user} size="h-10 w-10" text="text-sm" />
+                      <Avatar user={user} size="h-10 w-10" text="text-[15px]" />
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-[13px] font-semibold text-neutral-900 truncate">{user.name}</h4>
-                        <p className="text-[11px] text-neutral-400 truncate">{user.email}</p>
+                        <h4 className="text-[14px] font-semibold text-neutral-900 truncate">{user.name}</h4>
+                        <p className="text-[14px] text-neutral-400 truncate">{user.email}</p>
                       </div>
                     </div>
 
@@ -488,7 +552,7 @@ export default function People() {
                       <StatusBadge active={user.is_active} />
                     </div>
 
-                    <div className="space-y-1.5 text-[11.5px] text-neutral-500 border-t border-neutral-100 pt-2.5">
+                    <div className="space-y-1.5 text-[13px] text-neutral-500 border-t border-neutral-100 pt-2.5">
                       {user.contact && (
                         <div className="flex items-center gap-1.5">
                           <Phone className="h-3 w-3 shrink-0 text-neutral-300" /> <span className="truncate">{user.contact}</span>
@@ -500,7 +564,8 @@ export default function People() {
                         </div>
                       )}
                       <div className="flex items-center gap-1.5">
-                        <Calendar className="h-3 w-3 shrink-0 text-neutral-300" /> <span>{user.updated_at ? new Date(user.updated_at).toLocaleDateString() : "N/A"}</span>
+                        <Calendar className="h-3 w-3 shrink-0 text-neutral-300" />{" "}
+                        <span>{user.updated_at ? new Date(user.updated_at).toLocaleDateString() : "N/A"}</span>
                       </div>
                     </div>
 
@@ -509,7 +574,9 @@ export default function People() {
                 ))}
               </div>
               <div className="rounded-xl border border-neutral-200 bg-white px-5 py-2.5 flex items-center justify-between">
-                <span className="text-[11.5px] text-neutral-400">Showing 1–{users.length} of {users.length} users</span>
+                <span className="text-[14px] text-neutral-400">
+                  Showing 1–{users.length} of {users.length} users
+                </span>
                 <div className="flex gap-1">
                   <button className="h-7 w-7 rounded-md border border-neutral-200 text-xs text-neutral-500 hover:bg-neutral-50">‹</button>
                   <button className="h-7 w-7 rounded-md bg-brand-800 text-xs text-white">1</button>
@@ -536,21 +603,21 @@ export default function People() {
               <div className="p-4">
                 <div className="flex flex-col items-center mb-4">
                   <Avatar user={selectedUser} size="h-16 w-16" text="text-xl" />
-                  <h4 className="text-[14px] font-semibold text-neutral-900 mt-2.5">{selectedUser.name}</h4>
-                  <p className="text-xs text-neutral-400">{selectedUser.email}</p>
-                  <div className="flex gap-1.5 mt-2">
+                  <h4 className="text-[15px] font-semibold text-neutral-900 mt-2.5">{selectedUser.name}</h4>
+                  <p className="text-[14px] text-neutral-400">{selectedUser.email}</p>
+                  <div className="flex  mt-2 gap-5">
                     <RoleBadge roleName={selectedUser.role_name} />
                     <StatusBadge active={selectedUser.is_active} />
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-3 my-5">
                   {selectedUser.contact && (
                     <div className="flex items-start gap-2.5">
                       <Phone className="h-3.5 w-3.5 text-neutral-300 mt-0.5" />
                       <div>
-                        <p className="text-[10px] uppercase tracking-wide text-neutral-400">Contact</p>
-                        <p className="text-[12.5px] text-neutral-900">{selectedUser.contact}</p>
+                        <p className="text-[13px] uppercase tracking-wide text-neutral-400">Contact</p>
+                        <p className="text-[14px] text-neutral-900">{selectedUser.contact}</p>
                       </div>
                     </div>
                   )}
@@ -558,35 +625,39 @@ export default function People() {
                     <div className="flex items-start gap-2.5">
                       <MapPin className="h-3.5 w-3.5 text-neutral-300 mt-0.5" />
                       <div>
-                        <p className="text-[10px] uppercase tracking-wide text-neutral-400">Address</p>
-                        <p className="text-[12.5px] text-neutral-900">{selectedUser.address}</p>
+                        <p className="text-[13px] uppercase tracking-wide text-neutral-400">Address</p>
+                        <p className="text-[14px] text-neutral-900">{selectedUser.address}</p>
                       </div>
                     </div>
                   )}
                   <div className="flex items-start gap-2.5">
                     <Calendar className="h-3.5 w-3.5 text-neutral-300 mt-0.5" />
                     <div>
-                      <p className="text-[10px] uppercase tracking-wide text-neutral-400">Last active</p>
-                      <p className="text-[12.5px] text-neutral-900">{selectedUser.updated_at ? new Date(selectedUser.updated_at).toLocaleDateString() : "—"}</p>
+                      <p className="text-[13px] uppercase tracking-wide text-neutral-400">Last active</p>
+                      <p className="text-[14px] text-neutral-900">
+                        {selectedUser.updated_at ? new Date(selectedUser.updated_at).toLocaleDateString() : "—"}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-2.5">
                     <Shield className="h-3.5 w-3.5 text-neutral-300 mt-0.5" />
                     <div>
-                      <p className="text-[10px] uppercase tracking-wide text-neutral-400">System role</p>
-                      <p className="text-[12.5px] text-neutral-900 capitalize">{selectedUser.role_name || (selectedUser.role_id === 1 ? "Administrator" : "Standard user")}</p>
+                      <p className="text-[13px] uppercase tracking-wide text-neutral-400">System role</p>
+                      <p className="text-[14px] text-neutral-900 capitalize">
+                        {selectedUser.role_name || (selectedUser.role_id === 1 ? "Administrator" : "Standard user")}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-4 space-y-1.5">
-                  <Button variant="secondary" size="sm" fullWidth icon={Edit2} onClick={() => handleEdit(selectedUser)}>
+                  <Button variant="secondary" size="md" fullWidth icon={Edit2} onClick={() => handleEdit(selectedUser)}>
                     Edit
                   </Button>
-                  <Button variant="outline" size="sm" fullWidth icon={UserMinus} onClick={() => handleDeactivate(selectedUser)}>
+                  <Button variant="outline" size="md" fullWidth icon={UserMinus} onClick={() => handleDeactivate(selectedUser)}>
                     {selectedUser.is_active ? "Deactivate" : "Activate"}
                   </Button>
-                  <Button variant="danger" size="sm" fullWidth icon={Trash2} onClick={() => handleDelete(selectedUser)}>
+                  <Button variant="danger" size="md" fullWidth icon={Trash2} onClick={() => handleDelete(selectedUser)}>
                     Delete
                   </Button>
                 </div>
@@ -618,37 +689,78 @@ export default function People() {
               </div>
               <div className="p-5 space-y-3 max-h-[65vh] overflow-y-auto">
                 <div>
-                  <label className="block text-xs font-medium text-neutral-600 mb-1.5">Name</label>
-                  <input type="text" value={editForm.name || ""} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className={inputClass} />
+                  <label className="block text-[14px] font-medium text-neutral-600 mb-1.5">Name</label>
+                  <input
+                    type="text"
+                    value={editForm.name || ""}
+                    onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                    className={inputClass}
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-neutral-600 mb-1.5">Username</label>
-                  <input type="text" value={editForm.username || ""} onChange={(e) => setEditForm({ ...editForm, username: e.target.value })} className={inputClass} />
+                  <label className="block text-[14px] font-medium text-neutral-600 mb-1.5">Username</label>
+                  <input
+                    type="text"
+                    value={editForm.username || ""}
+                    onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                    className={inputClass}
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-neutral-600 mb-1.5">Email</label>
-                  <input type="email" value={editForm.email || ""} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className={inputClass} />
+                  <label className="block text-[14px] font-medium text-neutral-600 mb-1.5">Email</label>
+                  <input
+                    type="email"
+                    value={editForm.email || ""}
+                    onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                    className={inputClass}
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-neutral-600 mb-1.5">Role</label>
-                  <select value={editForm.role_id || 2} onChange={(e) => setEditForm({ ...editForm, role_id: parseInt(e.target.value) })} className={inputClass}>
-                    {(roles.length ? roles : [{ id: 1, role_name: "Admin" }, { id: 2, role_name: "User" }]).map((role) => (
-                      <option key={role.id} value={role.id}>{role.role_name}</option>
+                  <label className="block text-[14px] font-medium text-neutral-600 mb-1.5">Role</label>
+                  <select
+                    value={editForm.role_id || 2}
+                    onChange={(e) => setEditForm({ ...editForm, role_id: parseInt(e.target.value) })}
+                    className={inputClass}
+                  >
+                    {(roles.length
+                      ? roles
+                      : [
+                          { id: 1, role_name: "Admin" },
+                          { id: 2, role_name: "User" },
+                        ]
+                    ).map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.role_name}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-neutral-600 mb-1.5">Contact</label>
-                  <input type="text" value={editForm.contact || ""} onChange={(e) => setEditForm({ ...editForm, contact: e.target.value })} className={inputClass} />
+                  <label className="block text-[14px] font-medium text-neutral-600 mb-1.5">Contact</label>
+                  <input
+                    type="text"
+                    value={editForm.contact || ""}
+                    onChange={(e) => setEditForm({ ...editForm, contact: e.target.value })}
+                    className={inputClass}
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-neutral-600 mb-1.5">Address</label>
-                  <textarea value={editForm.address || ""} onChange={(e) => setEditForm({ ...editForm, address: e.target.value })} rows={3} className={`${inputClass} h-auto py-2 resize-none`} />
+                  <label className="block text-[14px] font-medium text-neutral-600 mb-1.5">Address</label>
+                  <textarea
+                    value={editForm.address || ""}
+                    onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                    rows={3}
+                    className={`${inputClass} h-auto py-2 resize-none`}
+                  />
                 </div>
               </div>
               <div className="border-t border-neutral-100 px-5 py-3.5 flex gap-2.5">
-                <Button variant="primary" size="sm" fullWidth onClick={handleSaveEdit}>Save changes</Button>
-                <Button variant="secondary" size="sm" fullWidth onClick={() => setShowEditModal(false)}>Cancel</Button>
+                <Button variant="primary" size="sm" fullWidth onClick={handleSaveEdit}>
+                  Save changes
+                </Button>
+                <Button variant="secondary" size="sm" fullWidth onClick={() => setShowEditModal(false)}>
+                  Cancel
+                </Button>
               </div>
             </div>
           </div>
