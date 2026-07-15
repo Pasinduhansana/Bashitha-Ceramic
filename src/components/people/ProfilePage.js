@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, User, Mail, Phone, MapPin, Briefcase, Calendar, Save, Camera } from "lucide-react";
+import { User, Mail, Phone, MapPin, Briefcase, Calendar, Save, Camera, RotateCcw } from "lucide-react";
 import toast from "react-hot-toast";
 import Button from "@/components/ui/button";
 import Loader from "@/components/ui/Loader";
@@ -9,17 +9,12 @@ import Loader from "@/components/ui/Loader";
 const inputClass =
   "w-full h-10 rounded-lg border border-neutral-200 dark:border-gray-700 px-3.5 text-sm outline-none focus:border-brand-600 bg-white dark:bg-gray-800 text-neutral-900 dark:text-white transition-colors";
 
-export default function UserProfilePanel() {
-  const [profile, setProfile] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    role: "",
-    joinedDate: "",
-    avatar: "",
-  });
-  const [loading, setLoading] = useState(false);
+const emptyProfile = { name: "", email: "", phone: "", address: "", role: "", joinedDate: "", avatar: "" };
+
+export default function ProfilePage() {
+  const [profile, setProfile] = useState(emptyProfile);
+  const [original, setOriginal] = useState(emptyProfile);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
@@ -34,7 +29,7 @@ export default function UserProfilePanel() {
       const data = await response.json();
 
       if (response.ok && data.user) {
-        setProfile({
+        const loaded = {
           name: data.user.name || "",
           email: data.user.email || "",
           phone: data.user.phone || "",
@@ -42,7 +37,9 @@ export default function UserProfilePanel() {
           role: data.user.role || "User",
           joinedDate: data.user.created_at ? new Date(data.user.created_at).toLocaleDateString() : "N/A",
           avatar: data.user.img_url || "",
-        });
+        };
+        setProfile(loaded);
+        setOriginal(loaded);
       }
     } catch (error) {
       console.error("Error fetching profile:", error);
@@ -69,6 +66,7 @@ export default function UserProfilePanel() {
       });
 
       if (response.ok) {
+        setOriginal(profile);
         toast.success("Profile updated successfully!");
       } else {
         const data = await response.json();
@@ -107,7 +105,7 @@ export default function UserProfilePanel() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        setProfile({ ...profile, avatar: data.url });
+        setProfile((prev) => ({ ...prev, avatar: data.url }));
         toast.success("Image uploaded successfully!");
       } else {
         toast.error(data.error || "Failed to upload image");
@@ -120,34 +118,30 @@ export default function UserProfilePanel() {
     }
   };
 
+  const hasChanges = JSON.stringify(profile) !== JSON.stringify(original);
+
+  if (loading) return <Loader label="Loading profile…" />;
 
   return (
-    <>
-      <div className="fixed inset-0 bg-neutral-900/40 dark:bg-black/60 z-40 backdrop-blur-sm transition-opacity"  />
-
-      <div className="fixed inset-y-0 right-0 w-full max-w-lg bg-white dark:bg-gray-900 z-50 overflow-y-auto">
-        {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-neutral-200 dark:border-gray-700 bg-brand-900 px-5 py-4">
-          <div>
-            <p className="text-sm text-brand-100/60">Account</p>
-            <h2 className="text-[15px] font-semibold text-white mt-0.5">User Profile</h2>
-          </div>
-          <button  className="rounded-lg p-2 text-white/70 hover:bg-white/10 hover:text-white transition-colors">
-            <X className="h-4.5 w-4.5" />
-          </button>
+    <div className="min-h-screen bg-neutral-50/40 dark:bg-gray-900 px-4 sm:px-6 py-5 transition-colors">
+      <div className=" mx-auto">
+        {/* Page header */}
+        <div className="mb-5">
+          <h1 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-white" style={{ fontFamily: "'Fraunces', serif" }}>
+            My Profile
+          </h1>
+          <p className="text-sm text-neutral-500 dark:text-gray-400 mt-0.5">Manage your account details and preferences.</p>
         </div>
 
-        {loading ? (
-          <Loader label="Loading profile…" />
-        ) : (
-          <div className="p-5 space-y-5">
-            {/* Avatar */}
-            <div className="flex flex-col items-center gap-3 pb-5 border-b border-neutral-100 dark:border-gray-700">
+        <div className="grid grid-cols-1 lg:grid-cols-[350px_1fr] gap-5">
+          {/* Avatar card */}
+          <div className="rounded-xl border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 h-fit">
+            <div className="flex flex-col items-center gap-3">
               <div className="relative">
                 {profile.avatar ? (
-                  <img src={profile.avatar} alt={profile.name} className="w-20 h-20 rounded-full object-cover border-4 border-white dark:border-gray-800" />
+                  <img src={profile.avatar} alt={profile.name} className="w-24 h-24 rounded-full object-cover border-4 border-white dark:border-gray-900 ring-1 ring-neutral-200 dark:ring-gray-700" />
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-brand-800 flex items-center justify-center text-white text-2xl font-bold">
+                  <div className="w-24 h-24 rounded-full bg-brand-800 flex items-center justify-center text-white text-3xl font-bold">
                     {profile.name ? profile.name.charAt(0).toUpperCase() : "U"}
                   </div>
                 )}
@@ -163,27 +157,52 @@ export default function UserProfilePanel() {
               </div>
             </div>
 
-            {/* Form */}
-            <div className="space-y-4">
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1.5">
-                  <User className="h-3.5 w-3.5 text-brand-700" /> Full Name
-                </label>
-                <input type="text" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} className={inputClass} placeholder="Enter your full name" />
+            <div className="mt-5 pt-4 border-t border-neutral-100 dark:border-gray-700 space-y-3">
+              <div className="flex items-center gap-2.5 text-sm text-neutral-500 dark:text-gray-400">
+                <Calendar className="h-3.5 w-3.5 shrink-0" /> Member since {profile.joinedDate}
               </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1.5">
-                  <Mail className="h-3.5 w-3.5 text-brand-700" /> Email Address
-                </label>
-                <input type="email" value={profile.email} disabled className={`${inputClass} bg-neutral-100 dark:bg-gray-800/60 text-neutral-500 cursor-not-allowed`} />
+              <div className="flex items-center gap-2.5 text-sm text-neutral-500 dark:text-gray-400">
+                <Briefcase className="h-3.5 w-3.5 shrink-0" /> {profile.role}
               </div>
+            </div>
+          </div>
 
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1.5">
-                  <Phone className="h-3.5 w-3.5 text-brand-700" /> Phone Number
-                </label>
-                <input type="tel" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} className={inputClass} placeholder="+1 (555) 123-4567" />
+          {/* Form card */}
+          <div className="rounded-xl border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <div className="border-b border-neutral-100 dark:border-gray-700 px-5 py-4">
+              <h3 className="text-[15px] font-semibold text-neutral-900 dark:text-white">Personal information</h3>
+              <p className="text-sm text-neutral-400 mt-0.5">Update your contact details below.</p>
+            </div>
+
+            <div className="p-5 space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1.5">
+                    <User className="h-3.5 w-3.5 text-brand-700" /> Full Name
+                  </label>
+                  <input type="text" value={profile.name} onChange={(e) => setProfile({ ...profile, name: e.target.value })} className={inputClass} placeholder="Enter your full name" />
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1.5">
+                    <Mail className="h-3.5 w-3.5 text-brand-700" /> Email Address
+                  </label>
+                  <input type="email" value={profile.email} disabled className={`${inputClass} bg-neutral-100 dark:bg-gray-800/60 text-neutral-500 cursor-not-allowed`} />
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1.5">
+                    <Phone className="h-3.5 w-3.5 text-brand-700" /> Phone Number
+                  </label>
+                  <input type="tel" value={profile.phone} onChange={(e) => setProfile({ ...profile, phone: e.target.value })} className={inputClass} placeholder="+1 (555) 123-4567" />
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1.5">
+                    <Briefcase className="h-3.5 w-3.5 text-brand-700" /> Role
+                  </label>
+                  <input type="text" value={profile.role} disabled className={`${inputClass} bg-neutral-100 dark:bg-gray-800/60 text-neutral-500 cursor-not-allowed`} />
+                </div>
               </div>
 
               <div>
@@ -198,34 +217,21 @@ export default function UserProfilePanel() {
                   placeholder="Enter your address"
                 />
               </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1.5">
-                  <Briefcase className="h-3.5 w-3.5 text-brand-700" /> Role
-                </label>
-                <input type="text" value={profile.role} disabled className={`${inputClass} bg-neutral-100 dark:bg-gray-800/60 text-neutral-500 cursor-not-allowed`} />
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 text-sm font-medium text-neutral-700 dark:text-gray-300 mb-1.5">
-                  <Calendar className="h-3.5 w-3.5 text-brand-700" /> Member Since
-                </label>
-                <input type="text" value={profile.joinedDate} disabled className={`${inputClass} bg-neutral-100 dark:bg-gray-800/60 text-neutral-500 cursor-not-allowed`} />
-              </div>
             </div>
 
-            {/* Actions */}
-            <div className="flex gap-3 pt-2">
-              <Button variant="primary" size="md" icon={Save} loading={saving} fullWidth onClick={handleSave}>
+            <div className="flex items-center justify-end gap-3 border-t border-neutral-100 dark:border-gray-700 px-5 py-4">
+              {hasChanges && (
+                <Button variant="secondary" size="md" icon={RotateCcw} onClick={() => setProfile(original)}>
+                  Discard changes
+                </Button>
+              )}
+              <Button variant="primary" size="md" icon={Save} loading={saving} disabled={!hasChanges} onClick={handleSave}>
                 {saving ? "Saving…" : "Save Changes"}
-              </Button>
-              <Button variant="secondary" size="md" >
-                Cancel
               </Button>
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </>
+    </div>
   );
 }
