@@ -14,12 +14,12 @@ const NAV_SECTIONS = [
 ];
 
 const inputClass =
-  "w-full h-9 rounded-lg border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 px-3 text-[13px] outline-none focus:border-teal-600 text-neutral-900 dark:text-white placeholder-neutral-400 transition-colors";
+  "w-full h-9 rounded-lg border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-900/40 px-3 text-sm outline-none focus:border-brand-600 text-neutral-900 dark:text-white placeholder-neutral-400 transition-colors";
 
 function Field({ label, children }) {
   return (
     <div>
-      <label className="block text-xs font-medium text-neutral-600 dark:text-gray-400 mb-1.5">{label}</label>
+      <label className="block text-sm font-medium text-neutral-600 dark:text-gray-400 mb-1.5">{label}</label>
       {children}
     </div>
   );
@@ -29,14 +29,16 @@ function Toggle({ checked, onChange, label, description }) {
   return (
     <div className="flex items-center justify-between py-2.5">
       <div>
-        <p className="text-[13px] font-medium text-neutral-900 dark:text-white">{label}</p>
-        <p className="text-[11.5px] text-neutral-400 mt-0.5">{description}</p>
+        <p className="text-sm font-medium text-neutral-900 dark:text-white">{label}</p>
+        <p className="text-sm text-neutral-400 mt-0.5">{description}</p>
       </div>
       <button
         onClick={onChange}
-        className={`relative h-5.5 h-[22px] w-10 shrink-0 rounded-full transition-colors ${checked ? "bg-teal-700" : "bg-neutral-200 dark:bg-gray-700"}`}
+        className={`relative h-[22px] w-10 shrink-0 rounded-full transition-colors ${checked ? "bg-brand-700" : "bg-neutral-200 dark:bg-gray-700"}`}
       >
-        <span className={`absolute top-[3px] h-4 w-4 rounded-full bg-white transition-transform ${checked ? "translate-x-[22px]" : "translate-x-[3px]"}`} />
+        <span
+          className={`absolute top-[3px] h-4 w-4 rounded-full bg-white transition-transform ${checked ? "translate-x-[22px]" : "translate-x-[3px]"}`}
+        />
       </button>
     </div>
   );
@@ -46,8 +48,8 @@ function SectionCard({ title, description, children, onSave, saving }) {
   return (
     <div className="rounded-xl border border-neutral-200 dark:border-gray-700 bg-white dark:bg-gray-800">
       <div className="border-b border-neutral-100 dark:border-gray-700 px-5 py-4">
-        <h3 className="text-[14px] font-semibold text-neutral-900 dark:text-white">{title}</h3>
-        <p className="text-[11.5px] text-neutral-400 mt-0.5">{description}</p>
+        <h3 className="text-[15px] font-semibold text-neutral-900 dark:text-white">{title}</h3>
+        <p className="text-sm text-neutral-400 mt-0.5">{description}</p>
       </div>
       <div className="p-5 space-y-1">{children}</div>
       <div className="flex justify-end border-t border-neutral-100 dark:border-gray-700 px-5 py-3.5">
@@ -87,7 +89,9 @@ export default function Settings() {
     stockAlertLevel: 50,
   });
 
-
+  useEffect(() => {
+    fetchPreferences();
+  }, []);
 
   const fetchPreferences = async () => {
     try {
@@ -104,7 +108,6 @@ export default function Settings() {
     }
   };
 
-  
   const handleSave = async (section) => {
     setSaving(true);
     try {
@@ -132,17 +135,13 @@ export default function Settings() {
     }
   };
 
-    useEffect(() => {
-    fetchPreferences();
-  }, []);
-  
   return (
     <div className="px-3 sm:px-5 lg:px-6 py-4 sm:py-5 min-h-screen bg-neutral-50/40 dark:bg-gray-900 transition-colors">
       <div className="mb-5">
         <h1 className="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-white" style={{ fontFamily: "'Fraunces', serif" }}>
           Settings
         </h1>
-        <p className="text-xs text-neutral-500 dark:text-gray-400 mt-0.5">Manage your application settings and preferences</p>
+        <p className="text-sm text-neutral-500 dark:text-gray-400 mt-0.5">Manage your application settings and preferences</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-5">
@@ -153,9 +152,9 @@ export default function Settings() {
               <button
                 key={section.key}
                 onClick={() => setActiveSection(section.key)}
-                className={`flex items-center gap-2.5 rounded-lg px-3 h-9 text-[13px] font-medium whitespace-nowrap transition-colors ${
+                className={`flex items-center gap-2.5 rounded-lg px-3 h-9 text-sm font-medium whitespace-nowrap transition-colors ${
                   activeSection === section.key
-                    ? "bg-teal-50 text-teal-800 dark:bg-teal-400/10 dark:text-teal-400"
+                    ? "bg-brand-50 text-brand-800 dark:bg-brand-400/10 dark:text-brand-400"
                     : "text-neutral-600 dark:text-gray-400 hover:bg-neutral-50 dark:hover:bg-gray-700/50"
                 }`}
               >
@@ -172,23 +171,48 @@ export default function Settings() {
             <SectionCard title="General settings" description="Basic company information" onSave={() => handleSave("General")} saving={saving}>
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Company name">
-                  <input type="text" value={settings.companyName} onChange={(e) => setSettings({ ...settings, companyName: e.target.value })} className={inputClass} />
+                  <input
+                    type="text"
+                    value={settings.companyName}
+                    onChange={(e) => setSettings({ ...settings, companyName: e.target.value })}
+                    className={inputClass}
+                  />
                 </Field>
                 <Field label="Email">
-                  <input type="email" value={settings.email} onChange={(e) => setSettings({ ...settings, email: e.target.value })} className={inputClass} />
+                  <input
+                    type="email"
+                    value={settings.email}
+                    onChange={(e) => setSettings({ ...settings, email: e.target.value })}
+                    className={inputClass}
+                  />
                 </Field>
                 <Field label="Phone">
-                  <input type="tel" value={settings.phone} onChange={(e) => setSettings({ ...settings, phone: e.target.value })} className={inputClass} />
+                  <input
+                    type="tel"
+                    value={settings.phone}
+                    onChange={(e) => setSettings({ ...settings, phone: e.target.value })}
+                    className={inputClass}
+                  />
                 </Field>
                 <Field label="Address">
-                  <input type="text" value={settings.address} onChange={(e) => setSettings({ ...settings, address: e.target.value })} className={inputClass} />
+                  <input
+                    type="text"
+                    value={settings.address}
+                    onChange={(e) => setSettings({ ...settings, address: e.target.value })}
+                    className={inputClass}
+                  />
                 </Field>
               </div>
             </SectionCard>
           )}
 
           {activeSection === "notifications" && (
-            <SectionCard title="Notification settings" description="Manage how you receive notifications" onSave={() => handleSave("Notification")} saving={saving}>
+            <SectionCard
+              title="Notification settings"
+              description="Manage how you receive notifications"
+              onSave={() => handleSave("Notification")}
+              saving={saving}
+            >
               <div className="divide-y divide-neutral-100 dark:divide-gray-700">
                 <Toggle
                   checked={settings.emailNotifications}
@@ -240,39 +264,49 @@ export default function Settings() {
           )}
 
           {activeSection === "display" && (
-            <SectionCard title="Display settings" description="Customize your display preferences" onSave={() => handleSave("Display")} saving={saving}>
+            <SectionCard
+              title="Display settings"
+              description="Customize your display preferences"
+              onSave={() => handleSave("Display")}
+              saving={saving}
+            >
               <div className="rounded-lg border border-neutral-200 dark:border-gray-700 p-4 mb-2">
                 <div className="flex items-start gap-3">
                   <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-blue-50 dark:bg-blue-500/10">
                     <Languages className="h-3.5 w-3.5 text-blue-700 dark:text-blue-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-[13px] font-semibold text-neutral-900 dark:text-white mb-1">Bilingual data display</h4>
-                    <p className="text-[11.5px] text-neutral-500 dark:text-gray-400 mb-3 leading-relaxed">
-                      Choose your preferred language for database content. Bilingual values (e.g. "Tiles / ටයිල්") will show only the selected language.
+                    <h4 className="text-sm font-semibold text-neutral-900 dark:text-white mb-1">Bilingual data display</h4>
+                    <p className="text-sm text-neutral-500 dark:text-gray-400 mb-3 leading-relaxed">
+                      Choose your preferred language for database content. Bilingual values (e.g. "Tiles / ටයිල්") will show only the selected
+                      language.
                     </p>
                     <div className="flex flex-wrap items-center gap-2">
                       <button
                         onClick={() => setSettings({ ...settings, displayLanguage: "english" })}
-                        className={`flex h-8 items-center gap-2 rounded-lg px-3 text-xs font-medium transition-colors ${
-                          settings.displayLanguage === "english" ? "bg-teal-800 text-white" : "border border-neutral-200 dark:border-gray-700 text-neutral-700 dark:text-gray-300 hover:bg-neutral-50"
+                        className={`flex h-8 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors ${
+                          settings.displayLanguage === "english"
+                            ? "bg-brand-800 text-white"
+                            : "border border-neutral-200 dark:border-gray-700 text-neutral-700 dark:text-gray-300 hover:bg-neutral-50"
                         }`}
                       >
                         English
                       </button>
                       <button
                         onClick={() => setSettings({ ...settings, displayLanguage: "sinhala" })}
-                        className={`flex h-8 items-center gap-2 rounded-lg px-3 text-xs font-medium transition-colors ${
-                          settings.displayLanguage === "sinhala" ? "bg-teal-800 text-white" : "border border-neutral-200 dark:border-gray-700 text-neutral-700 dark:text-gray-300 hover:bg-neutral-50"
+                        className={`flex h-8 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors ${
+                          settings.displayLanguage === "sinhala"
+                            ? "bg-brand-800 text-white"
+                            : "border border-neutral-200 dark:border-gray-700 text-neutral-700 dark:text-gray-300 hover:bg-neutral-50"
                         }`}
                       >
                         සිංහල (Sinhala)
                       </button>
                     </div>
                     <div className="mt-3 rounded-lg border border-neutral-100 dark:border-gray-700 bg-neutral-50/60 dark:bg-gray-900/30 px-3 py-2">
-                      <p className="text-[11px] text-neutral-500 dark:text-gray-400">
+                      <p className="text-sm text-neutral-500 dark:text-gray-400">
                         Example: "Tiles / ටයිල්" displays as{" "}
-                        <span className="font-semibold text-teal-800 dark:text-teal-400">
+                        <span className="font-semibold text-brand-800 dark:text-brand-400">
                           {settings.displayLanguage === "english" ? "Tiles" : "ටයිල්"}
                         </span>
                       </p>
@@ -290,7 +324,11 @@ export default function Settings() {
                   </select>
                 </Field>
                 <Field label="Date format">
-                  <select value={settings.dateFormat} onChange={(e) => setSettings({ ...settings, dateFormat: e.target.value })} className={inputClass}>
+                  <select
+                    value={settings.dateFormat}
+                    onChange={(e) => setSettings({ ...settings, dateFormat: e.target.value })}
+                    className={inputClass}
+                  >
                     <option>MM/DD/YYYY</option>
                     <option>DD/MM/YYYY</option>
                     <option>YYYY-MM-DD</option>
@@ -309,7 +347,12 @@ export default function Settings() {
           )}
 
           {activeSection === "inventory" && (
-            <SectionCard title="Inventory settings" description="Configure inventory management" onSave={() => handleSave("Inventory")} saving={saving}>
+            <SectionCard
+              title="Inventory settings"
+              description="Configure inventory management"
+              onSave={() => handleSave("Inventory")}
+              saving={saving}
+            >
               <div className="grid gap-4 sm:grid-cols-2 mb-2">
                 <Field label="Low stock threshold">
                   <input
