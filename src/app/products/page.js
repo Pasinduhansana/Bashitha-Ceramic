@@ -6,5 +6,6 @@ export const metadata = {
 };
 
 export default function Page() {
+  console.log("Rendering Products Page");
   return <InventoryPage />;
 }

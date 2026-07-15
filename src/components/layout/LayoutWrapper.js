@@ -10,7 +10,7 @@ export default function LayoutWrapper({ children, userPermissions=[] }) {
   const pathname = usePathname();
 
   const hideNavbarRoutes = [
-    "/login",
+    "/auth",
     "/forgot-password"
   ];
 
